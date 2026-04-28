@@ -4,23 +4,27 @@ import { useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 
-export default function Login() {
+export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({
+  const handleRegister = async () => {
+    const { error } = await supabase.auth.signUp({
       email,
       password,
     });
 
-    if (error) alert(error.message);
-    else window.location.href = "/dashboard";
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    window.location.href = "/dashboard";
   };
 
   return (
     <div style={{ margin: "64px auto", maxWidth: 360 }}>
-      <h1>Login</h1>
+      <h1>Cadastro</h1>
       <div style={{ display: "grid", gap: 12 }}>
         <input onChange={(event) => setEmail(event.target.value)} placeholder="Email" />
         <input
@@ -28,8 +32,8 @@ export default function Login() {
           placeholder="Senha"
           type="password"
         />
-        <button onClick={handleLogin}>Entrar</button>
-        <Link href="/auth/register">Criar conta</Link>
+        <button onClick={handleRegister}>Cadastrar</button>
+        <Link href="/auth/login">Ja tenho conta</Link>
       </div>
     </div>
   );
