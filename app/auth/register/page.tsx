@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabaseClient";
+import { getSupabaseClient } from "@/lib/supabaseClient";
 
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleRegister = async () => {
+    const supabase = getSupabaseClient();
     const { error } = await supabase.auth.signUp({
       email,
       password,

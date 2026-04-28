@@ -1,3 +1,5 @@
 import { createSupabaseBrowserClient } from "@/lib/supabaseBrowser";
 
-export const supabase = createSupabaseBrowserClient();
+export function getSupabaseClient() {
+  return createSupabaseBrowserClient();
+}
