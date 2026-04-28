@@ -1,16 +1,30 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { env, requireEnv } from "@/lib/env";
+import { env } from "@/lib/env";
 
 const protectedRoutes = ["/dashboard", "/companies", "/finance", "/taxes"];
 const authRoutes = ["/auth/login", "/auth/register"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
+  const pathname = request.nextUrl.pathname;
+  const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
+  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
+
+  if (!env.supabaseUrl || !env.supabaseAnonKey) {
+    if (isProtectedRoute) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = "/auth/login";
+      redirectUrl.searchParams.set("next", pathname);
+      return NextResponse.redirect(redirectUrl);
+    }
+
+    return response;
+  }
 
   const supabase = createServerClient(
-    requireEnv(env.supabaseUrl, "NEXT_PUBLIC_SUPABASE_URL"),
-    requireEnv(env.supabaseAnonKey, "NEXT_PUBLIC_SUPABASE_ANON_KEY"),
+    env.supabaseUrl,
+    env.supabaseAnonKey,
     {
       cookies: {
         getAll() {
@@ -30,10 +44,6 @@ export async function proxy(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const pathname = request.nextUrl.pathname;
-  const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
-  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
   if (!user && isProtectedRoute) {
     const redirectUrl = request.nextUrl.clone();
