@@ -170,34 +170,42 @@ create index if not exists idx_employees_company_id on public.employees(company_
 create index if not exists idx_invoices_company_id on public.invoices(company_id);
 create index if not exists idx_invoices_issue_date on public.invoices(company_id, issue_date);
 
+drop trigger if exists set_users_updated_at on public.users;
 create trigger set_users_updated_at
 before update on public.users
 for each row execute function public.set_updated_at();
 
+drop trigger if exists set_companies_updated_at on public.companies;
 create trigger set_companies_updated_at
 before update on public.companies
 for each row execute function public.set_updated_at();
 
+drop trigger if exists set_company_members_updated_at on public.company_members;
 create trigger set_company_members_updated_at
 before update on public.company_members
 for each row execute function public.set_updated_at();
 
+drop trigger if exists set_categories_updated_at on public.categories;
 create trigger set_categories_updated_at
 before update on public.categories
 for each row execute function public.set_updated_at();
 
+drop trigger if exists set_transactions_updated_at on public.transactions;
 create trigger set_transactions_updated_at
 before update on public.transactions
 for each row execute function public.set_updated_at();
 
+drop trigger if exists set_taxes_updated_at on public.taxes;
 create trigger set_taxes_updated_at
 before update on public.taxes
 for each row execute function public.set_updated_at();
 
+drop trigger if exists set_employees_updated_at on public.employees;
 create trigger set_employees_updated_at
 before update on public.employees
 for each row execute function public.set_updated_at();
 
+drop trigger if exists set_invoices_updated_at on public.invoices;
 create trigger set_invoices_updated_at
 before update on public.invoices
 for each row execute function public.set_updated_at();
@@ -247,40 +255,49 @@ returns boolean as $$
   );
 $$ language sql stable security definer;
 
+drop policy if exists "users can read own profile" on public.users;
 create policy "users can read own profile"
 on public.users for select
 using (id = auth.uid());
 
+drop policy if exists "users can update own profile" on public.users;
 create policy "users can update own profile"
 on public.users for update
 using (id = auth.uid())
 with check (id = auth.uid());
 
+drop policy if exists "users can insert own profile" on public.users;
 create policy "users can insert own profile"
 on public.users for insert
 with check (id = auth.uid());
 
+drop policy if exists "users can read own companies" on public.companies;
 create policy "users can read own companies"
 on public.companies for select
 using (owner_id = auth.uid() or public.is_company_member(id));
 
+drop policy if exists "users can create own companies" on public.companies;
 create policy "users can create own companies"
 on public.companies for insert
 with check (owner_id = auth.uid());
 
+drop policy if exists "owners can update companies" on public.companies;
 create policy "owners can update companies"
 on public.companies for update
 using (owner_id = auth.uid())
 with check (owner_id = auth.uid());
 
+drop policy if exists "owners can delete companies" on public.companies;
 create policy "owners can delete companies"
 on public.companies for delete
 using (owner_id = auth.uid());
 
+drop policy if exists "members can read company members" on public.company_members;
 create policy "members can read company members"
 on public.company_members for select
 using (public.is_company_member(company_id));
 
+drop policy if exists "owners can manage company members" on public.company_members;
 create policy "owners can manage company members"
 on public.company_members for all
 using (
@@ -296,46 +313,56 @@ with check (
   )
 );
 
+drop policy if exists "members can read categories" on public.categories;
 create policy "members can read categories"
 on public.categories for select
 using (public.is_company_member(company_id));
 
+drop policy if exists "members can manage categories" on public.categories;
 create policy "members can manage categories"
 on public.categories for all
 using (public.is_company_member(company_id))
 with check (public.is_company_member(company_id));
 
+drop policy if exists "members can read transactions" on public.transactions;
 create policy "members can read transactions"
 on public.transactions for select
 using (public.is_company_member(company_id));
 
+drop policy if exists "members can manage transactions" on public.transactions;
 create policy "members can manage transactions"
 on public.transactions for all
 using (public.is_company_member(company_id))
 with check (public.is_company_member(company_id));
 
+drop policy if exists "members can read taxes" on public.taxes;
 create policy "members can read taxes"
 on public.taxes for select
 using (public.is_company_member(company_id));
 
+drop policy if exists "members can manage taxes" on public.taxes;
 create policy "members can manage taxes"
 on public.taxes for all
 using (public.is_company_member(company_id))
 with check (public.is_company_member(company_id));
 
+drop policy if exists "members can read employees" on public.employees;
 create policy "members can read employees"
 on public.employees for select
 using (public.is_company_member(company_id));
 
+drop policy if exists "members can manage employees" on public.employees;
 create policy "members can manage employees"
 on public.employees for all
 using (public.is_company_member(company_id))
 with check (public.is_company_member(company_id));
 
+drop policy if exists "members can read invoices" on public.invoices;
 create policy "members can read invoices"
 on public.invoices for select
 using (public.is_company_member(company_id));
 
+drop policy if exists "members can manage invoices" on public.invoices;
 create policy "members can manage invoices"
 on public.invoices for all
 using (public.is_company_member(company_id))
