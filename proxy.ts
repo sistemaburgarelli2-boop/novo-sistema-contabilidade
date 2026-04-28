@@ -3,13 +3,24 @@ import { NextResponse, type NextRequest } from "next/server";
 import { env } from "@/lib/env";
 
 const protectedRoutes = ["/dashboard", "/companies", "/finance", "/taxes"];
-const authRoutes = ["/auth/login", "/auth/register"];
+const authRoutes = ["/auth/login"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
   const pathname = request.nextUrl.pathname;
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
+  const isSuperAdmin = request.cookies.get("erp_super_admin")?.value === "authenticated";
+
+  if (isSuperAdmin && isAuthRoute) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/dashboard";
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  if (isSuperAdmin) {
+    return response;
+  }
 
   if (!env.supabaseUrl || !env.supabaseAnonKey) {
     if (isProtectedRoute) {
