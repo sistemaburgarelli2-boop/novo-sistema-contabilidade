@@ -1,14 +1,15 @@
 import type { ReactNode } from "react";
+import "./globals.css";
 
 export const metadata = {
-  title: "ERP Contabil",
-  description: "Sistema ERP contabil SaaS",
+  title: "Burgarelli Contabil",
+  description: "Sistema de gestao contabil Burgarelli",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-br">
-      <body style={{ fontFamily: "Arial, sans-serif", margin: 0 }}>{children}</body>
+      <body>{children}</body>
     </html>
   );
 }

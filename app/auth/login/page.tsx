@@ -78,7 +78,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const savedUser = window.localStorage.getItem("fattura:lastUser");
+    const savedUser = window.localStorage.getItem("burgarelli:lastUser");
 
     if (savedUser) {
       setEmail(savedUser);
@@ -105,9 +105,9 @@ export default function Login() {
       }
 
       if (remember) {
-        window.localStorage.setItem("fattura:lastUser", email);
+        window.localStorage.setItem("burgarelli:lastUser", email);
       } else {
-        window.localStorage.removeItem("fattura:lastUser");
+        window.localStorage.removeItem("burgarelli:lastUser");
       }
 
       window.location.href = "/dashboard";
@@ -126,9 +126,9 @@ export default function Login() {
             </div>
             <div>
               <strong>
-                Fattura <span>Contabilidade</span>
+                Burgarelli <span>Contabil</span>
               </strong>
-              <small>Sistema de gestao</small>
+              <small>Gestao contabil</small>
             </div>
           </div>
 
@@ -218,7 +218,7 @@ export default function Login() {
             <ArrowIcon />
           </button>
 
-          <p className="copyright">Fattura Contabilidade © 2026 · Todos os direitos reservados</p>
+          <p className="copyright">Burgarelli Contabil © 2026 · Todos os direitos reservados</p>
         </form>
       </section>
 

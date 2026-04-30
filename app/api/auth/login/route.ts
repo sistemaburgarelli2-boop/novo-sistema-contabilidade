@@ -4,6 +4,10 @@ import { validateLoginPayload } from "@/modules/auth/auth.validators";
 
 export async function POST(request: Request) {
   try {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      return fail("Supabase nao configurado. Defina NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY.", 500);
+    }
+
     const payload = validateLoginPayload(await request.json());
     const session = await signInWithPassword(payload);
 

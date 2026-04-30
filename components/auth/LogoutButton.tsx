@@ -16,5 +16,9 @@ export function LogoutButton() {
     window.location.href = "/auth/login";
   };
 
-  return <button onClick={signOut}>Sair</button>;
+  return (
+    <button className="logout-button" onClick={signOut}>
+      Sair do sistema
+    </button>
+  );
 }

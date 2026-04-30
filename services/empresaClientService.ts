@@ -51,6 +51,16 @@ export async function vincularUsuarioEmpresa(empresaId: string, payload: { email
   return parseResult<UsuarioEmpresa>(response);
 }
 
+export async function criarConviteEmpresa(payload: { email: string; empresa_id: string; role_id: string }) {
+  const response = await fetch("/api/convites", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  return parseResult<{ convite: unknown; invite_url: string }>(response);
+}
+
 export function getEmpresaAtivaId() {
   if (typeof window === "undefined") {
     return null;

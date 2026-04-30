@@ -6,12 +6,12 @@ import type { Empresa } from "@/modules/empresas/empresas.types";
 import type { RoleEmpresa, UsuarioEmpresa } from "@/modules/usuarios/usuarios.types";
 import {
   criarEmpresaTenant,
+  criarConviteEmpresa,
   getEmpresaAtivaId,
   listarEmpresasTenant,
   listarRolesEmpresa,
   listarUsuariosEmpresa,
   setEmpresaAtivaId,
-  vincularUsuarioEmpresa,
 } from "@/services/empresaClientService";
 
 export default function EmpresasPage() {
@@ -26,6 +26,7 @@ export default function EmpresasPage() {
   const [roleId, setRoleId] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [mensagem, setMensagem] = useState<string | null>(null);
+  const [conviteUrl, setConviteUrl] = useState<string | null>(null);
 
   async function carregarEmpresas() {
     const data = await listarEmpresasTenant();
@@ -83,7 +84,7 @@ export default function EmpresasPage() {
     }
   }
 
-  async function handleVincularUsuario(event: React.FormEvent<HTMLFormElement>) {
+  async function handleCriarConvite(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!empresaAtivaId) {
@@ -94,18 +95,16 @@ export default function EmpresasPage() {
     setMensagem(null);
 
     try {
-      const usuario = await vincularUsuarioEmpresa(empresaAtivaId, {
+      const convite = await criarConviteEmpresa({
         email: emailUsuario,
+        empresa_id: empresaAtivaId,
         role_id: roleId,
       });
-      setUsuarios((current) => {
-        const filtered = current.filter((item) => item.usuario_id !== usuario.usuario_id);
-        return [...filtered, usuario];
-      });
       setEmailUsuario("");
-      setMensagem("Usuario vinculado a empresa.");
+      setConviteUrl(`${window.location.origin}${convite.invite_url}`);
+      setMensagem("Convite criado com token seguro.");
     } catch (error) {
-      setErro(error instanceof Error ? error.message : "Erro ao vincular usuario.");
+      setErro(error instanceof Error ? error.message : "Erro ao criar convite.");
     }
   }
 
@@ -190,7 +189,7 @@ export default function EmpresasPage() {
         >
           <h2>Usuarios da empresa</h2>
 
-          <form onSubmit={handleVincularUsuario} style={{ display: "flex", gap: 12 }}>
+          <form onSubmit={handleCriarConvite} style={{ display: "flex", gap: 12 }}>
             <input
               onChange={(event) => setEmailUsuario(event.target.value)}
               placeholder="email@empresa.com"
@@ -205,8 +204,22 @@ export default function EmpresasPage() {
                 </option>
               ))}
             </select>
-            <button type="submit">Vincular usuario existente</button>
+            <button type="submit">Gerar convite seguro</button>
           </form>
+
+          {conviteUrl ? (
+            <div
+              style={{
+                background: "#ecfdf5",
+                border: "1px solid #a7f3d0",
+                borderRadius: 8,
+                padding: 12,
+              }}
+            >
+              <strong>Link de convite</strong>
+              <p style={{ wordBreak: "break-all" }}>{conviteUrl}</p>
+            </div>
+          ) : null}
 
           <div style={{ display: "grid", gap: 8 }}>
             {usuarios.map((usuario) => (
