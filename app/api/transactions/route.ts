@@ -1,5 +1,8 @@
 import { fail, ok } from "@/lib/apiResponse";
+import { getRequestContext } from "@/lib/requestContext";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { getCurrentSessionUser } from "@/modules/auth/auth.service";
+import { registrarAuditLog } from "@/modules/auditoria/auditoria.service";
 import { validarPodeCriarTransacao } from "@/modules/billing/billing.service";
 
 export async function GET(request: Request) {
@@ -96,6 +99,17 @@ export async function POST(request: Request) {
   if (error) {
     return fail(error.message, 500);
   }
+
+  const auditUser = await getCurrentSessionUser();
+  await registrarAuditLog({
+    ...getRequestContext(request),
+    action: "transacao.created",
+    after_data: data,
+    empresa_id: payload.company_id,
+    resource_id: data.id,
+    resource_type: "transacao",
+    user_id: auditUser?.id ?? null,
+  });
 
   return ok(data, 201);
 }

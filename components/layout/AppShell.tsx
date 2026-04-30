@@ -9,6 +9,7 @@ const navigation = [
   { href: "/taxes", icon: "▧", label: "Impostos", section: "Departamentos" },
   { href: "/billing", icon: "▣", label: "Planos", section: "Sistema" },
   { href: "/rbac", icon: "⚙", label: "Permissoes", section: "Sistema" },
+  { href: "/auditoria", icon: "◷", label: "Auditoria", section: "Sistema" },
 ];
 
 function BrandIcon() {

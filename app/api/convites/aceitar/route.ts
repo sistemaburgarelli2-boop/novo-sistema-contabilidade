@@ -1,4 +1,6 @@
 import { fail, ok } from "@/lib/apiResponse";
+import { getRequestContext } from "@/lib/requestContext";
+import { registrarAuditLog } from "@/modules/auditoria/auditoria.service";
 import { aceitarConvite, visualizarConvite } from "@/modules/convites/convites.service";
 import { validarAceitarConvite } from "@/modules/convites/convites.validators";
 
@@ -21,7 +23,16 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const input = validarAceitarConvite(await request.json());
-    return ok(await aceitarConvite(input));
+    const result = await aceitarConvite(input);
+
+    await registrarAuditLog({
+      ...getRequestContext(request),
+      action: "convite.accepted",
+      after_data: { email: result.email },
+      resource_type: "convite",
+    });
+
+    return ok(result);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erro ao aceitar convite.";
     return fail(message, 400);
