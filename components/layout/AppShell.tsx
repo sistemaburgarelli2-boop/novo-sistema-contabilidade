@@ -4,7 +4,7 @@ import { LogoutButton } from "@/components/auth/LogoutButton";
 
 const navigation = [
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/companies", label: "Empresas" },
+  { href: "/empresas", label: "Empresas" },
   { href: "/finance", label: "Financeiro" },
   { href: "/taxes", label: "Impostos" },
 ];
