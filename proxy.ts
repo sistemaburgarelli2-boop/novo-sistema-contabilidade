@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { env } from "@/lib/env";
+import { applySecurityHeaders } from "@/lib/securityHeaders";
 
 const protectedRoutes = [
   "/dashboard",
@@ -25,10 +26,10 @@ export async function proxy(request: NextRequest) {
       const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = "/auth/login";
       redirectUrl.searchParams.set("next", pathname);
-      return NextResponse.redirect(redirectUrl);
+      return applySecurityHeaders(NextResponse.redirect(redirectUrl));
     }
 
-    return response;
+    return applySecurityHeaders(response);
   }
 
   const supabase = createServerClient(
@@ -58,16 +59,16 @@ export async function proxy(request: NextRequest) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/auth/login";
     redirectUrl.searchParams.set("next", pathname);
-    return NextResponse.redirect(redirectUrl);
+    return applySecurityHeaders(NextResponse.redirect(redirectUrl));
   }
 
   if (user && isAuthRoute) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/dashboard";
-    return NextResponse.redirect(redirectUrl);
+    return applySecurityHeaders(NextResponse.redirect(redirectUrl));
   }
 
-  return response;
+  return applySecurityHeaders(response);
 }
 
 export const config = {

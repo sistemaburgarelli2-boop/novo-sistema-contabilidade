@@ -1,7 +1,8 @@
 import type { AtualizarEmpresaInput, CriarEmpresaInput } from "@/modules/empresas/empresas.types";
+import { sanitizeText } from "@/lib/sanitize";
 
 function cleanString(value: unknown) {
-  return typeof value === "string" ? value.trim() : undefined;
+  return typeof value === "string" ? sanitizeText(value) : undefined;
 }
 
 export function validarCriarEmpresa(payload: unknown): CriarEmpresaInput {

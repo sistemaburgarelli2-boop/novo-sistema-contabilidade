@@ -1,5 +1,6 @@
 import { fail, ok } from "@/lib/apiResponse";
 import { getRequestContext } from "@/lib/requestContext";
+import { checkRateLimit } from "@/lib/rateLimit";
 import { registrarAuditLog } from "@/modules/auditoria/auditoria.service";
 import { aceitarConvite, visualizarConvite } from "@/modules/convites/convites.service";
 import { validarAceitarConvite } from "@/modules/convites/convites.validators";
@@ -22,11 +23,22 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const context = getRequestContext(request);
+    const rateLimit = checkRateLimit({
+      key: `convite:accept:${context.ip || "unknown"}`,
+      limit: 10,
+      windowMs: 60_000,
+    });
+
+    if (!rateLimit.allowed) {
+      return fail("Muitas tentativas. Aguarde e tente novamente.", 429);
+    }
+
     const input = validarAceitarConvite(await request.json());
     const result = await aceitarConvite(input);
 
     await registrarAuditLog({
-      ...getRequestContext(request),
+      ...context,
       action: "convite.accepted",
       after_data: { email: result.email },
       resource_type: "convite",

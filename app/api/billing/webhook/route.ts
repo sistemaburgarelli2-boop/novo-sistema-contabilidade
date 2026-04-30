@@ -1,7 +1,20 @@
 import { fail, ok } from "@/lib/apiResponse";
+import { checkRateLimit } from "@/lib/rateLimit";
+import { getRequestContext } from "@/lib/requestContext";
 import { processarStripeWebhook } from "@/modules/billing/billing.service";
 
 export async function POST(request: Request) {
+  const context = getRequestContext(request);
+  const rateLimit = checkRateLimit({
+    key: `stripe:webhook:${context.ip || "unknown"}`,
+    limit: 60,
+    windowMs: 60_000,
+  });
+
+  if (!rateLimit.allowed) {
+    return fail("Rate limit excedido.", 429);
+  }
+
   const signature = request.headers.get("stripe-signature");
 
   if (!process.env.STRIPE_WEBHOOK_SECRET) {

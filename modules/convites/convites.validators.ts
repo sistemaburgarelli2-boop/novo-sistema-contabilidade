@@ -1,7 +1,8 @@
 import type { AceitarConviteInput, CriarConviteInput } from "@/modules/convites/convites.types";
+import { sanitizeEmail, sanitizeText } from "@/lib/sanitize";
 
 function clean(value: unknown) {
-  return typeof value === "string" ? value.trim() : "";
+  return typeof value === "string" ? sanitizeText(value) : "";
 }
 
 export function validarCriarConvite(payload: unknown): CriarConviteInput {
@@ -11,7 +12,7 @@ export function validarCriarConvite(payload: unknown): CriarConviteInput {
 
   const data = payload as Record<string, unknown>;
   const empresaId = clean(data.empresa_id);
-  const email = clean(data.email).toLowerCase();
+  const email = typeof data.email === "string" ? sanitizeEmail(data.email) : "";
   const roleId = clean(data.role_id);
 
   if (!empresaId) {
