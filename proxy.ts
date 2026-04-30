@@ -10,17 +10,6 @@ export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
-  const isSuperAdmin = request.cookies.get("erp_super_admin")?.value === "authenticated";
-
-  if (isSuperAdmin && isAuthRoute) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/dashboard";
-    return NextResponse.redirect(redirectUrl);
-  }
-
-  if (isSuperAdmin) {
-    return response;
-  }
 
   if (!env.supabaseUrl || !env.supabaseAnonKey) {
     if (isProtectedRoute) {

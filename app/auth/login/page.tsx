@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function BankIcon({ size = 26 }: { size?: number }) {
   return (
@@ -70,12 +70,21 @@ const features = [
 ];
 
 export default function Login() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const savedUser = window.localStorage.getItem("fattura:lastUser");
+
+    if (savedUser) {
+      setEmail(savedUser);
+      setRemember(true);
+    }
+  }, []);
 
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -83,10 +92,10 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/admin-login", {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password, username }),
+        body: JSON.stringify({ email, password }),
       });
       const result = await response.json();
 
@@ -96,7 +105,9 @@ export default function Login() {
       }
 
       if (remember) {
-        window.localStorage.setItem("fattura:lastUser", username);
+        window.localStorage.setItem("fattura:lastUser", email);
+      } else {
+        window.localStorage.removeItem("fattura:lastUser");
       }
 
       window.location.href = "/dashboard";
@@ -151,15 +162,16 @@ export default function Login() {
           </div>
 
           <label className="field">
-            <span>Usuario</span>
+            <span>Email</span>
             <div className="input-wrap">
               <UserIcon />
               <input
                 autoComplete="username"
-                onChange={(event) => setUsername(event.target.value)}
-                placeholder="Seu usuario"
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="seu@email.com"
                 required
-                value={username}
+                type="email"
+                value={email}
               />
             </div>
           </label>
