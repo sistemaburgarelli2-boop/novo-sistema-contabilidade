@@ -1,5 +1,6 @@
 import { createSupabaseAdminClient } from "@/lib/supabaseAdmin";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { validarPodeCriarEmpresa } from "@/modules/billing/billing.service";
 import {
   atualizarEmpresa,
   buscarEmpresaPorId,
@@ -35,6 +36,8 @@ export async function buscarEmpresa(empresaId: string) {
 export async function criarEmpresa(input: CriarEmpresaInput) {
   const { user } = await requireUser();
   const admin = createSupabaseAdminClient();
+
+  await validarPodeCriarEmpresa(user.id);
 
   return criarEmpresaComBootstrap(admin, input, {
     email: user.email ?? null,

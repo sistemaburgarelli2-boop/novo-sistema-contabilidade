@@ -1,5 +1,6 @@
 import { fail, ok } from "@/lib/apiResponse";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { validarPodeCriarTransacao } from "@/modules/billing/billing.service";
 
 export async function GET(request: Request) {
   const supabase = await createSupabaseServerClient();
@@ -67,6 +68,13 @@ export async function POST(request: Request) {
 
   if (Number.isNaN(amount) || amount < 0) {
     return fail("Valor invalido.");
+  }
+
+  try {
+    await validarPodeCriarTransacao(payload.company_id);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Limite do plano atingido.";
+    return fail(message, 403);
   }
 
   const { data, error } = await supabase

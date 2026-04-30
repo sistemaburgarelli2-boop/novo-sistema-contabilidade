@@ -7,6 +7,7 @@ const navigation = [
   { href: "/empresas", label: "Empresas" },
   { href: "/finance", label: "Financeiro" },
   { href: "/taxes", label: "Impostos" },
+  { href: "/billing", label: "Planos" },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {

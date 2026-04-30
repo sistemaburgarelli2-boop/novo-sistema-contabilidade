@@ -1,5 +1,6 @@
 import { createSupabaseAdminClient } from "@/lib/supabaseAdmin";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { validarPodeAdicionarUsuario } from "@/modules/billing/billing.service";
 import {
   listarRolesEmpresa,
   listarUsuariosEmpresa,
@@ -34,6 +35,8 @@ export async function listarRolesDaEmpresa(empresaId: string) {
 export async function adicionarUsuarioExistente(empresaId: string, input: VincularUsuarioInput) {
   const { user } = await requireUser();
   const admin = createSupabaseAdminClient();
+
+  await validarPodeAdicionarUsuario(empresaId);
 
   return vincularUsuarioExistente(admin, empresaId, input, user.id);
 }
