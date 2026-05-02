@@ -44,14 +44,14 @@ export function TransactionForm({ categories, companyId, onSubmit }: Transaction
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "grid", gap: 12, maxWidth: 640 }}>
+    <form className="finance-form-grid" onSubmit={handleSubmit}>
       <select onChange={(event) => setType(event.target.value as TransactionType)} value={type}>
         <option value="income">Entrada</option>
-        <option value="expense">Saida</option>
+        <option value="expense">Saída</option>
       </select>
       <input
         onChange={(event) => setDescription(event.target.value)}
-        placeholder="Descricao"
+        placeholder="Descrição"
         required
         value={description}
       />
@@ -79,7 +79,7 @@ export function TransactionForm({ categories, companyId, onSubmit }: Transaction
         ))}
       </select>
       <button disabled={loading} type="submit">
-        {loading ? "Salvando..." : "Salvar transacao"}
+        {loading ? "Salvando..." : "Salvar transação"}
       </button>
     </form>
   );

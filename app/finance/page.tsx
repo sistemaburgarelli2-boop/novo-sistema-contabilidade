@@ -41,6 +41,10 @@ export default function FinancePage() {
     );
   }, [transactions]);
 
+  const transactionCount = transactions.length;
+  const averageTicket = transactionCount > 0 ? (totals.income + totals.expense) / transactionCount : 0;
+  const balance = totals.income - totals.expense;
+
   async function loadFinance(companyId: string) {
     const [categoryData, transactionData] = await Promise.all([
       listCategories(companyId),
@@ -103,12 +107,27 @@ export default function FinancePage() {
           </div>
         </div>
 
-        <section className="panel-section">
-          <h2>Resumo</h2>
-          <p>
-            Entradas: {totals.income.toLocaleString("pt-BR", { currency: "BRL", style: "currency" })} | Saídas:{" "}
-            {totals.expense.toLocaleString("pt-BR", { currency: "BRL", style: "currency" })}
-          </p>
+        <section className="metric-grid">
+          <article className="metric-card">
+            <span>Entradas</span>
+            <strong>{totals.income.toLocaleString("pt-BR", { currency: "BRL", style: "currency" })}</strong>
+            <p>Receitas no período filtrado</p>
+          </article>
+          <article className="metric-card">
+            <span>Saídas</span>
+            <strong>{totals.expense.toLocaleString("pt-BR", { currency: "BRL", style: "currency" })}</strong>
+            <p>Despesas no período filtrado</p>
+          </article>
+          <article className="metric-card">
+            <span>Saldo</span>
+            <strong>{balance.toLocaleString("pt-BR", { currency: "BRL", style: "currency" })}</strong>
+            <p>Resultado financeiro atual</p>
+          </article>
+          <article className="metric-card">
+            <span>Lançamentos</span>
+            <strong>{transactionCount}</strong>
+            <p>Ticket médio: {averageTicket.toLocaleString("pt-BR", { currency: "BRL", style: "currency" })}</p>
+          </article>
         </section>
 
         {error ? <p className="error-alert">{error}</p> : null}

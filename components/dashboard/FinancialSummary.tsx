@@ -7,24 +7,18 @@ const currency = new Intl.NumberFormat("pt-BR", {
 
 export function FinancialSummary({ summary }: { summary: DashboardSummary }) {
   const items = [
-    { label: "Entradas", value: summary.income },
-    { label: "Saidas", value: summary.expense },
-    { label: "Saldo atual", value: summary.balance },
+    { helper: "Receitas registradas", label: "Entradas", tone: "positive", value: summary.income },
+    { helper: "Despesas registradas", label: "Saídas", tone: "negative", value: summary.expense },
+    { helper: "Entradas menos saídas", label: "Saldo atual", tone: "neutral", value: summary.balance },
   ];
 
   return (
-    <section style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}>
+    <section className="metric-grid">
       {items.map((item) => (
-        <article
-          key={item.label}
-          style={{
-            border: "1px solid #e5e7eb",
-            borderRadius: 8,
-            padding: 16,
-          }}
-        >
+        <article className="metric-card" key={item.label}>
           <span>{item.label}</span>
           <h2>{currency.format(item.value)}</h2>
+          <p>{item.helper}</p>
         </article>
       ))}
     </section>

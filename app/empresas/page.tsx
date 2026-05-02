@@ -109,6 +109,10 @@ export default function EmpresasPage() {
   }
 
   const empresaAtiva = empresas.find((empresa) => empresa.id === empresaAtivaId);
+  const empresasAtivas = empresas.filter((empresa) => empresa.status === "ativa").length;
+  const usuariosAtivos = usuarios.filter((usuario) => usuario.status === "ativo").length;
+  const usuariosPendentes = usuarios.filter((usuario) => usuario.status === "pendente").length;
+  const rolesDisponiveis = roles.length;
 
   return (
     <AppShell>
@@ -118,12 +122,46 @@ export default function EmpresasPage() {
             <h1>Empresas e usuários</h1>
             <p>Controle multi-tenant por vínculo, role e permissão.</p>
           </div>
+          <div className="hero-actions">
+            <button onClick={() => document.getElementById("nova-empresa")?.scrollIntoView({ behavior: "smooth" })} type="button">
+              Nova empresa
+            </button>
+            <button className="small-action" onClick={() => window.print()} type="button">Exportar</button>
+          </div>
         </div>
 
         {erro ? <p className="error-alert">{erro}</p> : null}
         {mensagem ? <p className="status-message">{mensagem}</p> : null}
 
-        <section className="panel-section">
+        <section className="metric-grid">
+          <article className="metric-card">
+            <span>Total de empresas</span>
+            <strong>{empresas.length}</strong>
+            <p>Empresas acessíveis para o usuário atual</p>
+          </article>
+          <article className="metric-card">
+            <span>Empresas ativas</span>
+            <strong>{empresasAtivas}</strong>
+            <p>Tenants em operação</p>
+          </article>
+          <article className="metric-card">
+            <span>Usuários ativos</span>
+            <strong>{usuariosAtivos}</strong>
+            <p>Na empresa selecionada</p>
+          </article>
+          <article className="metric-card">
+            <span>Convites pendentes</span>
+            <strong>{usuariosPendentes}</strong>
+            <p>Aguardando aceite ou ativação</p>
+          </article>
+          <article className="metric-card">
+            <span>Roles</span>
+            <strong>{rolesDisponiveis}</strong>
+            <p>Perfis disponíveis para vínculo</p>
+          </article>
+        </section>
+
+        <section className="panel-section" id="nova-empresa">
           <h2>Nova empresa</h2>
           <form className="form-grid" onSubmit={handleCriarEmpresa}>
             <input
@@ -144,22 +182,55 @@ export default function EmpresasPage() {
 
         <section className="panel-section">
           <h2>Empresas acessíveis</h2>
-          <select
-            onChange={(event) => selecionarEmpresa(event.target.value)}
-            value={empresaAtivaId ?? ""}
-          >
-            <option value="">Selecione uma empresa</option>
-            {empresas.map((empresa) => (
-              <option key={empresa.id} value={empresa.id}>
-                {empresa.nome_fantasia || empresa.nome_legal}
-              </option>
-            ))}
-          </select>
+          <div className="toolbar-row">
+            <select
+              onChange={(event) => selecionarEmpresa(event.target.value)}
+              value={empresaAtivaId ?? ""}
+            >
+              <option value="">Selecione uma empresa</option>
+              {empresas.map((empresa) => (
+                <option key={empresa.id} value={empresa.id}>
+                  {empresa.nome_fantasia || empresa.nome_legal}
+                </option>
+              ))}
+            </select>
+            <span className="muted">{empresas.length} empresa(s) cadastrada(s)</span>
+          </div>
 
           {empresaAtiva ? (
-            <div>
-              <strong>{empresaAtiva.nome_legal}</strong>
-              <p>Status: {empresaAtiva.status}</p>
+            <div className="company-card-grid">
+              <article className="company-card">
+                <div className="company-card-header">
+                  <div style={{ display: "flex", gap: 12 }}>
+                    <div className="company-avatar">
+                      {(empresaAtiva.nome_fantasia || empresaAtiva.nome_legal).slice(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                      <h3>{empresaAtiva.nome_fantasia || empresaAtiva.nome_legal}</h3>
+                      <p>{empresaAtiva.nome_legal}</p>
+                    </div>
+                  </div>
+                  <span className="badge">{empresaAtiva.status}</span>
+                </div>
+                <div className="company-meta-grid">
+                  <div className="company-meta-item">
+                    <span>CNPJ</span>
+                    <strong>{empresaAtiva.cnpj || "Não informado"}</strong>
+                  </div>
+                  <div className="company-meta-item">
+                    <span>Regime</span>
+                    <strong>{empresaAtiva.regime_tributario || "Não definido"}</strong>
+                  </div>
+                  <div className="company-meta-item">
+                    <span>Cidade</span>
+                    <strong>{empresaAtiva.cidade || "-"}</strong>
+                  </div>
+                  <div className="company-meta-item">
+                    <span>Estado</span>
+                    <strong>{empresaAtiva.estado || "-"}</strong>
+                  </div>
+                </div>
+              </article>
             </div>
           ) : null}
         </section>
@@ -199,23 +270,35 @@ export default function EmpresasPage() {
             </div>
           ) : null}
 
-          <div style={{ display: "grid", gap: 8 }}>
-            {usuarios.map((usuario) => (
-              <article
-                key={usuario.id}
-                style={{
-                  border: "1px solid #e5e7eb",
-                  borderRadius: 8,
-                  padding: 12,
-                }}
-              >
-                <strong>{usuario.usuarios?.nome || usuario.usuarios?.email || usuario.usuario_id}</strong>
-                <p>
-                  Role: {usuario.roles?.nome || usuario.role_id} - Status: {usuario.status}
-                </p>
-              </article>
-            ))}
-          </div>
+          {usuarios.length === 0 ? (
+            <div className="empty-state">
+              <h2>Nenhum usuário vinculado</h2>
+              <p>Gere um convite seguro para adicionar pessoas a esta empresa.</p>
+            </div>
+          ) : (
+            <div style={{ overflowX: "auto" }}>
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Usuário</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Entrada</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {usuarios.map((usuario) => (
+                    <tr key={usuario.id}>
+                      <td>{usuario.usuarios?.nome || usuario.usuarios?.email || usuario.usuario_id}</td>
+                      <td>{usuario.roles?.nome || usuario.role_id}</td>
+                      <td><span className="badge">{usuario.status}</span></td>
+                      <td>{new Date(usuario.created_at).toLocaleDateString("pt-BR")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </section>
       </div>
     </AppShell>

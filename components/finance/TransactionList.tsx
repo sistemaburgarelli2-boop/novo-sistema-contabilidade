@@ -13,35 +13,42 @@ const currency = new Intl.NumberFormat("pt-BR", {
 
 export function TransactionList({ transactions }: TransactionListProps) {
   if (transactions.length === 0) {
-    return <p>Nenhuma transacao encontrada.</p>;
+    return (
+      <div className="empty-state">
+        <h2>Nenhuma transação encontrada</h2>
+        <p>Cadastre entradas e saídas para acompanhar o movimento financeiro.</p>
+      </div>
+    );
   }
 
   return (
-    <div style={{ display: "grid", gap: 8 }}>
-      {transactions.map((transaction) => (
-        <article
-          key={transaction.id}
-          style={{
-            alignItems: "center",
-            border: "1px solid #e5e7eb",
-            borderRadius: 8,
-            display: "grid",
-            gap: 8,
-            gridTemplateColumns: "1fr auto",
-            padding: 12,
-          }}
-        >
-          <div>
-            <strong>{transaction.description}</strong>
-            <p>
-              {transaction.transaction_date} - {transaction.categories?.name || "Sem categoria"}
-            </p>
-          </div>
-          <strong style={{ color: transaction.type === "income" ? "#047857" : "#b91c1c" }}>
-            {currency.format(Number(transaction.amount))}
-          </strong>
-        </article>
-      ))}
+    <div style={{ overflowX: "auto" }}>
+      <table className="data-table">
+        <thead>
+          <tr>
+            <th>Descrição</th>
+            <th>Categoria</th>
+            <th>Data</th>
+            <th>Tipo</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          {transactions.map((transaction) => (
+            <tr key={transaction.id}>
+              <td>{transaction.description}</td>
+              <td>{transaction.categories?.name || "Sem categoria"}</td>
+              <td>{new Date(`${transaction.transaction_date}T00:00:00`).toLocaleDateString("pt-BR")}</td>
+              <td><span className="badge">{transaction.type === "income" ? "Entrada" : "Saída"}</span></td>
+              <td>
+                <strong style={{ color: transaction.type === "income" ? "#047857" : "#b91c1c" }}>
+                  {currency.format(Number(transaction.amount))}
+                </strong>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
