@@ -23,6 +23,7 @@ A arquitetura de producao esta documentada em:
 - `docs/17_PARTE_8_AUDITORIA.md`
 - `docs/18_PARTE_9_SEGURANCA_AVANCADA.md`
 - `docs/19_PARTE_10_ESTRUTURA_FINAL.md`
+- `docs/20_PARTE_11_EVOLUCAO_BIG_TECH.md`
 
 ## Variaveis obrigatorias
 

@@ -87,7 +87,7 @@ export default function RbacPage() {
     try {
       await atualizarPermissoesRoleRbac(empresaId, role.id, Array.from(currentIds));
       await carregarRbac(empresaId);
-      setMensagem("Permissoes atualizadas.");
+      setMensagem("Permissões atualizadas.");
     } catch (error) {
       setErro(error instanceof Error ? error.message : "Erro ao atualizar permissoes.");
     }
@@ -96,32 +96,30 @@ export default function RbacPage() {
   if (!empresaId) {
     return (
       <AppShell>
-        <h1>RBAC</h1>
-        <p>Selecione uma empresa ativa em Empresas para gerenciar roles e permissoes.</p>
+        <div className="empty-state">
+          <h1>RBAC</h1>
+          <p>Selecione uma empresa ativa em Empresas para gerenciar roles e permissões.</p>
+        </div>
       </AppShell>
     );
   }
 
   return (
     <AppShell>
-      <div style={{ display: "grid", gap: 24 }}>
-        <header>
-          <h1>RBAC</h1>
-          <p>Roles e permissoes granulares por empresa.</p>
-        </header>
+      <div className="page-stack">
+        <div className="module-hero">
+          <div>
+            <h1>Permissões</h1>
+            <p>Roles e permissões granulares por empresa.</p>
+          </div>
+        </div>
 
-        {erro ? <p style={{ color: "#b91c1c" }}>{erro}</p> : null}
-        {mensagem ? <p style={{ color: "#047857" }}>{mensagem}</p> : null}
+        {erro ? <p className="error-alert">{erro}</p> : null}
+        {mensagem ? <p className="status-message">{mensagem}</p> : null}
 
-        <section
-          style={{
-            border: "1px solid #e5e7eb",
-            borderRadius: 8,
-            padding: 20,
-          }}
-        >
+        <section className="panel-section">
           <h2>Nova role</h2>
-          <form onSubmit={handleCriarRole} style={{ display: "grid", gap: 12, maxWidth: 560 }}>
+          <form className="form-grid" onSubmit={handleCriarRole} style={{ maxWidth: 560 }}>
             <input onChange={(event) => setNome(event.target.value)} placeholder="Nome" required value={nome} />
             <input
               onChange={(event) => setChave(event.target.value)}
@@ -131,7 +129,7 @@ export default function RbacPage() {
             />
             <input
               onChange={(event) => setDescricao(event.target.value)}
-              placeholder="Descricao"
+              placeholder="Descrição"
               value={descricao}
             />
             <button type="submit">Criar role</button>

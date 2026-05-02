@@ -50,21 +50,26 @@ export default function TaxesPage() {
   if (!activeCompanyId) {
     return (
       <AppShell>
-        <h1>Impostos</h1>
-        <p>Selecione uma empresa ativa no modulo Empresas para calcular impostos.</p>
+        <div className="empty-state">
+          <h1>Impostos</h1>
+          <p>Selecione uma empresa ativa no módulo Empresas para calcular impostos.</p>
+        </div>
       </AppShell>
     );
   }
 
   return (
     <AppShell>
-      <div style={{ display: "grid", gap: 24 }}>
-        <header>
-          <h1>Impostos</h1>
-          <p>Base inicial para MEI e Simples Nacional.</p>
-        </header>
+      <div className="page-stack">
+        <div className="module-hero">
+          <div>
+            <h1>Impostos</h1>
+            <p>Base inicial para apuração de MEI e Simples Nacional.</p>
+          </div>
+        </div>
 
-        <form onSubmit={handleCalculate} style={{ display: "grid", gap: 12, maxWidth: 520 }}>
+        <form className="panel-section" onSubmit={handleCalculate} style={{ maxWidth: 560 }}>
+          <h2>Nova apuração</h2>
           <select onChange={(event) => setTaxRegime(event.target.value as "mei" | "simples")} value={taxRegime}>
             <option value="mei">MEI</option>
             <option value="simples">Simples Nacional</option>
@@ -75,10 +80,10 @@ export default function TaxesPage() {
           <button type="submit">Calcular imposto</button>
         </form>
 
-        {message ? <p>{message}</p> : null}
+        {message ? <p className="status-message">{message}</p> : null}
 
-        <section>
-          <h2>Apuracoes</h2>
+        <section className="panel-section">
+          <h2>Apurações</h2>
           <div style={{ display: "grid", gap: 12 }}>
             {taxes.map((tax) => (
               <article

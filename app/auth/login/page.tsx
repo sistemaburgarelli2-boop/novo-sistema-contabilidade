@@ -63,10 +63,10 @@ function ArrowIcon() {
 }
 
 const features = [
-  "7 niveis hierarquicos com permissoes individuais",
+  "7 níveis hierárquicos com permissões individuais",
   "7 departamentos com planilhas independentes",
-  "Dashboard com cotacoes e noticias em tempo real",
-  "Dados salvos com seguranca no Google Sheets",
+  "Dashboard com cotações e notícias em tempo real",
+  "Dados salvos com segurança e controle de acesso",
 ];
 
 export default function Login() {
@@ -126,18 +126,18 @@ export default function Login() {
             </div>
             <div>
               <strong>
-                Burgarelli <span>Contabil</span>
+                Burgarelli <span>Contábil</span>
               </strong>
-              <small>Gestao contabil</small>
+              <small>Gestão contábil</small>
             </div>
           </div>
 
           <div className="hero-copy">
             <h1>
-              Gestao contabil com <span>precisao</span> e elegancia
+              Gestão contábil com <span>precisão</span> e elegância
             </h1>
             <p>
-              Controle total dos seus departamentos, usuarios com acesso por cargo e dados sempre
+              Controle total dos seus departamentos, usuários com acesso por cargo e dados sempre
               seguros.
             </p>
           </div>
@@ -158,7 +158,7 @@ export default function Login() {
           <div className="form-heading">
             <span>Acesso seguro</span>
             <h2>Bem-vindo</h2>
-            <p>Entre com suas credenciais para acessar</p>
+            <p>Entre com suas credenciais para acessar o sistema</p>
           </div>
 
           <label className="field">
@@ -206,7 +206,7 @@ export default function Login() {
                 onChange={(event) => setRemember(event.target.checked)}
                 type="checkbox"
               />
-              Lembrar meu usuario
+              Lembrar meu usuário
             </label>
             <button type="button">Esqueci a senha</button>
           </div>
@@ -218,7 +218,7 @@ export default function Login() {
             <ArrowIcon />
           </button>
 
-          <p className="copyright">Burgarelli Contabil © 2026 · Todos os direitos reservados</p>
+          <p className="copyright">Burgarelli Contábil © 2026 · Todos os direitos reservados</p>
         </form>
       </section>
 

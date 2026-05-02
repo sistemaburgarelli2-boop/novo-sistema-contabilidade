@@ -27,23 +27,25 @@ export default function AuditoriaPage() {
   if (!empresaId) {
     return (
       <AppShell>
-        <h1>Auditoria</h1>
-        <p>Selecione uma empresa ativa em Empresas para visualizar os logs.</p>
+        <div className="empty-state">
+          <h1>Auditoria</h1>
+          <p>Selecione uma empresa ativa em Empresas para visualizar os logs.</p>
+        </div>
       </AppShell>
     );
   }
 
   return (
     <AppShell>
-      <div style={{ display: "grid", gap: 24 }}>
+      <div className="page-stack">
         <div className="module-hero">
           <div>
             <h1>Auditoria</h1>
-            <p>Trilha de acoes criticas por empresa, usuario e recurso.</p>
+            <p>Trilha de ações críticas por empresa, usuário e recurso.</p>
           </div>
         </div>
 
-        {erro ? <p style={{ color: "#b91c1c" }}>{erro}</p> : null}
+        {erro ? <p className="error-alert">{erro}</p> : null}
 
         <section
           style={{
@@ -79,7 +81,7 @@ export default function AuditoriaPage() {
                   Recurso: {log.resource_type} {log.resource_id ? `(${log.resource_id})` : ""}
                 </p>
                 <p className="muted" style={{ margin: 0 }}>
-                  Usuario: {log.user_id || "sistema"} · IP: {log.ip || "-"} · Request:{" "}
+                  Usuário: {log.user_id || "sistema"} · IP: {log.ip || "-"} · Request:{" "}
                   {log.request_id || "-"}
                 </p>
                 {log.after_data ? (

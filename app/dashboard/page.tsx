@@ -42,21 +42,25 @@ export default function Dashboard() {
   if (!activeCompanyId) {
     return (
       <AppShell>
-        <h1>Dashboard</h1>
-        <p>Selecione uma empresa ativa no modulo Empresas para visualizar os indicadores.</p>
+        <div className="empty-state">
+          <h1>Dashboard</h1>
+          <p>Selecione uma empresa ativa no módulo Empresas para visualizar os indicadores.</p>
+        </div>
       </AppShell>
     );
   }
 
   return (
     <AppShell>
-      <div style={{ display: "grid", gap: 24 }}>
-        <header>
-          <h1>Dashboard</h1>
-          <p>Resumo financeiro da empresa ativa.</p>
-        </header>
+      <div className="page-stack">
+        <div className="module-hero">
+          <div>
+            <h1>Dashboard</h1>
+            <p>Resumo financeiro, saldo atual e evolução mensal da empresa ativa.</p>
+          </div>
+        </div>
 
-        {error ? <p>{error}</p> : null}
+        {error ? <p className="error-alert">{error}</p> : null}
 
         <FinancialSummary summary={summary} />
         <MonthlyChart data={monthly} />

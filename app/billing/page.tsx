@@ -34,28 +34,24 @@ export default function BillingPage() {
 
   return (
     <AppShell>
-      <div style={{ display: "grid", gap: 24 }}>
-        <header>
-          <h1>Planos e billing</h1>
-          <p>Controle de assinatura, limites e uso por empresa.</p>
-        </header>
+      <div className="page-stack">
+        <div className="module-hero">
+          <div>
+            <h1>Planos e billing</h1>
+            <p>Controle de assinatura, limites de uso e bloqueios por empresa.</p>
+          </div>
+        </div>
 
-        {erro ? <p style={{ color: "#b91c1c" }}>{erro}</p> : null}
+        {erro ? <p className="error-alert">{erro}</p> : null}
 
-        <section
-          style={{
-            border: "1px solid #e5e7eb",
-            borderRadius: 8,
-            padding: 20,
-          }}
-        >
+        <section className="panel-section">
           <h2>Assinatura atual</h2>
           {assinatura ? (
             <div>
               <strong>{assinatura.planos.nome}</strong>
               <p>Status: {assinatura.status}</p>
-              <p>Usuarios: ate {assinatura.planos.limite_usuarios}</p>
-              <p>Transacoes/mes: ate {assinatura.planos.limite_transacoes_mes}</p>
+              <p>Usuários: até {assinatura.planos.limite_usuarios}</p>
+              <p>Transações/mês: até {assinatura.planos.limite_transacoes_mes}</p>
             </div>
           ) : (
             <p>Selecione uma empresa ativa para ver a assinatura.</p>
@@ -75,8 +71,8 @@ export default function BillingPage() {
               <h2>{plano.nome}</h2>
               <strong>{currency.format(plano.preco_centavos / 100)}</strong>
               <p>{plano.limite_empresas} empresa(s)</p>
-              <p>{plano.limite_usuarios} usuario(s)</p>
-              <p>{plano.limite_transacoes_mes} transacoes/mes</p>
+              <p>{plano.limite_usuarios} usuário(s)</p>
+              <p>{plano.limite_transacoes_mes} transações/mês</p>
             </article>
           ))}
         </section>

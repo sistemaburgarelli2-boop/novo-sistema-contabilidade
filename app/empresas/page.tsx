@@ -112,26 +112,20 @@ export default function EmpresasPage() {
 
   return (
     <AppShell>
-      <div style={{ display: "grid", gap: 24 }}>
-        <header>
-          <h1>Empresas e usuarios</h1>
-          <p>Controle multi-tenant por vinculo, role e permissao.</p>
-        </header>
+      <div className="page-stack">
+        <div className="module-hero">
+          <div>
+            <h1>Empresas e usuários</h1>
+            <p>Controle multi-tenant por vínculo, role e permissão.</p>
+          </div>
+        </div>
 
-        {erro ? <p style={{ color: "#b91c1c" }}>{erro}</p> : null}
-        {mensagem ? <p style={{ color: "#047857" }}>{mensagem}</p> : null}
+        {erro ? <p className="error-alert">{erro}</p> : null}
+        {mensagem ? <p className="status-message">{mensagem}</p> : null}
 
-        <section
-          style={{
-            border: "1px solid #e5e7eb",
-            borderRadius: 8,
-            display: "grid",
-            gap: 16,
-            padding: 20,
-          }}
-        >
+        <section className="panel-section">
           <h2>Nova empresa</h2>
-          <form onSubmit={handleCriarEmpresa} style={{ display: "grid", gap: 12, maxWidth: 680 }}>
+          <form className="form-grid" onSubmit={handleCriarEmpresa}>
             <input
               onChange={(event) => setNomeLegal(event.target.value)}
               placeholder="Nome legal"
@@ -148,16 +142,8 @@ export default function EmpresasPage() {
           </form>
         </section>
 
-        <section
-          style={{
-            border: "1px solid #e5e7eb",
-            borderRadius: 8,
-            display: "grid",
-            gap: 16,
-            padding: 20,
-          }}
-        >
-          <h2>Empresas acessiveis</h2>
+        <section className="panel-section">
+          <h2>Empresas acessíveis</h2>
           <select
             onChange={(event) => selecionarEmpresa(event.target.value)}
             value={empresaAtivaId ?? ""}
@@ -178,18 +164,10 @@ export default function EmpresasPage() {
           ) : null}
         </section>
 
-        <section
-          style={{
-            border: "1px solid #e5e7eb",
-            borderRadius: 8,
-            display: "grid",
-            gap: 16,
-            padding: 20,
-          }}
-        >
-          <h2>Usuarios da empresa</h2>
+        <section className="panel-section">
+          <h2>Usuários da empresa</h2>
 
-          <form onSubmit={handleCriarConvite} style={{ display: "flex", gap: 12 }}>
+          <form className="toolbar-row" onSubmit={handleCriarConvite}>
             <input
               onChange={(event) => setEmailUsuario(event.target.value)}
               placeholder="email@empresa.com"

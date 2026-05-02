@@ -85,24 +85,33 @@ export default function FinancePage() {
   if (!activeCompanyId) {
     return (
       <AppShell>
-        <h1>Financeiro</h1>
-        <p>Selecione uma empresa ativa no modulo Empresas antes de lancar transacoes.</p>
+        <div className="empty-state">
+          <h1>Financeiro</h1>
+          <p>Selecione uma empresa ativa no módulo Empresas antes de lançar transações.</p>
+        </div>
       </AppShell>
     );
   }
 
   return (
     <AppShell>
-      <div style={{ display: "grid", gap: 24 }}>
-        <header>
-          <h1>Financeiro</h1>
+      <div className="page-stack">
+        <div className="module-hero">
+          <div>
+            <h1>Financeiro</h1>
+            <p>Entradas, saídas, categorias e lançamentos por empresa.</p>
+          </div>
+        </div>
+
+        <section className="panel-section">
+          <h2>Resumo</h2>
           <p>
-            Entradas: {totals.income.toLocaleString("pt-BR", { currency: "BRL", style: "currency" })} | Saidas:{" "}
+            Entradas: {totals.income.toLocaleString("pt-BR", { currency: "BRL", style: "currency" })} | Saídas:{" "}
             {totals.expense.toLocaleString("pt-BR", { currency: "BRL", style: "currency" })}
           </p>
-        </header>
+        </section>
 
-        {error ? <p>{error}</p> : null}
+        {error ? <p className="error-alert">{error}</p> : null}
 
         <TransactionFilters
           endDate={endDate}
@@ -111,9 +120,9 @@ export default function FinancePage() {
           startDate={startDate}
         />
 
-        <section>
+        <section className="panel-section">
           <h2>Categorias</h2>
-          <form onSubmit={handleCreateCategory} style={{ display: "flex", gap: 12 }}>
+          <form className="toolbar-row" onSubmit={handleCreateCategory}>
             <input
               onChange={(event) => setNewCategoryName(event.target.value)}
               placeholder="Nova categoria"
@@ -131,8 +140,8 @@ export default function FinancePage() {
           </form>
         </section>
 
-        <section>
-          <h2>Nova transacao</h2>
+        <section className="panel-section">
+          <h2>Nova transação</h2>
           <TransactionForm
             categories={categories}
             companyId={activeCompanyId}
@@ -140,8 +149,8 @@ export default function FinancePage() {
           />
         </section>
 
-        <section>
-          <h2>Transacoes</h2>
+        <section className="panel-section">
+          <h2>Transações</h2>
           <TransactionList transactions={transactions} />
         </section>
       </div>
