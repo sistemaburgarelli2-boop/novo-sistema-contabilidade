@@ -1,71 +1,33 @@
+// Deprecated: use /api/empresas/[empresaId]. Kept for backward-compat.
 import { fail, ok } from "@/lib/apiResponse";
-import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { getCurrentSessionUser } from "@/modules/auth/auth.service";
+import {
+  buscarEmpresa,
+  editarEmpresa,
+} from "@/modules/empresas/empresas.service";
+import { validarAtualizarEmpresa } from "@/modules/empresas/empresas.validators";
 
-type RouteContext = {
-  params: Promise<{ companyId: string }>;
-};
+type Context = { params: Promise<{ companyId: string }> };
 
-export async function GET(_request: Request, context: RouteContext) {
-  const { companyId } = await context.params;
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return fail("Nao autenticado.", 401);
+export async function GET(_req: Request, ctx: Context) {
+  try {
+    const { companyId } = await ctx.params;
+    await getCurrentSessionUser();
+    return ok(await buscarEmpresa(companyId));
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Erro.";
+    return fail(msg, msg === "Nao autenticado." ? 401 : 404);
   }
-
-  const { data, error } = await supabase
-    .from("companies")
-    .select("*")
-    .eq("id", companyId)
-    .single();
-
-  if (error) {
-    return fail(error.message, 404);
-  }
-
-  return ok(data);
 }
 
-export async function PATCH(request: Request, context: RouteContext) {
-  const { companyId } = await context.params;
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return fail("Nao autenticado.", 401);
+export async function PATCH(req: Request, ctx: Context) {
+  try {
+    const { companyId } = await ctx.params;
+    await getCurrentSessionUser();
+    const input = validarAtualizarEmpresa(await req.json());
+    return ok(await editarEmpresa(companyId, input));
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Erro.";
+    return fail(msg, msg === "Nao autenticado." ? 401 : 400);
   }
-
-  const payload = await request.json();
-
-  if (!payload.legal_name || typeof payload.legal_name !== "string") {
-    return fail("Razao social e obrigatoria.");
-  }
-
-  const { data, error } = await supabase
-    .from("companies")
-    .update({
-      legal_name: payload.legal_name,
-      trade_name: payload.trade_name || null,
-      cnpj: payload.cnpj || null,
-      tax_regime: payload.tax_regime || null,
-      main_cnae: payload.main_cnae || null,
-      city: payload.city || null,
-      state: payload.state || null,
-      lifecycle_stage: payload.lifecycle_stage || "analysis",
-      status: payload.status || "analysis",
-    })
-    .eq("id", companyId)
-    .select("*")
-    .single();
-
-  if (error) {
-    return fail(error.message, 500);
-  }
-
-  return ok(data);
 }

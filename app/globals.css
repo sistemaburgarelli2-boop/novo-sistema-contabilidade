@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
 :root {
   --bg: #f3f8f5;
   --panel: #ffffff;
@@ -29,7 +31,10 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: Arial, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a {
@@ -45,13 +50,15 @@ select {
 
 input,
 select {
-  min-height: 44px;
-  border: 1px solid #c9dbd1;
+  min-height: 42px;
+  border: 1.5px solid #c9dbd1;
   border-radius: 8px;
   background: #f9fcfa;
   color: var(--ink);
   padding: 0 14px;
   outline: none;
+  font-size: 14px;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 input:focus,
@@ -67,8 +74,20 @@ button {
   background: linear-gradient(100deg, #12aa75, var(--gold));
   color: #ffffff;
   cursor: pointer;
-  font-weight: 800;
-  padding: 0 16px;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 0 18px;
+  letter-spacing: -0.01em;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+button:not(:disabled):hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+button:not(:disabled):active {
+  transform: translateY(0);
 }
 
 button:disabled {
