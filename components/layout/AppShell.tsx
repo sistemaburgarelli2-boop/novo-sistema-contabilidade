@@ -9,7 +9,6 @@ const navigation = [
   { href: "/dashboard", icon: "dashboard", label: "Dashboard", section: "Visão geral" },
   { href: "/empresas", icon: "building", label: "Empresas", section: "Operacional" },
   { href: "/finance", icon: "chart", label: "Financeiro", section: "Operacional" },
-  { href: "/nfe", icon: "nfe", label: "NF-e", section: "Operacional" },
   { href: "/payroll", icon: "payroll", label: "Folha de Pagamento", section: "Operacional" },
   { href: "/contabilidade", icon: "ledger", label: "Contabilidade", section: "Operacional" },
   { href: "/taxes", icon: "tax", label: "Impostos", section: "Operacional" },
@@ -25,7 +24,6 @@ const pageTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/empresas": "Empresas",
   "/finance": "Financeiro",
-  "/nfe": "Notas Fiscais (NF-e)",
   "/payroll": "Folha de Pagamento",
   "/rbac": "Permissões",
   "/taxes": "Impostos",
@@ -103,17 +101,6 @@ function NavIcon({ name }: { name: string }) {
         <path d="M9 11h6M9 15h4" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
         <path d="M7 3h7l4 4v14H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" strokeLinejoin="round" strokeWidth="2" />
         <path d="M14 3v5h5" stroke="currentColor" strokeLinejoin="round" strokeWidth="2" />
-      </svg>
-    );
-  }
-
-  if (name === "nfe") {
-    return (
-      <svg {...common}>
-        <rect height="18" rx="2" stroke="currentColor" strokeWidth="2" width="14" x="5" y="3" />
-        <path d="M8 8h8M8 12h8M8 16h4" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
-        <circle cx="16" cy="16" r="3" fill="currentColor" opacity="0.7" />
-        <path d="M15 16l1 1 2-2" stroke="#fff" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
       </svg>
     );
   }
