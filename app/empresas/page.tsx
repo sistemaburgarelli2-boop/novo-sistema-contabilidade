@@ -107,8 +107,8 @@ function salvarRascunhos(lista: Rascunho[]) {
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
-    <label style={{ display: "flex", flexDirection: "column", gap: "0.35rem", fontSize: "0.82rem", fontWeight: 600, color: "var(--text-muted)" }}>
-      <span>{label}{required && <span style={{ color: "#f87171", marginLeft: 3 }}>*</span>}</span>
+    <label style={{ display: "flex", flexDirection: "column", gap: "0.35rem", fontSize: "0.82rem", fontWeight: 700, color: "#3a5c47" }}>
+      <span>{label}{required && <span style={{ color: "#ef445f", marginLeft: 3 }}>*</span>}</span>
       {children}
     </label>
   );
@@ -143,11 +143,11 @@ function StatusSel({ value, name, onChange }: {
 }
 
 function Divider() {
-  return <div style={{ height: 1, background: "var(--border)", margin: "0.25rem 0" }} />;
+  return <div style={{ height: 1, background: "#dfece5", margin: "0.25rem 0" }} />;
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <p style={{ margin: "0 0 0.6rem", fontWeight: 700, fontSize: "0.83rem", color: "var(--text)" }}>{children}</p>;
+  return <p style={{ margin: "0 0 0.6rem", fontWeight: 800, fontSize: "0.8rem", color: "#0b351e", letterSpacing: "0.4px", textTransform: "uppercase" }}>{children}</p>;
 }
 
 /* ─── Página ──────────────────────────────────────────────────── */
@@ -403,38 +403,38 @@ export default function EmpresasPage() {
             <div style={{
               width: "100%", maxWidth: 760,
               maxHeight: "90vh",
-              background: "var(--surface, #1a1f2e)",
+              background: "#ffffff",
               borderRadius: 14,
-              border: "1px solid var(--border)",
-              boxShadow: "0 24px 80px rgba(0,0,0,0.55)",
+              border: "1px solid #dfece5",
+              boxShadow: "0 24px 80px rgba(7,23,13,0.18)",
               display: "flex", flexDirection: "column",
               overflow: "hidden",
               pointerEvents: "auto",
             }}>
 
               {/* Header */}
-              <div style={{ padding: "1.4rem 1.75rem", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ padding: "1.4rem 1.75rem", borderBottom: "1px solid #dfece5", background: "#f3f8f5", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div>
-                  <h2 style={{ margin: 0, fontSize: "1.05rem" }}>{editingId ? "Editar rascunho" : "Nova empresa"}</h2>
-                  <p style={{ margin: "0.2rem 0 0", fontSize: "0.78rem", color: "var(--text-muted)" }}>
+                  <h2 style={{ margin: 0, fontSize: "1.05rem", color: "#06170d" }}>{editingId ? "Editar rascunho" : "Nova empresa"}</h2>
+                  <p style={{ margin: "0.2rem 0 0", fontSize: "0.78rem", color: "#6f8f7c" }}>
                     Etapa {step} de 3 — {STEPS[step - 1].title}
                   </p>
                 </div>
-                <button onClick={fecharModal} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: "1.5rem", cursor: "pointer", lineHeight: 1, padding: "0 4px" }} type="button">×</button>
+                <button onClick={fecharModal} style={{ background: "none", border: "none", color: "#6f8f7c", fontSize: "1.5rem", cursor: "pointer", lineHeight: 1, padding: "0 4px" }} type="button">×</button>
               </div>
 
               {/* Steps tabs */}
-              <div style={{ display: "flex", borderBottom: "1px solid var(--border)", background: "rgba(0,0,0,0.15)" }}>
+              <div style={{ display: "flex", borderBottom: "1px solid #dfece5", background: "#ffffff" }}>
                 {STEPS.map((s) => (
                   <button
                     key={s.number}
                     onClick={() => { setErroForm(null); setStep(s.number); }}
                     style={{
-                      flex: 1, padding: "0.8rem 0.5rem",
+                      flex: 1, padding: "0.85rem 0.5rem",
                       background: "none", border: "none",
-                      borderBottom: step === s.number ? "2px solid #4ade80" : "2px solid transparent",
-                      color: step === s.number ? "#4ade80" : "var(--text-muted)",
-                      fontWeight: step === s.number ? 700 : 400,
+                      borderBottom: step === s.number ? "2px solid #10b981" : "2px solid transparent",
+                      color: step === s.number ? "#075f3c" : "#6f8f7c",
+                      fontWeight: step === s.number ? 700 : 500,
                       fontSize: "0.77rem", cursor: "pointer", textAlign: "center",
                     }}
                     type="button"
@@ -442,8 +442,8 @@ export default function EmpresasPage() {
                     <span style={{
                       display: "inline-flex", alignItems: "center", justifyContent: "center",
                       width: 18, height: 18, borderRadius: "50%",
-                      background: step === s.number ? "#4ade80" : "var(--border)",
-                      color: step === s.number ? "#000" : "var(--text-muted)",
+                      background: step === s.number ? "#10b981" : "#dfece5",
+                      color: step === s.number ? "#ffffff" : "#6f8f7c",
                       fontSize: "0.68rem", fontWeight: 700, marginRight: "0.4rem",
                     }}>{s.number}</span>
                     {s.title}
@@ -452,7 +452,7 @@ export default function EmpresasPage() {
               </div>
 
               {/* Body */}
-              <div style={{ flex: 1, overflowY: "auto", padding: "1.5rem 1.75rem" }}>
+              <div style={{ flex: 1, overflowY: "auto", padding: "1.5rem 1.75rem", background: "#fafcfb" }}>
                 {erroForm && <p className="error-alert" style={{ marginBottom: "1rem" }}>{erroForm}</p>}
 
                 {/* Step 1 */}
@@ -581,9 +581,9 @@ export default function EmpresasPage() {
               {/* Footer */}
               <div style={{
                 padding: "1.1rem 1.75rem",
-                borderTop: "1px solid var(--border)",
+                borderTop: "1px solid #dfece5",
                 display: "flex", justifyContent: "space-between", alignItems: "center",
-                background: "rgba(0,0,0,0.1)",
+                background: "#f3f8f5",
                 gap: "0.75rem",
               }}>
                 <button
@@ -598,7 +598,7 @@ export default function EmpresasPage() {
 
                 <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                   {STEPS.map((s) => (
-                    <div key={s.number} style={{ width: 7, height: 7, borderRadius: "50%", background: step === s.number ? "#4ade80" : "var(--border)" }} />
+                    <div key={s.number} style={{ width: 7, height: 7, borderRadius: "50%", background: step === s.number ? "#10b981" : "#c9dbd1" }} />
                   ))}
                 </div>
 
@@ -606,15 +606,16 @@ export default function EmpresasPage() {
                   <button
                     onClick={handleSalvarRascunho}
                     style={{
-                      background: "none",
-                      border: "1px solid var(--border)",
-                      color: rascunhoSalvo ? "#4ade80" : "var(--text-muted)",
+                      background: rascunhoSalvo ? "#ecfdf5" : "#ffffff",
+                      border: `1px solid ${rascunhoSalvo ? "#a7f3d0" : "#b9d3c6"}`,
+                      color: rascunhoSalvo ? "#047857" : "#0b6040",
                       borderRadius: 8,
                       padding: "0.45rem 1rem",
                       fontSize: "0.82rem",
                       cursor: "pointer",
                       fontWeight: 600,
                       transition: "all 0.2s",
+                      minHeight: 36,
                     }}
                     type="button"
                   >
