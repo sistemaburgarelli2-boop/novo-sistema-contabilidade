@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import {
+  atualizarEmpresaTenant,
   criarEmpresaTenant,
+  excluirEmpresaTenant,
   listarEmpresasTenant,
   setEmpresaAtivaId,
 } from "@/services/empresaClientService";
@@ -165,6 +167,13 @@ export default function EmpresasPage() {
   const [erroForm, setErroForm] = useState<string | null>(null);
   const [empresaAtiva, setEmpresaAtiva] = useState<string | null>(null);
   const [rascunhoSalvo, setRascunhoSalvo] = useState(false);
+  const [visualizando, setVisualizando] = useState<Empresa | null>(null);
+  const [confirmandoExcluir, setConfirmandoExcluir] = useState<Empresa | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
+  const [editandoEmpresa, setEditandoEmpresa] = useState<Empresa | null>(null);
+  const [editForm, setEditForm] = useState<Partial<CriarEmpresaInput>>({});
+  const [salvandoEdicao, setSalvandoEdicao] = useState(false);
+  const [erroEdicao, setErroEdicao] = useState<string | null>(null);
 
   useEffect(() => {
     setEmpresaAtiva(localStorage.getItem("empresaAtivaId"));
@@ -255,6 +264,44 @@ export default function EmpresasPage() {
 
   function handleAtivar(id: string) { setEmpresaAtivaId(id); setEmpresaAtiva(id); }
 
+  function abrirEditar(emp: Empresa) {
+    setEditandoEmpresa(emp);
+    setEditForm({
+      nome_legal: emp.nome_legal,
+      nome_fantasia: emp.nome_fantasia ?? "",
+      cnpj: emp.cnpj ?? "",
+      regime_tributario: emp.regime_tributario ?? "",
+      cidade: emp.cidade ?? "",
+      estado: emp.estado ?? "",
+    });
+    setErroEdicao(null);
+  }
+
+  async function handleSalvarEdicao() {
+    if (!editandoEmpresa) return;
+    setSalvandoEdicao(true); setErroEdicao(null);
+    try {
+      await atualizarEmpresaTenant(editandoEmpresa.id, editForm);
+      setEditandoEmpresa(null);
+      await carregarEmpresas();
+    } catch (e) {
+      setErroEdicao(e instanceof Error ? e.message : "Erro ao salvar.");
+    } finally { setSalvandoEdicao(false); }
+  }
+
+  async function handleExcluir() {
+    if (!confirmandoExcluir) return;
+    setExcluindo(true);
+    try {
+      await excluirEmpresaTenant(confirmandoExcluir.id);
+      if (empresaAtiva === confirmandoExcluir.id) { setEmpresaAtivaId(""); setEmpresaAtiva(null); }
+      setConfirmandoExcluir(null);
+      await carregarEmpresas();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro ao excluir.");
+    } finally { setExcluindo(false); }
+  }
+
   /* ── Render ── */
   return (
     <AppShell>
@@ -294,8 +341,8 @@ export default function EmpresasPage() {
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
                 <thead>
                   <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                    {["Razão social", "CNPJ", "Regime", "Cidade / UF", "Status", "Ação"].map((h, i) => (
-                      <th key={h} style={{ textAlign: i === 5 ? "right" : "left", padding: "0.75rem 0.5rem", color: "var(--text-muted)", fontWeight: 600 }}>{h}</th>
+                    {["Razão social", "CNPJ", "Regime", "Cidade / UF", "Status", "Ações"].map((h, i) => (
+                      <th key={h} style={{ textAlign: i === 5 ? "right" : "left", padding: "0.75rem 0.5rem", color: "#6f8f7c", fontWeight: 700, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.5px" }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -317,9 +364,19 @@ export default function EmpresasPage() {
                         <span className={`priority-badge ${STATUS_CLASS[emp.status]}`}>{STATUS_LABEL[emp.status]}</span>
                       </td>
                       <td style={{ padding: "0.875rem 0.5rem", textAlign: "right" }}>
-                        {empresaAtiva === emp.id
-                          ? <span style={{ fontSize: "0.8rem", color: "#4ade80", fontWeight: 600 }}>✓ Ativa</span>
-                          : <button className="small-action" onClick={() => handleAtivar(emp.id)} type="button">Ativar</button>}
+                        <div style={{ display: "flex", gap: "0.4rem", justifyContent: "flex-end", alignItems: "center" }}>
+                          {empresaAtiva === emp.id
+                            ? <span style={{ fontSize: "0.75rem", color: "#10b981", fontWeight: 700, marginRight: 4 }}>✓ Ativa</span>
+                            : <button className="small-action" onClick={() => handleAtivar(emp.id)} type="button">Ativar</button>}
+                          <button className="small-action" onClick={() => setVisualizando(emp)} title="Visualizar" type="button">👁</button>
+                          <button className="small-action" onClick={() => abrirEditar(emp)} title="Editar" type="button">✏️</button>
+                          <button
+                            onClick={() => setConfirmandoExcluir(emp)}
+                            style={{ minHeight: 32, border: "1px solid #fecaca", background: "#fff", color: "#b91c1c", borderRadius: 8, padding: "0 10px", fontSize: "0.75rem", cursor: "pointer", fontWeight: 600 }}
+                            title="Excluir"
+                            type="button"
+                          >🗑</button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -630,6 +687,121 @@ export default function EmpresasPage() {
                     </button>
                   )}
                 </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+      {/* ── Modal Visualizar ── */}
+      {visualizando && (
+        <>
+          <div onClick={() => setVisualizando(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 40 }} />
+          <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem", pointerEvents: "none" }}>
+            <div style={{ width: "100%", maxWidth: 620, maxHeight: "85vh", background: "#fff", borderRadius: 14, border: "1px solid #dfece5", boxShadow: "0 24px 80px rgba(7,23,13,0.15)", display: "flex", flexDirection: "column", overflow: "hidden", pointerEvents: "auto" }}>
+              <div style={{ padding: "1.25rem 1.75rem", borderBottom: "1px solid #dfece5", background: "#f3f8f5", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: "1rem", color: "#06170d" }}>{visualizando.nome_legal}</h2>
+                  {visualizando.nome_fantasia && <p style={{ margin: "0.2rem 0 0", fontSize: "0.8rem", color: "#6f8f7c" }}>{visualizando.nome_fantasia}</p>}
+                </div>
+                <button onClick={() => setVisualizando(null)} style={{ background: "none", border: "none", color: "#6f8f7c", fontSize: "1.4rem", cursor: "pointer" }} type="button">×</button>
+              </div>
+              <div style={{ overflowY: "auto", padding: "1.5rem 1.75rem", display: "grid", gap: "1rem" }}>
+                {[
+                  ["CNPJ", visualizando.cnpj],
+                  ["Status", STATUS_LABEL[visualizando.status]],
+                  ["Regime Tributário", REGIMES.find((r) => r.value === visualizando.regime_tributario)?.label ?? visualizando.regime_tributario],
+                  ["Cidade", visualizando.cidade],
+                  ["Estado", visualizando.estado],
+                  ["Criado em", new Date(visualizando.created_at).toLocaleString("pt-BR")],
+                  ["Atualizado em", new Date(visualizando.updated_at).toLocaleString("pt-BR")],
+                ].map(([label, value]) => (
+                  <div key={label as string} style={{ display: "grid", gridTemplateColumns: "160px 1fr", gap: "0.5rem", borderBottom: "1px solid #f0f7f3", paddingBottom: "0.75rem" }}>
+                    <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", letterSpacing: "0.4px" }}>{label}</span>
+                    <span style={{ fontSize: "0.875rem", color: "#07170d", fontWeight: 500 }}>{(value as string) || "—"}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ padding: "1rem 1.75rem", borderTop: "1px solid #dfece5", background: "#f3f8f5", display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
+                <button className="small-action" onClick={() => { setVisualizando(null); abrirEditar(visualizando); }} type="button">Editar</button>
+                <button onClick={() => setVisualizando(null)} type="button">Fechar</button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── Modal Editar ── */}
+      {editandoEmpresa && (
+        <>
+          <div onClick={() => setEditandoEmpresa(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 40 }} />
+          <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem", pointerEvents: "none" }}>
+            <div style={{ width: "100%", maxWidth: 680, maxHeight: "85vh", background: "#fff", borderRadius: 14, border: "1px solid #dfece5", boxShadow: "0 24px 80px rgba(7,23,13,0.15)", display: "flex", flexDirection: "column", overflow: "hidden", pointerEvents: "auto" }}>
+              <div style={{ padding: "1.25rem 1.75rem", borderBottom: "1px solid #dfece5", background: "#f3f8f5", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: "1rem", color: "#06170d" }}>Editar empresa</h2>
+                  <p style={{ margin: "0.2rem 0 0", fontSize: "0.78rem", color: "#6f8f7c" }}>{editandoEmpresa.nome_legal}</p>
+                </div>
+                <button onClick={() => setEditandoEmpresa(null)} style={{ background: "none", border: "none", color: "#6f8f7c", fontSize: "1.4rem", cursor: "pointer" }} type="button">×</button>
+              </div>
+              <div style={{ overflowY: "auto", padding: "1.5rem 1.75rem", display: "grid", gap: "1rem", background: "#fafcfb" }}>
+                {erroEdicao && <p className="error-alert">{erroEdicao}</p>}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                  <Field label="Razão social" required>
+                    <input className="input" name="nome_legal" onChange={(e) => setEditForm((p) => ({ ...p, nome_legal: e.target.value }))} value={editForm.nome_legal ?? ""} />
+                  </Field>
+                  <Field label="Nome fantasia">
+                    <input className="input" name="nome_fantasia" onChange={(e) => setEditForm((p) => ({ ...p, nome_fantasia: e.target.value }))} value={editForm.nome_fantasia ?? ""} />
+                  </Field>
+                  <Field label="CNPJ">
+                    <input className="input" name="cnpj" onChange={(e) => setEditForm((p) => ({ ...p, cnpj: e.target.value }))} placeholder="00.000.000/0000-00" value={editForm.cnpj ?? ""} />
+                  </Field>
+                  <Field label="Regime Tributário">
+                    <select className="input" onChange={(e) => setEditForm((p) => ({ ...p, regime_tributario: e.target.value }))} value={editForm.regime_tributario ?? ""}>
+                      <option value="">Selecione...</option>
+                      {REGIMES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
+                    </select>
+                  </Field>
+                  <Field label="Cidade">
+                    <input className="input" onChange={(e) => setEditForm((p) => ({ ...p, cidade: e.target.value }))} value={editForm.cidade ?? ""} />
+                  </Field>
+                  <Field label="Estado (UF)">
+                    <input className="input" maxLength={2} onChange={(e) => setEditForm((p) => ({ ...p, estado: e.target.value }))} placeholder="SP" value={editForm.estado ?? ""} />
+                  </Field>
+                </div>
+              </div>
+              <div style={{ padding: "1rem 1.75rem", borderTop: "1px solid #dfece5", background: "#f3f8f5", display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
+                <button className="small-action" onClick={() => setEditandoEmpresa(null)} type="button">Cancelar</button>
+                <button disabled={salvandoEdicao} onClick={handleSalvarEdicao} type="button">{salvandoEdicao ? "Salvando..." : "Salvar alterações"}</button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── Modal Confirmar Exclusão ── */}
+      {confirmandoExcluir && (
+        <>
+          <div onClick={() => setConfirmandoExcluir(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 40 }} />
+          <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem", pointerEvents: "none" }}>
+            <div style={{ width: "100%", maxWidth: 460, background: "#fff", borderRadius: 14, border: "1px solid #fecaca", boxShadow: "0 24px 80px rgba(7,23,13,0.15)", overflow: "hidden", pointerEvents: "auto" }}>
+              <div style={{ padding: "1.5rem 1.75rem", borderBottom: "1px solid #fecaca", background: "#fff5f5" }}>
+                <h2 style={{ margin: 0, fontSize: "1rem", color: "#b91c1c" }}>Excluir empresa</h2>
+              </div>
+              <div style={{ padding: "1.5rem 1.75rem" }}>
+                <p style={{ margin: 0, color: "#374151", fontSize: "0.9rem" }}>
+                  Tem certeza que deseja excluir <strong>{confirmandoExcluir.nome_legal}</strong>? Esta ação não pode ser desfeita.
+                </p>
+              </div>
+              <div style={{ padding: "1rem 1.75rem", borderTop: "1px solid #fecaca", background: "#fff5f5", display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
+                <button className="small-action" onClick={() => setConfirmandoExcluir(null)} type="button">Cancelar</button>
+                <button
+                  disabled={excluindo}
+                  onClick={handleExcluir}
+                  style={{ background: "linear-gradient(100deg,#dc2626,#b91c1c)" }}
+                  type="button"
+                >
+                  {excluindo ? "Excluindo..." : "Sim, excluir"}
+                </button>
               </div>
             </div>
           </div>

@@ -61,6 +61,26 @@ export async function criarConviteEmpresa(payload: { email: string; empresa_id: 
   return parseResult<{ convite: unknown; invite_url: string }>(response);
 }
 
+export async function atualizarEmpresaTenant(empresaId: string, payload: Partial<CriarEmpresaInput>) {
+  const response = await fetch(`/api/empresas/${empresaId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  return parseResult<Empresa>(response);
+}
+
+export async function excluirEmpresaTenant(empresaId: string) {
+  const response = await fetch(`/api/empresas/${empresaId}`, { method: "DELETE" });
+  return parseResult<{ deleted: boolean }>(response);
+}
+
+export async function buscarEmpresaTenant(empresaId: string) {
+  const response = await fetch(`/api/empresas/${empresaId}`);
+  return parseResult<Empresa>(response);
+}
+
 export function getEmpresaAtivaId() {
   if (typeof window === "undefined") {
     return null;

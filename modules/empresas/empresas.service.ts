@@ -5,6 +5,7 @@ import {
   atualizarEmpresa,
   buscarEmpresaPorId,
   criarEmpresaComBootstrap,
+  excluirEmpresa,
   listarEmpresasDoUsuario,
 } from "@/modules/empresas/empresas.repository";
 import type { AtualizarEmpresaInput, CriarEmpresaInput } from "@/modules/empresas/empresas.types";
@@ -48,4 +49,9 @@ export async function criarEmpresa(input: CriarEmpresaInput) {
 export async function editarEmpresa(empresaId: string, input: AtualizarEmpresaInput) {
   const { supabase } = await requireUser();
   return atualizarEmpresa(supabase, empresaId, input);
+}
+
+export async function deletarEmpresa(empresaId: string) {
+  const { supabase } = await requireUser();
+  return excluirEmpresa(supabase, empresaId);
 }

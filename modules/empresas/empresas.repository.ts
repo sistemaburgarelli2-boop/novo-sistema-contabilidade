@@ -206,6 +206,14 @@ export async function criarEmpresaComBootstrap(
   return empresa as Empresa;
 }
 
+export async function excluirEmpresa(supabase: SupabaseClient, empresaId: string) {
+  const { error } = await supabase.from("empresas").delete().eq("id", empresaId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
 export async function atualizarEmpresa(
   supabase: SupabaseClient,
   empresaId: string,

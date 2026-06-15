@@ -2,7 +2,7 @@ import { fail, ok } from "@/lib/apiResponse";
 import { getRequestContext } from "@/lib/requestContext";
 import { getCurrentSessionUser } from "@/modules/auth/auth.service";
 import { registrarAuditLog } from "@/modules/auditoria/auditoria.service";
-import { buscarEmpresa, editarEmpresa } from "@/modules/empresas/empresas.service";
+import { buscarEmpresa, deletarEmpresa, editarEmpresa } from "@/modules/empresas/empresas.service";
 import { validarAtualizarEmpresa } from "@/modules/empresas/empresas.validators";
 
 type RouteContext = {
@@ -16,6 +16,17 @@ export async function GET(_request: Request, context: RouteContext) {
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erro ao buscar empresa.";
     return fail(message, message === "Nao autenticado." ? 401 : 404);
+  }
+}
+
+export async function DELETE(_request: Request, context: RouteContext) {
+  try {
+    const { empresaId } = await context.params;
+    await deletarEmpresa(empresaId);
+    return ok({ deleted: true });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Erro ao excluir empresa.";
+    return fail(message, message === "Nao autenticado." ? 401 : 400);
   }
 }
 
