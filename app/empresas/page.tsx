@@ -2,304 +2,317 @@
 
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
-import type { Empresa } from "@/modules/empresas/empresas.types";
-import type { RoleEmpresa, UsuarioEmpresa } from "@/modules/usuarios/usuarios.types";
 import {
   criarEmpresaTenant,
-  criarConviteEmpresa,
-  getEmpresaAtivaId,
   listarEmpresasTenant,
-  listarRolesEmpresa,
-  listarUsuariosEmpresa,
   setEmpresaAtivaId,
 } from "@/services/empresaClientService";
+import type { CriarEmpresaInput, Empresa } from "@/modules/empresas/empresas.types";
+
+const REGIMES = [
+  { label: "Simples Nacional", value: "simples_nacional" },
+  { label: "Lucro Presumido", value: "lucro_presumido" },
+  { label: "Lucro Real", value: "lucro_real" },
+  { label: "MEI", value: "mei" },
+];
+
+const STATUS_LABEL: Record<Empresa["status"], string> = {
+  ativa: "Ativa",
+  cancelada: "Cancelada",
+  encerrada: "Encerrada",
+  suspensa: "Suspensa",
+};
+
+const STATUS_CLASS: Record<Empresa["status"], string> = {
+  ativa: "badge-success",
+  cancelada: "badge-danger",
+  encerrada: "badge-neutral",
+  suspensa: "badge-warning",
+};
+
+const EMPTY_FORM: CriarEmpresaInput = {
+  nome_legal: "",
+  nome_fantasia: "",
+  cnpj: "",
+  regime_tributario: "",
+  cidade: "",
+  estado: "",
+};
 
 export default function EmpresasPage() {
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
-  const [empresaAtivaId, setEmpresaAtivaState] = useState<string | null>(null);
-  const [usuarios, setUsuarios] = useState<UsuarioEmpresa[]>([]);
-  const [roles, setRoles] = useState<RoleEmpresa[]>([]);
-  const [nomeLegal, setNomeLegal] = useState("");
-  const [nomeFantasia, setNomeFantasia] = useState("");
-  const [cnpj, setCnpj] = useState("");
-  const [emailUsuario, setEmailUsuario] = useState("");
-  const [roleId, setRoleId] = useState("");
+  const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
-  const [mensagem, setMensagem] = useState<string | null>(null);
-  const [conviteUrl, setConviteUrl] = useState<string | null>(null);
-
-  async function carregarEmpresas() {
-    const data = await listarEmpresasTenant();
-    setEmpresas(data);
-
-    const ativa = getEmpresaAtivaId() || data[0]?.id || null;
-    setEmpresaAtivaState(ativa);
-
-    if (ativa) {
-      await carregarUsuariosERoles(ativa);
-    }
-  }
-
-  async function carregarUsuariosERoles(empresaId: string) {
-    const [usuariosData, rolesData] = await Promise.all([
-      listarUsuariosEmpresa(empresaId),
-      listarRolesEmpresa(empresaId),
-    ]);
-    setUsuarios(usuariosData);
-    setRoles(rolesData);
-    setRoleId(rolesData.find((role) => role.chave === "user")?.id ?? rolesData[0]?.id ?? "");
-  }
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState<CriarEmpresaInput>(EMPTY_FORM);
+  const [salvando, setSalvando] = useState(false);
+  const [erroForm, setErroForm] = useState<string | null>(null);
+  const [empresaAtiva, setEmpresaAtiva] = useState<string | null>(null);
 
   useEffect(() => {
-    carregarEmpresas().catch((error) => {
-      setErro(error instanceof Error ? error.message : "Erro ao carregar empresas.");
-    });
+    setEmpresaAtiva(localStorage.getItem("empresaAtivaId"));
+    carregarEmpresas();
   }, []);
 
-  async function selecionarEmpresa(empresaId: string) {
-    setEmpresaAtivaId(empresaId);
-    setEmpresaAtivaState(empresaId);
-    await carregarUsuariosERoles(empresaId);
-  }
-
-  async function handleCriarEmpresa(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function carregarEmpresas() {
+    setLoading(true);
     setErro(null);
-    setMensagem(null);
-
     try {
-      const empresa = await criarEmpresaTenant({
-        cnpj,
-        nome_fantasia: nomeFantasia,
-        nome_legal: nomeLegal,
-      });
-      setEmpresas((current) => [empresa, ...current]);
-      setNomeLegal("");
-      setNomeFantasia("");
-      setCnpj("");
-      await selecionarEmpresa(empresa.id);
-      setMensagem("Empresa criada com role admin e vinculo inicial.");
-    } catch (error) {
-      setErro(error instanceof Error ? error.message : "Erro ao criar empresa.");
+      const data = await listarEmpresasTenant();
+      setEmpresas(data);
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Erro ao carregar empresas.");
+    } finally {
+      setLoading(false);
     }
   }
 
-  async function handleCriarConvite(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  }
 
-    if (!empresaAtivaId) {
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!form.nome_legal.trim()) {
+      setErroForm("Razão social é obrigatória.");
       return;
     }
-
-    setErro(null);
-    setMensagem(null);
-
+    setSalvando(true);
+    setErroForm(null);
     try {
-      const convite = await criarConviteEmpresa({
-        email: emailUsuario,
-        empresa_id: empresaAtivaId,
-        role_id: roleId,
-      });
-      setEmailUsuario("");
-      setConviteUrl(`${window.location.origin}${convite.invite_url}`);
-      setMensagem("Convite criado com token seguro.");
-    } catch (error) {
-      setErro(error instanceof Error ? error.message : "Erro ao criar convite.");
+      await criarEmpresaTenant(form);
+      setForm(EMPTY_FORM);
+      setShowForm(false);
+      await carregarEmpresas();
+    } catch (e) {
+      setErroForm(e instanceof Error ? e.message : "Erro ao criar empresa.");
+    } finally {
+      setSalvando(false);
     }
   }
 
-  const empresaAtiva = empresas.find((empresa) => empresa.id === empresaAtivaId);
-  const empresasAtivas = empresas.filter((empresa) => empresa.status === "ativa").length;
-  const usuariosAtivos = usuarios.filter((usuario) => usuario.status === "ativo").length;
-  const usuariosPendentes = usuarios.filter((usuario) => usuario.status === "pendente").length;
-  const rolesDisponiveis = roles.length;
+  function handleAtivar(id: string) {
+    setEmpresaAtivaId(id);
+    setEmpresaAtiva(id);
+  }
 
   return (
     <AppShell>
       <div className="page-stack">
         <div className="module-hero">
           <div>
-            <h1>Empresas e usuários</h1>
-            <p>Controle multi-tenant por vínculo, role e permissão.</p>
+            <h1>Empresas</h1>
+            <p>Gerencie as empresas cadastradas no sistema.</p>
           </div>
           <div className="hero-actions">
-            <button onClick={() => document.getElementById("nova-empresa")?.scrollIntoView({ behavior: "smooth" })} type="button">
-              Nova empresa
+            <button onClick={() => { setShowForm(true); setErroForm(null); }} type="button">
+              + Nova empresa
             </button>
-            <button className="small-action" onClick={() => window.print()} type="button">Exportar</button>
           </div>
         </div>
 
-        {erro ? <p className="error-alert">{erro}</p> : null}
-        {mensagem ? <p className="status-message">{mensagem}</p> : null}
+        {showForm && (
+          <div className="list-panel">
+            <div className="list-panel-header">
+              <div>
+                <h2>Nova empresa</h2>
+                <p>Preencha os dados para cadastrar uma nova empresa.</p>
+              </div>
+              <button className="small-action" onClick={() => setShowForm(false)} type="button">
+                Cancelar
+              </button>
+            </div>
 
-        <section className="metric-grid">
-          <article className="metric-card">
-            <span>Total de empresas</span>
-            <strong>{empresas.length}</strong>
-            <p>Empresas acessíveis para o usuário atual</p>
-          </article>
-          <article className="metric-card">
-            <span>Empresas ativas</span>
-            <strong>{empresasAtivas}</strong>
-            <p>Tenants em operação</p>
-          </article>
-          <article className="metric-card">
-            <span>Usuários ativos</span>
-            <strong>{usuariosAtivos}</strong>
-            <p>Na empresa selecionada</p>
-          </article>
-          <article className="metric-card">
-            <span>Convites pendentes</span>
-            <strong>{usuariosPendentes}</strong>
-            <p>Aguardando aceite ou ativação</p>
-          </article>
-          <article className="metric-card">
-            <span>Roles</span>
-            <strong>{rolesDisponiveis}</strong>
-            <p>Perfis disponíveis para vínculo</p>
-          </article>
-        </section>
+            <form onSubmit={handleSubmit} style={{ padding: "1.5rem", display: "grid", gap: "1rem" }}>
+              {erroForm && <p className="error-alert">{erroForm}</p>}
 
-        <section className="panel-section" id="nova-empresa">
-          <h2>Nova empresa</h2>
-          <form className="form-grid" onSubmit={handleCriarEmpresa}>
-            <input
-              onChange={(event) => setNomeLegal(event.target.value)}
-              placeholder="Nome legal"
-              required
-              value={nomeLegal}
-            />
-            <input
-              onChange={(event) => setNomeFantasia(event.target.value)}
-              placeholder="Nome fantasia"
-              value={nomeFantasia}
-            />
-            <input onChange={(event) => setCnpj(event.target.value)} placeholder="CNPJ" value={cnpj} />
-            <button type="submit">Criar empresa segura</button>
-          </form>
-        </section>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                <label style={{ display: "flex", flexDirection: "column", gap: "0.4rem", fontSize: "0.85rem", fontWeight: 600 }}>
+                  Razão social *
+                  <input
+                    className="input"
+                    name="nome_legal"
+                    onChange={handleChange}
+                    placeholder="Nome legal da empresa"
+                    required
+                    type="text"
+                    value={form.nome_legal}
+                  />
+                </label>
 
-        <section className="panel-section">
-          <h2>Empresas acessíveis</h2>
-          <div className="toolbar-row">
-            <select
-              onChange={(event) => selecionarEmpresa(event.target.value)}
-              value={empresaAtivaId ?? ""}
-            >
-              <option value="">Selecione uma empresa</option>
-              {empresas.map((empresa) => (
-                <option key={empresa.id} value={empresa.id}>
-                  {empresa.nome_fantasia || empresa.nome_legal}
-                </option>
-              ))}
-            </select>
-            <span className="muted">{empresas.length} empresa(s) cadastrada(s)</span>
+                <label style={{ display: "flex", flexDirection: "column", gap: "0.4rem", fontSize: "0.85rem", fontWeight: 600 }}>
+                  Nome fantasia
+                  <input
+                    className="input"
+                    name="nome_fantasia"
+                    onChange={handleChange}
+                    placeholder="Nome fantasia"
+                    type="text"
+                    value={form.nome_fantasia ?? ""}
+                  />
+                </label>
+
+                <label style={{ display: "flex", flexDirection: "column", gap: "0.4rem", fontSize: "0.85rem", fontWeight: 600 }}>
+                  CNPJ
+                  <input
+                    className="input"
+                    name="cnpj"
+                    onChange={handleChange}
+                    placeholder="00.000.000/0000-00"
+                    type="text"
+                    value={form.cnpj ?? ""}
+                  />
+                </label>
+
+                <label style={{ display: "flex", flexDirection: "column", gap: "0.4rem", fontSize: "0.85rem", fontWeight: 600 }}>
+                  Regime tributário
+                  <select
+                    className="input"
+                    name="regime_tributario"
+                    onChange={handleChange}
+                    value={form.regime_tributario ?? ""}
+                  >
+                    <option value="">Selecione...</option>
+                    {REGIMES.map((r) => (
+                      <option key={r.value} value={r.value}>{r.label}</option>
+                    ))}
+                  </select>
+                </label>
+
+                <label style={{ display: "flex", flexDirection: "column", gap: "0.4rem", fontSize: "0.85rem", fontWeight: 600 }}>
+                  Cidade
+                  <input
+                    className="input"
+                    name="cidade"
+                    onChange={handleChange}
+                    placeholder="Cidade"
+                    type="text"
+                    value={form.cidade ?? ""}
+                  />
+                </label>
+
+                <label style={{ display: "flex", flexDirection: "column", gap: "0.4rem", fontSize: "0.85rem", fontWeight: 600 }}>
+                  Estado (UF)
+                  <input
+                    className="input"
+                    maxLength={2}
+                    name="estado"
+                    onChange={handleChange}
+                    placeholder="SP"
+                    type="text"
+                    value={form.estado ?? ""}
+                  />
+                </label>
+              </div>
+
+              <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
+                <button className="small-action" onClick={() => setShowForm(false)} type="button">
+                  Cancelar
+                </button>
+                <button disabled={salvando} type="submit">
+                  {salvando ? "Salvando..." : "Criar empresa"}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        <div className="list-panel">
+          <div className="list-panel-header">
+            <div>
+              <h2>Empresas cadastradas</h2>
+              <p>
+                {empresas.length === 0
+                  ? "Nenhuma empresa cadastrada."
+                  : `${empresas.length} empresa${empresas.length > 1 ? "s" : ""} encontrada${empresas.length > 1 ? "s" : ""}.`}
+              </p>
+            </div>
+            <button className="small-action" onClick={carregarEmpresas} type="button">
+              Atualizar
+            </button>
           </div>
 
-          {empresaAtiva ? (
-            <div className="company-card-grid">
-              <article className="company-card">
-                <div className="company-card-header">
-                  <div style={{ display: "flex", gap: 12 }}>
-                    <div className="company-avatar">
-                      {(empresaAtiva.nome_fantasia || empresaAtiva.nome_legal).slice(0, 2).toUpperCase()}
-                    </div>
-                    <div>
-                      <h3>{empresaAtiva.nome_fantasia || empresaAtiva.nome_legal}</h3>
-                      <p>{empresaAtiva.nome_legal}</p>
-                    </div>
-                  </div>
-                  <span className="badge">{empresaAtiva.status}</span>
-                </div>
-                <div className="company-meta-grid">
-                  <div className="company-meta-item">
-                    <span>CNPJ</span>
-                    <strong>{empresaAtiva.cnpj || "Não informado"}</strong>
-                  </div>
-                  <div className="company-meta-item">
-                    <span>Regime</span>
-                    <strong>{empresaAtiva.regime_tributario || "Não definido"}</strong>
-                  </div>
-                  <div className="company-meta-item">
-                    <span>Cidade</span>
-                    <strong>{empresaAtiva.cidade || "-"}</strong>
-                  </div>
-                  <div className="company-meta-item">
-                    <span>Estado</span>
-                    <strong>{empresaAtiva.estado || "-"}</strong>
-                  </div>
-                </div>
-              </article>
+          {loading && (
+            <div style={{ padding: "2rem", textAlign: "center", color: "var(--text-muted)" }}>
+              Carregando...
             </div>
-          ) : null}
-        </section>
+          )}
 
-        <section className="panel-section">
-          <h2>Usuários da empresa</h2>
+          {erro && <p className="error-alert" style={{ margin: "1rem 1.5rem" }}>{erro}</p>}
 
-          <form className="toolbar-row" onSubmit={handleCriarConvite}>
-            <input
-              onChange={(event) => setEmailUsuario(event.target.value)}
-              placeholder="email@empresa.com"
-              required
-              type="email"
-              value={emailUsuario}
-            />
-            <select onChange={(event) => setRoleId(event.target.value)} required value={roleId}>
-              {roles.map((role) => (
-                <option key={role.id} value={role.id}>
-                  {role.nome}
-                </option>
-              ))}
-            </select>
-            <button type="submit">Gerar convite seguro</button>
-          </form>
-
-          {conviteUrl ? (
-            <div
-              style={{
-                background: "#ecfdf5",
-                border: "1px solid #a7f3d0",
-                borderRadius: 8,
-                padding: 12,
-              }}
-            >
-              <strong>Link de convite</strong>
-              <p style={{ wordBreak: "break-all" }}>{conviteUrl}</p>
+          {!loading && !erro && empresas.length === 0 && (
+            <div style={{ padding: "3rem", textAlign: "center", color: "var(--text-muted)" }}>
+              <p>Nenhuma empresa cadastrada ainda.</p>
+              <button onClick={() => setShowForm(true)} style={{ marginTop: "1rem" }} type="button">
+                + Criar primeira empresa
+              </button>
             </div>
-          ) : null}
+          )}
 
-          {usuarios.length === 0 ? (
-            <div className="empty-state">
-              <h2>Nenhum usuário vinculado</h2>
-              <p>Gere um convite seguro para adicionar pessoas a esta empresa.</p>
-            </div>
-          ) : (
-            <div style={{ overflowX: "auto" }}>
-              <table className="data-table">
+          {!loading && empresas.length > 0 && (
+            <div style={{ padding: "0 1.5rem 1.5rem", overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
                 <thead>
-                  <tr>
-                    <th>Usuário</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th>Entrada</th>
+                  <tr style={{ borderBottom: "1px solid var(--border)" }}>
+                    <th style={{ textAlign: "left", padding: "0.75rem 0.5rem", color: "var(--text-muted)", fontWeight: 600 }}>Razão social</th>
+                    <th style={{ textAlign: "left", padding: "0.75rem 0.5rem", color: "var(--text-muted)", fontWeight: 600 }}>CNPJ</th>
+                    <th style={{ textAlign: "left", padding: "0.75rem 0.5rem", color: "var(--text-muted)", fontWeight: 600 }}>Regime</th>
+                    <th style={{ textAlign: "left", padding: "0.75rem 0.5rem", color: "var(--text-muted)", fontWeight: 600 }}>Cidade / UF</th>
+                    <th style={{ textAlign: "left", padding: "0.75rem 0.5rem", color: "var(--text-muted)", fontWeight: 600 }}>Status</th>
+                    <th style={{ textAlign: "right", padding: "0.75rem 0.5rem", color: "var(--text-muted)", fontWeight: 600 }}>Ação</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {usuarios.map((usuario) => (
-                    <tr key={usuario.id}>
-                      <td>{usuario.usuarios?.nome || usuario.usuarios?.email || usuario.usuario_id}</td>
-                      <td>{usuario.roles?.nome || usuario.role_id}</td>
-                      <td><span className="badge">{usuario.status}</span></td>
-                      <td>{new Date(usuario.created_at).toLocaleDateString("pt-BR")}</td>
+                  {empresas.map((empresa) => (
+                    <tr
+                      key={empresa.id}
+                      style={{
+                        borderBottom: "1px solid var(--border)",
+                        background: empresaAtiva === empresa.id ? "rgba(74,222,128,0.05)" : undefined,
+                      }}
+                    >
+                      <td style={{ padding: "0.875rem 0.5rem" }}>
+                        <strong>{empresa.nome_legal}</strong>
+                        {empresa.nome_fantasia && (
+                          <div style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>{empresa.nome_fantasia}</div>
+                        )}
+                      </td>
+                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--text-muted)" }}>
+                        {empresa.cnpj ?? "—"}
+                      </td>
+                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--text-muted)" }}>
+                        {REGIMES.find((r) => r.value === empresa.regime_tributario)?.label ?? empresa.regime_tributario ?? "—"}
+                      </td>
+                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--text-muted)" }}>
+                        {[empresa.cidade, empresa.estado].filter(Boolean).join(" / ") || "—"}
+                      </td>
+                      <td style={{ padding: "0.875rem 0.5rem" }}>
+                        <span className={`priority-badge ${STATUS_CLASS[empresa.status]}`}>
+                          {STATUS_LABEL[empresa.status]}
+                        </span>
+                      </td>
+                      <td style={{ padding: "0.875rem 0.5rem", textAlign: "right" }}>
+                        {empresaAtiva === empresa.id ? (
+                          <span style={{ fontSize: "0.8rem", color: "#4ade80", fontWeight: 600 }}>
+                            ✓ Ativa
+                          </span>
+                        ) : (
+                          <button
+                            className="small-action"
+                            onClick={() => handleAtivar(empresa.id)}
+                            type="button"
+                          >
+                            Ativar
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           )}
-        </section>
+        </div>
       </div>
     </AppShell>
   );
