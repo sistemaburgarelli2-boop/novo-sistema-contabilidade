@@ -74,24 +74,3 @@ export async function contarEmpresasDoUsuario(admin: SupabaseClient, usuarioId: 
   return count ?? 0;
 }
 
-export async function registrarBillingEvent(
-  admin: SupabaseClient,
-  event: {
-    empresa_id?: string | null;
-    event_type: string;
-    payload: Record<string, unknown>;
-    stripe_event_id: string;
-  }
-) {
-  const { error } = await admin.from("billing_events").insert({
-    empresa_id: event.empresa_id ?? null,
-    event_type: event.event_type,
-    payload: event.payload,
-    processed_at: new Date().toISOString(),
-    stripe_event_id: event.stripe_event_id,
-  });
-
-  if (error) {
-    throw new Error(error.message);
-  }
-}

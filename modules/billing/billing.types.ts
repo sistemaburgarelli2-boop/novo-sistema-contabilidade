@@ -14,8 +14,6 @@ export type Assinatura = {
   id: string;
   empresa_id: string;
   plano_id: string;
-  stripe_customer_id: string | null;
-  stripe_subscription_id: string | null;
   status: "trial" | "active" | "past_due" | "canceled" | "blocked";
   current_period_start: string | null;
   current_period_end: string | null;

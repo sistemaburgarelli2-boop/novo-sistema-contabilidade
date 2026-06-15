@@ -6,7 +6,6 @@ import {
   calcularUsoEmpresa,
   contarEmpresasDoUsuario,
   listarPlanosAtivos,
-  registrarBillingEvent,
 } from "@/modules/billing/billing.repository";
 
 async function requireUser() {
@@ -67,16 +66,3 @@ export async function validarPodeCriarTransacao(empresaId: string) {
   }
 }
 
-export async function processarStripeWebhook(event: {
-  id: string;
-  type: string;
-  data: Record<string, unknown>;
-}) {
-  const admin = createSupabaseAdminClient();
-
-  await registrarBillingEvent(admin, {
-    event_type: event.type,
-    payload: event.data,
-    stripe_event_id: event.id,
-  });
-}
