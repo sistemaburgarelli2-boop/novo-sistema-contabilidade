@@ -8,25 +8,11 @@ import { LogoutButton } from "@/components/auth/LogoutButton";
 const navigation = [
   { href: "/dashboard", icon: "dashboard", label: "Dashboard", section: "Visão geral" },
   { href: "/empresas", icon: "building", label: "Empresas", section: "Operacional" },
-  { href: "/finance", icon: "chart", label: "Financeiro", section: "Operacional" },
-  { href: "/payroll", icon: "payroll", label: "Folha de Pagamento", section: "Operacional" },
-  { href: "/contabilidade", icon: "ledger", label: "Contabilidade", section: "Operacional" },
-  { href: "/taxes", icon: "tax", label: "Impostos", section: "Operacional" },
-  { href: "/billing", icon: "card", label: "Planos", section: "Sistema" },
-  { href: "/rbac", icon: "settings", label: "Permissões", section: "Sistema" },
-  { href: "/auditoria", icon: "audit", label: "Auditoria", section: "Sistema" },
 ];
 
 const pageTitles: Record<string, string> = {
-  "/auditoria": "Auditoria",
-  "/billing": "Planos e Billing",
-  "/contabilidade": "Contabilidade",
   "/dashboard": "Dashboard",
   "/empresas": "Empresas",
-  "/finance": "Financeiro",
-  "/payroll": "Folha de Pagamento",
-  "/rbac": "Permissões",
-  "/taxes": "Impostos",
 };
 
 function BrandIcon() {
@@ -55,72 +41,6 @@ function NavIcon({ name }: { name: string }) {
       <svg {...common}>
         <path d="M4 21V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v16" stroke="currentColor" strokeWidth="2" />
         <path d="M9 8h3M9 12h3M9 16h3M3 21h18" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
-      </svg>
-    );
-  }
-
-  if (name === "chart") {
-    return (
-      <svg {...common}>
-        <path d="M4 19V5M4 19h16" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
-        <path d="m7 15 4-4 3 3 5-7" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-      </svg>
-    );
-  }
-
-  if (name === "tax") {
-    return (
-      <svg {...common}>
-        <rect height="18" rx="2" stroke="currentColor" strokeWidth="2" width="14" x="5" y="3" />
-        <path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
-      </svg>
-    );
-  }
-
-  if (name === "card") {
-    return (
-      <svg {...common}>
-        <rect height="14" rx="2" stroke="currentColor" strokeWidth="2" width="18" x="3" y="5" />
-        <path d="M3 10h18M7 15h4" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
-      </svg>
-    );
-  }
-
-  if (name === "settings") {
-    return (
-      <svg {...common}>
-        <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
-        <path d="M12 3v2M12 19v2M4.2 7.5l1.7 1M18.1 15.5l1.7 1M4.2 16.5l1.7-1M18.1 8.5l1.7-1" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
-      </svg>
-    );
-  }
-
-  if (name === "audit") {
-    return (
-      <svg {...common}>
-        <path d="M9 11h6M9 15h4" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
-        <path d="M7 3h7l4 4v14H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" strokeLinejoin="round" strokeWidth="2" />
-        <path d="M14 3v5h5" stroke="currentColor" strokeLinejoin="round" strokeWidth="2" />
-      </svg>
-    );
-  }
-
-  if (name === "payroll") {
-    return (
-      <svg {...common}>
-        <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2" />
-        <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
-        <path d="M16 11h6M19 8v6" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
-      </svg>
-    );
-  }
-
-  if (name === "ledger") {
-    return (
-      <svg {...common}>
-        <path d="M4 19V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14" stroke="currentColor" strokeWidth="2" />
-        <path d="M4 19h16" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
-        <path d="M8 7h8M8 11h8M8 15h4" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
       </svg>
     );
   }
