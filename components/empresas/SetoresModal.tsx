@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import type { Empresa } from "@/modules/empresas/empresas.types";
 
 const SETORES = [
@@ -94,6 +95,13 @@ export function SetoresModal({
   empresa: Empresa;
   onClose: () => void;
 }) {
+  const router = useRouter();
+
+  function acessarSetor(id: string) {
+    onClose();
+    router.push(`/empresas/${empresa.id}/setores/${id}`);
+  }
+
   return (
     <>
       <div
@@ -188,6 +196,7 @@ export function SetoresModal({
                   </p>
 
                   <button
+                    onClick={() => acessarSetor(setor.id)}
                     style={{
                       marginTop: "auto",
                       background: setor.fundo,
