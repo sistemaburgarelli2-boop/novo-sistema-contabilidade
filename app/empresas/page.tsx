@@ -10,6 +10,7 @@ import {
   setEmpresaAtivaId,
 } from "@/services/empresaClientService";
 import type { CriarEmpresaInput, Empresa } from "@/modules/empresas/empresas.types";
+import { SetoresModal } from "@/components/empresas/SetoresModal";
 
 /* ─── Constantes ──────────────────────────────────────────────── */
 
@@ -167,6 +168,7 @@ export default function EmpresasPage() {
   const [erroForm, setErroForm] = useState<string | null>(null);
   const [empresaAtiva, setEmpresaAtiva] = useState<string | null>(null);
   const [rascunhoSalvo, setRascunhoSalvo] = useState(false);
+  const [setoresEmpresa, setSetoresEmpresa] = useState<Empresa | null>(null);
   const [visualizando, setVisualizando] = useState<Empresa | null>(null);
   const [confirmandoExcluir, setConfirmandoExcluir] = useState<Empresa | null>(null);
   const [excluindo, setExcluindo] = useState(false);
@@ -368,6 +370,12 @@ export default function EmpresasPage() {
                           {empresaAtiva === emp.id
                             ? <span style={{ fontSize: "0.75rem", color: "#10b981", fontWeight: 700, marginRight: 4 }}>✓ Ativa</span>
                             : <button className="small-action" onClick={() => handleAtivar(emp.id)} type="button">Ativar</button>}
+                          <button
+                            onClick={() => setSetoresEmpresa(emp)}
+                            style={{ minHeight: 32, border: "1px solid #6ee7b7", background: "#ecfdf5", color: "#065f46", borderRadius: 8, padding: "0 10px", fontSize: "0.75rem", cursor: "pointer", fontWeight: 700 }}
+                            title="Setores"
+                            type="button"
+                          >Setores</button>
                           <button className="small-action" onClick={() => setVisualizando(emp)} title="Visualizar" type="button">👁</button>
                           <button className="small-action" onClick={() => abrirEditar(emp)} title="Editar" type="button">✏️</button>
                           <button
@@ -692,6 +700,11 @@ export default function EmpresasPage() {
           </div>
         </>
       )}
+      {/* ── Modal Setores ── */}
+      {setoresEmpresa && (
+        <SetoresModal empresa={setoresEmpresa} onClose={() => setSetoresEmpresa(null)} />
+      )}
+
       {/* ── Modal Visualizar ── */}
       {visualizando && (
         <>
