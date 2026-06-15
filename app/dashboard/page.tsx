@@ -29,7 +29,7 @@ const notices = [
   {
     badge: "Informativo",
     description: "Fluxo multiempresa, auditoria e convites seguros ativos no sistema.",
-    title: "Bem-vindo ao Burgarelli Contábil",
+    title: "Bem-vindo ao Burgarelli C.O",
   },
 ];
 

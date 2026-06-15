@@ -126,7 +126,7 @@ export default function Login() {
             </div>
             <div>
               <strong>
-                Burgarelli <span>Contábil</span>
+                Burgarelli <span>C.O</span>
               </strong>
               <small>Gestão contábil</small>
             </div>
@@ -218,7 +218,7 @@ export default function Login() {
             <ArrowIcon />
           </button>
 
-          <p className="copyright">Burgarelli Contábil © 2026 · Todos os direitos reservados</p>
+          <p className="copyright">Burgarelli C.O © 2026 · Todos os direitos reservados</p>
         </form>
       </section>
 
