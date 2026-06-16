@@ -706,42 +706,101 @@ export default function EmpresasPage() {
       )}
 
       {/* ── Modal Visualizar ── */}
-      {visualizando && (
-        <>
-          <div onClick={() => setVisualizando(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 40 }} />
-          <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem", pointerEvents: "none" }}>
-            <div style={{ width: "100%", maxWidth: 620, maxHeight: "85vh", background: "#fff", borderRadius: 14, border: "1px solid #dfece5", boxShadow: "0 24px 80px rgba(7,23,13,0.15)", display: "flex", flexDirection: "column", overflow: "hidden", pointerEvents: "auto" }}>
-              <div style={{ padding: "1.25rem 1.75rem", borderBottom: "1px solid #dfece5", background: "#f3f8f5", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <h2 style={{ margin: 0, fontSize: "1rem", color: "#06170d" }}>{visualizando.nome_legal}</h2>
-                  {visualizando.nome_fantasia && <p style={{ margin: "0.2rem 0 0", fontSize: "0.8rem", color: "#6f8f7c" }}>{visualizando.nome_fantasia}</p>}
-                </div>
-                <button onClick={() => setVisualizando(null)} style={{ background: "none", border: "none", color: "#6f8f7c", fontSize: "1.4rem", cursor: "pointer" }} type="button">×</button>
-              </div>
-              <div style={{ overflowY: "auto", padding: "1.5rem 1.75rem", display: "grid", gap: "1rem" }}>
-                {[
-                  ["CNPJ", visualizando.cnpj],
-                  ["Status", STATUS_LABEL[visualizando.status]],
-                  ["Regime Tributário", REGIMES.find((r) => r.value === visualizando.regime_tributario)?.label ?? visualizando.regime_tributario],
-                  ["Cidade", visualizando.cidade],
-                  ["Estado", visualizando.estado],
-                  ["Criado em", new Date(visualizando.created_at).toLocaleString("pt-BR")],
-                  ["Atualizado em", new Date(visualizando.updated_at).toLocaleString("pt-BR")],
-                ].map(([label, value]) => (
-                  <div key={label as string} style={{ display: "grid", gridTemplateColumns: "160px 1fr", gap: "0.5rem", borderBottom: "1px solid #f0f7f3", paddingBottom: "0.75rem" }}>
-                    <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", letterSpacing: "0.4px" }}>{label}</span>
-                    <span style={{ fontSize: "0.875rem", color: "#07170d", fontWeight: 500 }}>{(value as string) || "—"}</span>
+      {visualizando && (() => {
+        const initials = visualizando.nome_legal.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase();
+        const regimeLabel = REGIMES.find((r) => r.value === visualizando.regime_tributario)?.label ?? visualizando.regime_tributario;
+        const statusColors: Record<Empresa["status"], { bg: string; cor: string; dot: string }> = {
+          ativa:     { bg: "#ecfdf5", cor: "#065f46", dot: "#10b981" },
+          suspensa:  { bg: "#fffbeb", cor: "#92400e", dot: "#f59e0b" },
+          cancelada: { bg: "#fef2f2", cor: "#b91c1c", dot: "#ef4444" },
+          encerrada: { bg: "#f3f4f6", cor: "#374151", dot: "#9ca3af" },
+        };
+        const sc = statusColors[visualizando.status];
+        return (
+          <>
+            <div onClick={() => setVisualizando(null)} style={{ position: "fixed", inset: 0, background: "rgba(6,23,13,0.6)", backdropFilter: "blur(2px)", zIndex: 40 }} />
+            <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem", pointerEvents: "none" }}>
+              <div style={{ width: "100%", maxWidth: 640, background: "#fff", borderRadius: 18, boxShadow: "0 32px 100px rgba(6,23,13,0.22)", display: "flex", flexDirection: "column", overflow: "hidden", pointerEvents: "auto" }}>
+
+                {/* Hero */}
+                <div style={{ background: "linear-gradient(120deg, #06170d 0%, #0b2e18 70%, #0f3d20 100%)", padding: "2rem 2rem 1.75rem", position: "relative", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 85% 40%, rgba(16,185,129,0.12) 0%, transparent 60%)", pointerEvents: "none" }} />
+                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "linear-gradient(90deg, #10b981, #34d399, #6ee7b7)" }} />
+                  <button onClick={() => setVisualizando(null)} style={{ position: "absolute", top: "1.1rem", right: "1.25rem", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", color: "#a7c4b4", borderRadius: 8, width: 32, height: 32, cursor: "pointer", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center" }} type="button">×</button>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
+                    <div style={{ width: 60, height: 60, borderRadius: 16, background: "linear-gradient(135deg, #10b981, #065f46)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.3rem", fontWeight: 900, flexShrink: 0, border: "2px solid rgba(255,255,255,0.15)" }}>
+                      {initials}
+                    </div>
+                    <div>
+                      <p style={{ margin: "0 0 0.2rem", fontSize: "0.68rem", fontWeight: 800, color: "#34d399", letterSpacing: "2px", textTransform: "uppercase" }}>Empresa</p>
+                      <h2 style={{ margin: "0 0 0.35rem", color: "#fff", fontSize: "1.2rem", fontWeight: 800, lineHeight: 1.2 }}>{visualizando.nome_legal}</h2>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap" }}>
+                        {visualizando.nome_fantasia && <span style={{ fontSize: "0.8rem", color: "#7fb89a" }}>{visualizando.nome_fantasia}</span>}
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", background: sc.bg, color: sc.cor, borderRadius: 999, padding: "3px 10px", fontSize: "0.72rem", fontWeight: 800 }}>
+                          <span style={{ width: 6, height: 6, borderRadius: "50%", background: sc.dot, display: "inline-block" }} />
+                          {STATUS_LABEL[visualizando.status]}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                ))}
-              </div>
-              <div style={{ padding: "1rem 1.75rem", borderTop: "1px solid #dfece5", background: "#f3f8f5", display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
-                <button className="small-action" onClick={() => { setVisualizando(null); abrirEditar(visualizando); }} type="button">Editar</button>
-                <button onClick={() => setVisualizando(null)} type="button">Fechar</button>
+                </div>
+
+                {/* Corpo */}
+                <div style={{ padding: "1.75rem 2rem", display: "grid", gap: "1.5rem" }}>
+
+                  {/* Dados cadastrais */}
+                  <div>
+                    <p style={{ margin: "0 0 0.75rem", fontSize: "0.68rem", fontWeight: 900, color: "#10b981", letterSpacing: "2px", textTransform: "uppercase" }}>Dados Cadastrais</p>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                      {[
+                        { label: "CNPJ", value: visualizando.cnpj, icon: "🪪" },
+                        { label: "Regime Tributário", value: regimeLabel, icon: "📋" },
+                      ].map((item) => (
+                        <div key={item.label} style={{ background: "#f8fdfb", border: "1px solid #e6f0ea", borderRadius: 10, padding: "0.85rem 1rem" }}>
+                          <p style={{ margin: "0 0 0.3rem", fontSize: "0.68rem", fontWeight: 800, color: "#6f8f7c", textTransform: "uppercase", letterSpacing: "1px" }}>{item.icon} {item.label}</p>
+                          <p style={{ margin: 0, fontSize: "0.9rem", fontWeight: 700, color: "#07170d" }}>{item.value || "—"}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Localização */}
+                  <div>
+                    <p style={{ margin: "0 0 0.75rem", fontSize: "0.68rem", fontWeight: 900, color: "#10b981", letterSpacing: "2px", textTransform: "uppercase" }}>Localização</p>
+                    <div style={{ background: "#f8fdfb", border: "1px solid #e6f0ea", borderRadius: 10, padding: "0.85rem 1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <span style={{ fontSize: "1.1rem" }}>📍</span>
+                      <span style={{ fontSize: "0.9rem", fontWeight: 600, color: "#07170d" }}>
+                        {visualizando.cidade && visualizando.estado
+                          ? `${visualizando.cidade} — ${visualizando.estado}`
+                          : visualizando.cidade || visualizando.estado || "—"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Histórico */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                    {[
+                      { label: "Criado em", value: new Date(visualizando.created_at).toLocaleString("pt-BR"), icon: "🗓" },
+                      { label: "Atualizado em", value: new Date(visualizando.updated_at).toLocaleString("pt-BR"), icon: "🔄" },
+                    ].map((item) => (
+                      <div key={item.label} style={{ background: "#f8fdfb", border: "1px solid #e6f0ea", borderRadius: 10, padding: "0.75rem 1rem" }}>
+                        <p style={{ margin: "0 0 0.25rem", fontSize: "0.68rem", fontWeight: 800, color: "#6f8f7c", textTransform: "uppercase", letterSpacing: "1px" }}>{item.icon} {item.label}</p>
+                        <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#4b6358" }}>{item.value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div style={{ padding: "1rem 2rem 1.5rem", display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
+                  <button className="small-action" onClick={() => { setVisualizando(null); abrirEditar(visualizando); }} type="button">✏️ Editar empresa</button>
+                  <button onClick={() => setVisualizando(null)} style={{ background: "linear-gradient(135deg, #10b981, #059669)", color: "#fff", border: "none", borderRadius: 8, padding: "0.55rem 1.4rem", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }} type="button">Fechar</button>
+                </div>
               </div>
             </div>
-          </div>
-        </>
-      )}
+          </>
+        );
+      })()}
 
       {/* ── Modal Editar ── */}
       {editandoEmpresa && (
