@@ -11,6 +11,7 @@ import {
 } from "@/services/empresaClientService";
 import type { CriarEmpresaInput, Empresa } from "@/modules/empresas/empresas.types";
 import { SetoresModal } from "@/components/empresas/SetoresModal";
+import { CnaeSelect } from "@/components/empresas/CnaeSelect";
 
 /* ─── Constantes ──────────────────────────────────────────────── */
 
@@ -544,12 +545,23 @@ export default function EmpresasPage() {
                         {PORTES.map((p) => <option key={p} value={p}>{p}</option>)}
                       </Sel>
                     </Field>
-                    <div style={{ display: "grid", gridTemplateColumns: "160px 1fr", gap: "1rem" }}>
-                      <Field label="CNAE Principal (código)">
-                        <Inp name="cnae_principal" onChange={handleChange} placeholder="Ex: 6920-6/01" value={form.cnae_principal} />
+                    <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: "1rem" }}>
+                      <Field label="CNAE Principal">
+                        <CnaeSelect
+                          value={form.cnae_principal}
+                          onChange={(code, desc) =>
+                            setForm((p) => ({ ...p, cnae_principal: code, cnae_descricao: desc }))
+                          }
+                        />
                       </Field>
                       <Field label="Descrição da atividade">
-                        <Inp name="cnae_descricao" onChange={handleChange} placeholder="Ex: Atividades de contabilidade" value={form.cnae_descricao} />
+                        <input
+                          className="input"
+                          placeholder="Preenchido automaticamente ao selecionar o CNAE"
+                          readOnly
+                          style={{ background: "#f8fdfb", color: "#4b6358", cursor: "default" }}
+                          value={form.cnae_descricao}
+                        />
                       </Field>
                     </div>
                     <Field label="Regime Tributário">
