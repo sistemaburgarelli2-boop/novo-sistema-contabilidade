@@ -1,5 +1,60 @@
 export type Cnae = { code: string; description: string };
 
+export type SecaoCnae = {
+  id: string;
+  label: string;
+  emoji: string;
+};
+
+export const SECOES: SecaoCnae[] = [
+  { id: "A", emoji: "🌾", label: "Seção A — Agricultura, Pecuária, Produção Florestal, Pesca e Aquicultura" },
+  { id: "B", emoji: "⛏️",  label: "Seção B — Indústrias Extrativas" },
+  { id: "C", emoji: "🏭", label: "Seção C — Indústrias de Transformação" },
+  { id: "D", emoji: "⚡", label: "Seção D — Eletricidade e Gás" },
+  { id: "E", emoji: "💧", label: "Seção E — Água, Esgoto, Gestão de Resíduos e Descontaminação" },
+  { id: "F", emoji: "🏗️",  label: "Seção F — Construção" },
+  { id: "G", emoji: "🛒", label: "Seção G — Comércio, Reparação de Veículos Automotores e Motocicletas" },
+  { id: "H", emoji: "🚚", label: "Seção H — Transporte, Armazenagem e Correio" },
+  { id: "I", emoji: "🍽️",  label: "Seção I — Alojamento e Alimentação" },
+  { id: "J", emoji: "💻", label: "Seção J — Informação e Comunicação" },
+  { id: "K", emoji: "🏦", label: "Seção K — Atividades Financeiras, de Seguros e Serviços Relacionados" },
+  { id: "L", emoji: "🏠", label: "Seção L — Atividades Imobiliárias" },
+  { id: "M", emoji: "📐", label: "Seção M — Atividades Profissionais, Científicas e Técnicas" },
+  { id: "N", emoji: "🗂️",  label: "Seção N — Atividades Administrativas e Serviços Complementares" },
+  { id: "O", emoji: "🏛️",  label: "Seção O — Administração Pública, Defesa e Seguridade Social" },
+  { id: "P", emoji: "📚", label: "Seção P — Educação" },
+  { id: "Q", emoji: "🏥", label: "Seção Q — Saúde Humana e Serviços Sociais" },
+  { id: "R", emoji: "🎭", label: "Seção R — Artes, Cultura, Esporte e Recreação" },
+  { id: "S", emoji: "✂️",  label: "Seção S — Outras Atividades de Serviços" },
+  { id: "T", emoji: "🏡", label: "Seção T — Serviços Domésticos" },
+  { id: "U", emoji: "🌐", label: "Seção U — Organismos Internacionais e Outras Instituições Extraterritoriais" },
+];
+
+export function getSecao(code: string): string {
+  const n = parseInt(code.slice(0, 4), 10);
+  if (n <= 399)  return "A";
+  if (n <= 999)  return "B";
+  if (n <= 3399) return "C";
+  if (n <= 3530) return "D";
+  if (n <= 3900) return "E";
+  if (n <= 4399) return "F";
+  if (n <= 4799) return "G";
+  if (n <= 5399) return "H";
+  if (n <= 5699) return "I";
+  if (n <= 6399) return "J";
+  if (n <= 6699) return "K";
+  if (n <= 6899) return "L";
+  if (n <= 7599) return "M";
+  if (n <= 8299) return "N";
+  if (n <= 8499) return "O";
+  if (n <= 8599) return "P";
+  if (n <= 8899) return "Q";
+  if (n <= 9399) return "R";
+  if (n <= 9699) return "S";
+  if (n <= 9799) return "T";
+  return "U";
+}
+
 export const CNAE_LIST: Cnae[] = [
   // ── SEÇÃO A — AGRICULTURA, PECUÁRIA, FLORESTAL, PESCA ──────────────────
   { code: "0111-3/01", description: "Cultivo de arroz" },
