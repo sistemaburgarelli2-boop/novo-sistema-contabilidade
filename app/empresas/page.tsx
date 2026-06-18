@@ -171,6 +171,8 @@ export default function EmpresasPage() {
   const [visualizando, setVisualizando] = useState<Empresa | null>(null);
   const [confirmandoExcluir, setConfirmandoExcluir] = useState<Empresa | null>(null);
   const [excluindo, setExcluindo] = useState(false);
+  const [confirmandoArquivar, setConfirmandoArquivar] = useState<Empresa | null>(null);
+  const [arquivando, setArquivando] = useState(false);
   const [editandoEmpresa, setEditandoEmpresa] = useState<Empresa | null>(null);
   const [editForm, setEditForm] = useState<Partial<CriarEmpresaInput>>({});
   const [salvandoEdicao, setSalvandoEdicao] = useState(false);
@@ -309,14 +311,16 @@ export default function EmpresasPage() {
     } finally { setExcluindo(false); }
   }
 
-  async function handleArquivar(emp: Empresa) {
-    if (!confirm(`Arquivar "${emp.nome_legal}"? A empresa ficará com status encerrada.`)) return;
+  async function handleArquivarConfirmado() {
+    if (!confirmandoArquivar) return;
+    setArquivando(true);
     try {
-      await atualizarEmpresaTenant(emp.id, { status: "encerrada" });
+      await atualizarEmpresaTenant(confirmandoArquivar.id, { status: "encerrada" });
+      setConfirmandoArquivar(null);
       await carregarEmpresas();
     } catch (e) {
       alert(e instanceof Error ? e.message : "Erro ao arquivar.");
-    }
+    } finally { setArquivando(false); }
   }
 
   /* ── KPIs e filtros ── */
@@ -523,7 +527,7 @@ export default function EmpresasPage() {
                           </button>
                           <button className="small-action" onClick={() => abrirEditar(emp)} title="Editar" type="button">✏️</button>
                           <button
-                            onClick={() => handleArquivar(emp)}
+                            onClick={() => setConfirmandoArquivar(emp)}
                             style={{ minHeight: 30, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#6b7280", borderRadius: 8, padding: "0 10px", fontSize: "0.75rem", cursor: "pointer", fontWeight: 600 }}
                             title="Arquivar"
                             type="button"
@@ -890,6 +894,54 @@ export default function EmpresasPage() {
               <div style={{ padding: "1rem 1.75rem", borderTop: "1px solid #dfece5", background: "#f3f8f5", display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
                 <button className="small-action" onClick={() => setEditandoEmpresa(null)} type="button">Cancelar</button>
                 <button disabled={salvandoEdicao} onClick={handleSalvarEdicao} type="button">{salvandoEdicao ? "Salvando..." : "Salvar alterações"}</button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── Modal Confirmar Arquivamento ── */}
+      {confirmandoArquivar && (
+        <>
+          <div onClick={() => setConfirmandoArquivar(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(3px)", zIndex: 40 }} />
+          <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem", pointerEvents: "none" }}>
+            <div style={{ width: "100%", maxWidth: 440, background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", boxShadow: "0 32px 80px rgba(0,0,0,0.18)", overflow: "hidden", pointerEvents: "auto" }}>
+              {/* Header */}
+              <div style={{ padding: "1.5rem 1.75rem 1.25rem", display: "flex", gap: "1rem", alignItems: "flex-start" }}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.4rem", flexShrink: 0 }}>
+                  📦
+                </div>
+                <div>
+                  <h2 style={{ margin: "0 0 0.3rem", fontSize: "1rem", fontWeight: 800, color: "#111827" }}>Arquivar empresa</h2>
+                  <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.5 }}>
+                    A empresa <strong style={{ color: "#111827" }}>{confirmandoArquivar.nome_legal}</strong> será marcada como <strong style={{ color: "#374151" }}>encerrada</strong> e ficará oculta nas listas ativas.
+                  </p>
+                </div>
+              </div>
+              {/* Aviso */}
+              <div style={{ margin: "0 1.75rem 1.25rem", background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 10, padding: "0.75rem 1rem", display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
+                <span style={{ fontSize: "0.9rem", flexShrink: 0 }}>ℹ️</span>
+                <p style={{ margin: 0, fontSize: "0.8rem", color: "#6b7280", lineHeight: 1.45 }}>
+                  Esta ação pode ser revertida editando o status da empresa posteriormente.
+                </p>
+              </div>
+              {/* Ações */}
+              <div style={{ padding: "1rem 1.75rem 1.5rem", display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
+                <button
+                  className="small-action"
+                  onClick={() => setConfirmandoArquivar(null)}
+                  type="button"
+                >
+                  Cancelar
+                </button>
+                <button
+                  disabled={arquivando}
+                  onClick={handleArquivarConfirmado}
+                  style={{ background: "linear-gradient(135deg, #4b5563, #374151)", color: "#fff", border: "none", borderRadius: 8, padding: "0.55rem 1.4rem", fontWeight: 700, fontSize: "0.85rem", cursor: arquivando ? "not-allowed" : "pointer", opacity: arquivando ? 0.7 : 1, display: "flex", alignItems: "center", gap: "0.4rem" }}
+                  type="button"
+                >
+                  {arquivando ? "Arquivando..." : "📦 Arquivar empresa"}
+                </button>
               </div>
             </div>
           </div>
