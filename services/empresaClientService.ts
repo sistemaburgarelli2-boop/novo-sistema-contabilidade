@@ -1,4 +1,4 @@
-import type { CriarEmpresaInput, Empresa } from "@/modules/empresas/empresas.types";
+import type { AtualizarEmpresaInput, CriarEmpresaInput, Empresa } from "@/modules/empresas/empresas.types";
 import type { RoleEmpresa, UsuarioEmpresa } from "@/modules/usuarios/usuarios.types";
 
 type ApiResult<T> = {
@@ -61,7 +61,7 @@ export async function criarConviteEmpresa(payload: { email: string; empresa_id: 
   return parseResult<{ convite: unknown; invite_url: string }>(response);
 }
 
-export async function atualizarEmpresaTenant(empresaId: string, payload: Partial<CriarEmpresaInput>) {
+export async function atualizarEmpresaTenant(empresaId: string, payload: AtualizarEmpresaInput) {
   const response = await fetch(`/api/empresas/${empresaId}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
