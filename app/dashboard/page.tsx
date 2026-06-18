@@ -11,6 +11,8 @@ import {
   type MonthlyDashboardItem,
 } from "@/services/dashboardService";
 
+const currency = new Intl.NumberFormat("pt-BR", { currency: "BRL", style: "currency" });
+
 const marketItems = [
   { change: "0,12%", direction: "down", label: "IR/BRL", value: "R$ 5,85" },
   { change: "0,27%", direction: "down", label: "GBP/BRL", value: "R$ 6,75" },
@@ -47,13 +49,18 @@ const news = [
   "Prazo da DCTF Web prorrogado pela Receita Federal",
 ];
 
+function getCurrentMonthData(monthly: MonthlyDashboardItem[]) {
+  const now = new Date();
+  const key = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  return monthly.find((m) => m.month === key) ?? { expense: 0, income: 0, month: key };
+}
+
 export default function Dashboard() {
-  const [summary, setSummary] = useState<DashboardSummary>({
-    balance: 0,
-    expense: 0,
-    income: 0,
-  });
+  const [summary, setSummary] = useState<DashboardSummary>({ balance: 0, expense: 0, income: 0 });
   const [monthly, setMonthly] = useState<MonthlyDashboardItem[]>([]);
+  const [clientesAtivos, setClientesAtivos] = useState(0);
+  const [obrigacoesHoje, setObrigacoesHoje] = useState(0);
+  const [tarefasAtrasadas, setTarefasAtrasadas] = useState(0);
   const [activeCompanyId, setActiveCompanyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,14 +68,15 @@ export default function Dashboard() {
     const companyId = getActiveCompanyId();
     setActiveCompanyId(companyId);
 
-    if (!companyId) {
-      return;
-    }
+    if (!companyId) return;
 
     getDashboardData(companyId)
       .then((data) => {
         setSummary(data.summary);
         setMonthly(data.monthly);
+        setClientesAtivos(data.clientesAtivos ?? 0);
+        setObrigacoesHoje(data.obrigacoesHoje ?? 0);
+        setTarefasAtrasadas(data.tarefasAtrasadas ?? 0);
       })
       .catch((currentError) => {
         setError(currentError instanceof Error ? currentError.message : "Erro ao carregar dashboard.");
@@ -86,13 +94,18 @@ export default function Dashboard() {
     );
   }
 
+  const mesAtual = getCurrentMonthData(monthly);
+  const resultadoMes = mesAtual.income - mesAtual.expense;
+  const ticketMedio = clientesAtivos > 0 ? mesAtual.income / clientesAtivos : 0;
+  const nomeMes = new Date().toLocaleString("pt-BR", { month: "long" });
+
   return (
     <AppShell>
       <div className="page-stack">
         <div className="module-hero">
           <div>
             <h1>Dashboard</h1>
-            <p>Resumo financeiro, saldo atual e evolução mensal da empresa ativa.</p>
+            <p>Visão geral do escritório: clientes, obrigações e indicadores financeiros.</p>
           </div>
           <div className="hero-actions">
             <button onClick={() => window.location.reload()} type="button">Atualizar dados</button>
@@ -117,9 +130,70 @@ export default function Dashboard() {
           ))}
         </div>
 
+        <div className="kpi-strip">
+          <article className="metric-card">
+            <span>Clientes Ativos</span>
+            <strong className="kpi-num">{clientesAtivos}</strong>
+            <p>Empresas cadastradas no escritório</p>
+          </article>
+
+          <article className="metric-card kpi-warning">
+            <span>Obrigações Vencendo Hoje</span>
+            <strong className="kpi-num">{obrigacoesHoje}</strong>
+            <p>{obrigacoesHoje === 0 ? "Nenhuma obrigação vencendo hoje" : "Requerem atenção imediata"}</p>
+            {obrigacoesHoje > 0 && <span className="kpi-tag kpi-tag-warning">Atenção necessária</span>}
+          </article>
+
+          <article className="metric-card kpi-danger">
+            <span>Tarefas Atrasadas</span>
+            <strong className="kpi-num">{tarefasAtrasadas}</strong>
+            <p>{tarefasAtrasadas === 0 ? "Sem atrasos pendentes" : "Tarefas em atraso"}</p>
+            {tarefasAtrasadas > 0 && <span className="kpi-tag kpi-tag-danger">Requer atenção</span>}
+          </article>
+
+          <article className="metric-card kpi-info">
+            <span>Receita em {nomeMes}</span>
+            <strong className="kpi-currency">{currency.format(mesAtual.income)}</strong>
+            <p>Entradas registradas no mês corrente</p>
+          </article>
+        </div>
+
         <div className="dashboard-grid">
           <div className="dashboard-main">
             <FinancialSummary summary={summary} />
+
+            <section className="office-financials">
+              <div className="office-financials-header">
+                <div>
+                  <h2>Indicadores Financeiros do Escritório</h2>
+                  <p>Desempenho consolidado do mês de {nomeMes}</p>
+                </div>
+              </div>
+              <div className="office-kpi-grid">
+                <article className="office-kpi-card">
+                  <span>Receita do Mês</span>
+                  <strong>{currency.format(mesAtual.income)}</strong>
+                  <p>Entradas no mês corrente</p>
+                </article>
+                <article className="office-kpi-card">
+                  <span>Despesas do Mês</span>
+                  <strong className="value-negative">{currency.format(mesAtual.expense)}</strong>
+                  <p>Saídas no mês corrente</p>
+                </article>
+                <article className="office-kpi-card">
+                  <span>Resultado do Mês</span>
+                  <strong className={resultadoMes >= 0 ? "value-positive" : "value-negative"}>
+                    {currency.format(resultadoMes)}
+                  </strong>
+                  <p>Receita menos despesas</p>
+                </article>
+                <article className="office-kpi-card">
+                  <span>Ticket Médio</span>
+                  <strong>{currency.format(ticketMedio)}</strong>
+                  <p>Receita média por cliente</p>
+                </article>
+              </div>
+            </section>
 
             <div className="list-panel">
               <div className="list-panel-header">

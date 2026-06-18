@@ -96,7 +96,7 @@ const EMPTY_FORM: FormData = {
   alvara_numero: "", alvara_validade: "", alvara_status: "pendente",
 };
 
-/* ─── Helpers de rascunho ─────────────────────────────────────── */
+/* ─── Helpers ─────────────────────────────────────────────────── */
 
 function lerRascunhos(): Rascunho[] {
   try { return JSON.parse(localStorage.getItem(DRAFT_KEY) ?? "[]"); }
@@ -106,8 +106,6 @@ function lerRascunhos(): Rascunho[] {
 function salvarRascunhos(lista: Rascunho[]) {
   localStorage.setItem(DRAFT_KEY, JSON.stringify(lista));
 }
-
-/* ─── Subcomponentes ──────────────────────────────────────────── */
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
@@ -177,6 +175,12 @@ export default function EmpresasPage() {
   const [editForm, setEditForm] = useState<Partial<CriarEmpresaInput>>({});
   const [salvandoEdicao, setSalvandoEdicao] = useState(false);
   const [erroEdicao, setErroEdicao] = useState<string | null>(null);
+
+  // Filtros
+  const [filtroNome, setFiltroNome] = useState("");
+  const [filtroCnpj, setFiltroCnpj] = useState("");
+  const [filtroRegime, setFiltroRegime] = useState("");
+  const [filtroCidade, setFiltroCidade] = useState("");
 
   useEffect(() => {
     setEmpresaAtiva(localStorage.getItem("empresaAtivaId"));
@@ -305,6 +309,33 @@ export default function EmpresasPage() {
     } finally { setExcluindo(false); }
   }
 
+  async function handleArquivar(emp: Empresa) {
+    if (!confirm(`Arquivar "${emp.nome_legal}"? A empresa ficará com status encerrada.`)) return;
+    try {
+      await atualizarEmpresaTenant(emp.id, { status: "encerrada" });
+      await carregarEmpresas();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro ao arquivar.");
+    }
+  }
+
+  /* ── KPIs e filtros ── */
+  const totalEmpresas = empresas.length;
+  const totalAtivas = empresas.filter((e) => e.status === "ativa").length;
+  const totalPendentes = empresas.filter((e) => e.status === "suspensa").length;
+  const totalInadimplentes = 0;
+
+  const empresasFiltradas = empresas.filter((emp) => {
+    const nome = (emp.nome_legal + " " + (emp.nome_fantasia ?? "")).toLowerCase();
+    const matchNome = !filtroNome || nome.includes(filtroNome.toLowerCase());
+    const matchCnpj = !filtroCnpj || (emp.cnpj ?? "").includes(filtroCnpj);
+    const matchRegime = !filtroRegime || emp.regime_tributario === filtroRegime;
+    const matchCidade = !filtroCidade || (emp.cidade ?? "").toLowerCase().includes(filtroCidade.toLowerCase());
+    return matchNome && matchCnpj && matchRegime && matchCidade;
+  });
+
+  const temFiltro = !!(filtroNome || filtroCnpj || filtroRegime || filtroCidade);
+
   /* ── Render ── */
   return (
     <AppShell>
@@ -314,77 +345,199 @@ export default function EmpresasPage() {
         <div className="module-hero">
           <div>
             <h1>Empresas</h1>
-            <p>Gerencie as empresas cadastradas no sistema.</p>
+            <p>Gerencie clientes, acompanhe obrigações e acesse setores operacionais.</p>
           </div>
           <div className="hero-actions">
             <button onClick={() => abrirModal()} type="button">+ Nova empresa</button>
           </div>
         </div>
 
-        {/* ── Empresas cadastradas ── */}
+        {/* KPI Strip */}
+        <div className="kpi-strip">
+          <article className="metric-card">
+            <span>Total de Empresas</span>
+            <strong className="kpi-num">{totalEmpresas}</strong>
+            <p>Clientes cadastrados</p>
+          </article>
+          <article className="metric-card">
+            <span>Empresas Ativas</span>
+            <strong className="kpi-num">{totalAtivas}</strong>
+            <p>Com status ativo</p>
+          </article>
+          <article className="metric-card kpi-warning">
+            <span>Pendentes</span>
+            <strong className="kpi-num">{totalPendentes}</strong>
+            <p>Suspensas ou com restrições</p>
+          </article>
+          <article className="metric-card kpi-danger">
+            <span>Inadimplentes</span>
+            <strong className="kpi-num">{totalInadimplentes}</strong>
+            <p>Com pagamento em atraso</p>
+          </article>
+        </div>
+
+        {/* ── Lista de empresas ── */}
         <div className="list-panel">
           <div className="list-panel-header">
             <div>
               <h2>Empresas cadastradas</h2>
-              <p>{empresas.length === 0 ? "Nenhuma empresa cadastrada." : `${empresas.length} empresa${empresas.length > 1 ? "s" : ""} encontrada${empresas.length > 1 ? "s" : ""}.`}</p>
+              <p>
+                {loading ? "Carregando..." :
+                  empresasFiltradas.length === 0 ? "Nenhuma empresa encontrada." :
+                    `${empresasFiltradas.length}${temFiltro ? ` de ${totalEmpresas}` : ""} empresa${empresasFiltradas.length !== 1 ? "s" : ""}`}
+              </p>
             </div>
             <button className="small-action" onClick={carregarEmpresas} type="button">Atualizar</button>
           </div>
 
-          {loading && <div style={{ padding: "2rem", textAlign: "center", color: "var(--text-muted)" }}>Carregando...</div>}
+          {/* Filtros */}
+          {totalEmpresas > 0 && (
+            <div className="filter-bar">
+              <input
+                className="input"
+                onChange={(e) => setFiltroNome(e.target.value)}
+                placeholder="Buscar por nome..."
+                type="text"
+                value={filtroNome}
+              />
+              <input
+                className="input"
+                onChange={(e) => setFiltroCnpj(e.target.value)}
+                placeholder="Filtrar CNPJ..."
+                type="text"
+                value={filtroCnpj}
+              />
+              <select
+                className="input"
+                onChange={(e) => setFiltroRegime(e.target.value)}
+                value={filtroRegime}
+              >
+                <option value="">Todos os regimes</option>
+                {REGIMES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
+              </select>
+              <input
+                className="input"
+                onChange={(e) => setFiltroCidade(e.target.value)}
+                placeholder="Filtrar cidade..."
+                type="text"
+                value={filtroCidade}
+              />
+              {temFiltro && (
+                <button
+                  className="small-action"
+                  onClick={() => { setFiltroNome(""); setFiltroCnpj(""); setFiltroRegime(""); setFiltroCidade(""); }}
+                  type="button"
+                >
+                  ✕ Limpar
+                </button>
+              )}
+            </div>
+          )}
+
           {erro && <p className="error-alert" style={{ margin: "1rem 1.5rem" }}>{erro}</p>}
-          {!loading && !erro && empresas.length === 0 && (
+
+          {!loading && !erro && totalEmpresas === 0 && (
             <div style={{ padding: "3rem", textAlign: "center", color: "var(--text-muted)" }}>
               <p>Nenhuma empresa cadastrada ainda.</p>
               <button onClick={() => abrirModal()} style={{ marginTop: "1rem" }} type="button">+ Criar primeira empresa</button>
             </div>
           )}
-          {!loading && empresas.length > 0 && (
+
+          {!loading && empresasFiltradas.length === 0 && totalEmpresas > 0 && (
+            <div style={{ padding: "2rem", textAlign: "center", color: "var(--muted)", fontSize: 14 }}>
+              Nenhuma empresa corresponde aos filtros.
+            </div>
+          )}
+
+          {!loading && empresasFiltradas.length > 0 && (
             <div style={{ padding: "0 1.5rem 1.5rem", overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
                 <thead>
                   <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                    {["Razão social", "CNPJ", "Regime", "Cidade / UF", "Status", "Ações"].map((h, i) => (
-                      <th key={h} style={{ textAlign: i === 5 ? "right" : "left", padding: "0.75rem 0.5rem", color: "#6f8f7c", fontWeight: 700, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.5px" }}>{h}</th>
+                    {["Razão social / Fantasia", "CNPJ", "Regime", "Cidade / UF", "Status", "Última atividade", "Ações"].map((h, i) => (
+                      <th
+                        key={h}
+                        style={{
+                          textAlign: i === 6 ? "right" : "left",
+                          padding: "0.75rem 0.5rem",
+                          color: "#6f8f7c",
+                          fontWeight: 700,
+                          fontSize: "0.78rem",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.5px",
+                        }}
+                      >
+                        {h}
+                      </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {empresas.map((emp) => (
-                    <tr key={emp.id} style={{ borderBottom: "1px solid var(--border)", background: empresaAtiva === emp.id ? "rgba(74,222,128,0.05)" : undefined }}>
+                  {empresasFiltradas.map((emp) => (
+                    <tr
+                      key={emp.id}
+                      style={{
+                        borderBottom: "1px solid var(--border)",
+                        background: empresaAtiva === emp.id ? "rgba(74,222,128,0.05)" : undefined,
+                      }}
+                    >
                       <td style={{ padding: "0.875rem 0.5rem" }}>
                         <strong>{emp.nome_legal}</strong>
-                        {emp.nome_fantasia && <div style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>{emp.nome_fantasia}</div>}
+                        {emp.nome_fantasia && (
+                          <div style={{ color: "var(--muted)", fontSize: "0.8rem" }}>{emp.nome_fantasia}</div>
+                        )}
                       </td>
-                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--text-muted)" }}>{emp.cnpj ?? "—"}</td>
-                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--text-muted)" }}>
+                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--muted)" }}>{emp.cnpj ?? "—"}</td>
+                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--muted)" }}>
                         {REGIMES.find((r) => r.value === emp.regime_tributario)?.label ?? emp.regime_tributario ?? "—"}
                       </td>
-                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--text-muted)" }}>
+                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--muted)" }}>
                         {[emp.cidade, emp.estado].filter(Boolean).join(" / ") || "—"}
                       </td>
                       <td style={{ padding: "0.875rem 0.5rem" }}>
                         <span className={`priority-badge ${STATUS_CLASS[emp.status]}`}>{STATUS_LABEL[emp.status]}</span>
                       </td>
+                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--muted)", fontSize: "0.8rem" }}>
+                        {new Date(emp.updated_at).toLocaleDateString("pt-BR")}
+                      </td>
                       <td style={{ padding: "0.875rem 0.5rem", textAlign: "right" }}>
-                        <div style={{ display: "flex", gap: "0.4rem", justifyContent: "flex-end", alignItems: "center" }}>
+                        <div style={{ display: "flex", gap: "0.35rem", justifyContent: "flex-end", alignItems: "center" }}>
                           {empresaAtiva === emp.id
-                            ? <span style={{ fontSize: "0.75rem", color: "#10b981", fontWeight: 700, marginRight: 4 }}>✓ Ativa</span>
+                            ? <span style={{ fontSize: "0.75rem", color: "#10b981", fontWeight: 700, marginRight: 2 }}>✓ Ativa</span>
                             : <button className="small-action" onClick={() => handleAtivar(emp.id)} type="button">Ativar</button>}
                           <button
+                            onClick={() => window.location.href = `/empresas/${emp.id}`}
+                            style={{ minHeight: 30, border: "1px solid var(--border)", background: "#fff", color: "var(--ink)", borderRadius: 8, padding: "0 10px", fontSize: "0.75rem", cursor: "pointer", fontWeight: 600 }}
+                            title="Visualizar"
+                            type="button"
+                          >
+                            👁 Ver
+                          </button>
+                          <button
                             onClick={() => setSetoresEmpresa(emp)}
-                            style={{ minHeight: 32, border: "1px solid #6ee7b7", background: "#ecfdf5", color: "#065f46", borderRadius: 8, padding: "0 10px", fontSize: "0.75rem", cursor: "pointer", fontWeight: 700 }}
+                            style={{ minHeight: 30, border: "1px solid #6ee7b7", background: "#ecfdf5", color: "#065f46", borderRadius: 8, padding: "0 10px", fontSize: "0.75rem", cursor: "pointer", fontWeight: 700 }}
                             title="Setores"
                             type="button"
-                          >Setores</button>
-                          <button className="small-action" onClick={() => setVisualizando(emp)} title="Visualizar" type="button">👁</button>
+                          >
+                            Setores
+                          </button>
                           <button className="small-action" onClick={() => abrirEditar(emp)} title="Editar" type="button">✏️</button>
                           <button
+                            onClick={() => handleArquivar(emp)}
+                            style={{ minHeight: 30, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#6b7280", borderRadius: 8, padding: "0 10px", fontSize: "0.75rem", cursor: "pointer", fontWeight: 600 }}
+                            title="Arquivar"
+                            type="button"
+                          >
+                            📦
+                          </button>
+                          <button
                             onClick={() => setConfirmandoExcluir(emp)}
-                            style={{ minHeight: 32, border: "1px solid #fecaca", background: "#fff", color: "#b91c1c", borderRadius: 8, padding: "0 10px", fontSize: "0.75rem", cursor: "pointer", fontWeight: 600 }}
+                            style={{ minHeight: 30, border: "1px solid #fecaca", background: "#fff", color: "#b91c1c", borderRadius: 8, padding: "0 10px", fontSize: "0.75rem", cursor: "pointer", fontWeight: 600 }}
                             title="Excluir"
                             type="button"
-                          >🗑</button>
+                          >
+                            🗑
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -395,7 +548,7 @@ export default function EmpresasPage() {
           )}
         </div>
 
-        {/* ── Empresas salvas (rascunhos) ── */}
+        {/* ── Rascunhos ── */}
         <div className="list-panel">
           <div className="list-panel-header">
             <div>
@@ -403,20 +556,18 @@ export default function EmpresasPage() {
               <p>{rascunhos.length === 0 ? "Nenhum rascunho salvo." : `${rascunhos.length} rascunho${rascunhos.length > 1 ? "s" : ""} aguardando conclusão.`}</p>
             </div>
           </div>
-
           {rascunhos.length === 0 && (
-            <div style={{ padding: "2rem", textAlign: "center", color: "var(--text-muted)", fontSize: "0.875rem" }}>
+            <div style={{ padding: "2rem", textAlign: "center", color: "var(--muted)", fontSize: "0.875rem" }}>
               Rascunhos de empresas em abertura aparecerão aqui.
             </div>
           )}
-
           {rascunhos.length > 0 && (
             <div style={{ padding: "0 1.5rem 1.5rem", overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
                 <thead>
                   <tr style={{ borderBottom: "1px solid var(--border)" }}>
                     {["Razão social", "Regime", "CNAE", "Salvo em", "Ações"].map((h, i) => (
-                      <th key={h} style={{ textAlign: i === 4 ? "right" : "left", padding: "0.75rem 0.5rem", color: "var(--text-muted)", fontWeight: 600 }}>{h}</th>
+                      <th key={h} style={{ textAlign: i === 4 ? "right" : "left", padding: "0.75rem 0.5rem", color: "var(--muted)", fontWeight: 600 }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -424,16 +575,14 @@ export default function EmpresasPage() {
                   {rascunhos.map((r) => (
                     <tr key={r.id} style={{ borderBottom: "1px solid var(--border)" }}>
                       <td style={{ padding: "0.875rem 0.5rem" }}>
-                        <strong>{r.nome_legal || <em style={{ color: "var(--text-muted)" }}>Sem nome</em>}</strong>
-                        {r.nome_fantasia && <div style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>{r.nome_fantasia}</div>}
+                        <strong>{r.nome_legal || <em style={{ color: "var(--muted)" }}>Sem nome</em>}</strong>
+                        {r.nome_fantasia && <div style={{ color: "var(--muted)", fontSize: "0.8rem" }}>{r.nome_fantasia}</div>}
                       </td>
-                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--text-muted)" }}>
+                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--muted)" }}>
                         {REGIMES.find((rg) => rg.value === r.regime_tributario)?.label ?? "—"}
                       </td>
-                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--text-muted)" }}>
-                        {r.cnae_principal || "—"}
-                      </td>
-                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--text-muted)", fontSize: "0.8rem" }}>
+                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--muted)" }}>{r.cnae_principal || "—"}</td>
+                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--muted)", fontSize: "0.8rem" }}>
                         {new Date(r.salvo_em).toLocaleString("pt-BR")}
                       </td>
                       <td style={{ padding: "0.875rem 0.5rem", textAlign: "right", display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
@@ -455,82 +604,39 @@ export default function EmpresasPage() {
         </div>
       </div>
 
-      {/* ── Modal centralizado ── */}
+      {/* ── Modal Nova Empresa ── */}
       {showModal && (
         <>
           <div onClick={fecharModal} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.65)", zIndex: 40 }} />
-
-          <div style={{
-            position: "fixed", inset: 0, zIndex: 50,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            padding: "1.5rem",
-            pointerEvents: "none",
-          }}>
-            <div style={{
-              width: "100%", maxWidth: 760,
-              maxHeight: "90vh",
-              background: "#ffffff",
-              borderRadius: 14,
-              border: "1px solid #dfece5",
-              boxShadow: "0 24px 80px rgba(7,23,13,0.18)",
-              display: "flex", flexDirection: "column",
-              overflow: "hidden",
-              pointerEvents: "auto",
-            }}>
-
-              {/* Header */}
+          <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem", pointerEvents: "none" }}>
+            <div style={{ width: "100%", maxWidth: 760, maxHeight: "90vh", background: "#ffffff", borderRadius: 14, border: "1px solid #dfece5", boxShadow: "0 24px 80px rgba(7,23,13,0.18)", display: "flex", flexDirection: "column", overflow: "hidden", pointerEvents: "auto" }}>
               <div style={{ padding: "1.4rem 1.75rem", borderBottom: "1px solid #dfece5", background: "#f3f8f5", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div>
                   <h2 style={{ margin: 0, fontSize: "1.05rem", color: "#06170d" }}>{editingId ? "Editar rascunho" : "Nova empresa"}</h2>
-                  <p style={{ margin: "0.2rem 0 0", fontSize: "0.78rem", color: "#6f8f7c" }}>
-                    Etapa {step} de 3 — {STEPS[step - 1].title}
-                  </p>
+                  <p style={{ margin: "0.2rem 0 0", fontSize: "0.78rem", color: "#6f8f7c" }}>Etapa {step} de 3 — {STEPS[step - 1].title}</p>
                 </div>
                 <button onClick={fecharModal} style={{ background: "none", border: "none", color: "#6f8f7c", fontSize: "1.5rem", cursor: "pointer", lineHeight: 1, padding: "0 4px" }} type="button">×</button>
               </div>
-
-              {/* Steps tabs */}
               <div style={{ display: "flex", borderBottom: "1px solid #dfece5", background: "#ffffff" }}>
                 {STEPS.map((s) => (
                   <button
                     key={s.number}
                     onClick={() => { setErroForm(null); setStep(s.number); }}
-                    style={{
-                      flex: 1, padding: "0.85rem 0.5rem",
-                      background: "none", border: "none",
-                      borderBottom: step === s.number ? "2px solid #10b981" : "2px solid transparent",
-                      color: step === s.number ? "#075f3c" : "#6f8f7c",
-                      fontWeight: step === s.number ? 700 : 500,
-                      fontSize: "0.77rem", cursor: "pointer", textAlign: "center",
-                    }}
+                    style={{ flex: 1, padding: "0.85rem 0.5rem", background: "none", border: "none", borderBottom: step === s.number ? "2px solid #10b981" : "2px solid transparent", color: step === s.number ? "#075f3c" : "#6f8f7c", fontWeight: step === s.number ? 700 : 500, fontSize: "0.77rem", cursor: "pointer", textAlign: "center" }}
                     type="button"
                   >
-                    <span style={{
-                      display: "inline-flex", alignItems: "center", justifyContent: "center",
-                      width: 18, height: 18, borderRadius: "50%",
-                      background: step === s.number ? "#10b981" : "#dfece5",
-                      color: step === s.number ? "#ffffff" : "#6f8f7c",
-                      fontSize: "0.68rem", fontWeight: 700, marginRight: "0.4rem",
-                    }}>{s.number}</span>
+                    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 18, height: 18, borderRadius: "50%", background: step === s.number ? "#10b981" : "#dfece5", color: step === s.number ? "#ffffff" : "#6f8f7c", fontSize: "0.68rem", fontWeight: 700, marginRight: "0.4rem" }}>{s.number}</span>
                     {s.title}
                   </button>
                 ))}
               </div>
-
-              {/* Body */}
               <div style={{ flex: 1, overflowY: "auto", padding: "1.5rem 1.75rem", background: "#fafcfb" }}>
                 {erroForm && <p className="error-alert" style={{ marginBottom: "1rem" }}>{erroForm}</p>}
-
-                {/* Step 1 */}
                 {step === 1 && (
                   <div style={{ display: "grid", gap: "1rem" }}>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                      <Field label="Razão social" required>
-                        <Inp name="nome_legal" onChange={handleChange} placeholder="Nome legal da empresa" value={form.nome_legal} />
-                      </Field>
-                      <Field label="Nome fantasia">
-                        <Inp name="nome_fantasia" onChange={handleChange} placeholder="Nome fantasia" value={form.nome_fantasia} />
-                      </Field>
+                      <Field label="Razão social" required><Inp name="nome_legal" onChange={handleChange} placeholder="Nome legal da empresa" value={form.nome_legal} /></Field>
+                      <Field label="Nome fantasia"><Inp name="nome_fantasia" onChange={handleChange} placeholder="Nome fantasia" value={form.nome_fantasia} /></Field>
                     </div>
                     <Divider />
                     <Field label="Natureza Jurídica">
@@ -547,21 +653,10 @@ export default function EmpresasPage() {
                     </Field>
                     <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: "1rem" }}>
                       <Field label="CNAE Principal">
-                        <CnaeSelect
-                          value={form.cnae_principal}
-                          onChange={(code, desc) =>
-                            setForm((p) => ({ ...p, cnae_principal: code, cnae_descricao: desc }))
-                          }
-                        />
+                        <CnaeSelect value={form.cnae_principal} onChange={(code, desc) => setForm((p) => ({ ...p, cnae_principal: code, cnae_descricao: desc }))} />
                       </Field>
                       <Field label="Descrição da atividade">
-                        <input
-                          className="input"
-                          placeholder="Preenchido automaticamente ao selecionar o CNAE"
-                          readOnly
-                          style={{ background: "#f8fdfb", color: "#4b6358", cursor: "default" }}
-                          value={form.cnae_descricao}
-                        />
+                        <input className="input" placeholder="Preenchido automaticamente" readOnly style={{ background: "#f8fdfb", color: "#4b6358", cursor: "default" }} value={form.cnae_descricao} />
                       </Field>
                     </div>
                     <Field label="Regime Tributário">
@@ -572,8 +667,6 @@ export default function EmpresasPage() {
                     </Field>
                   </div>
                 )}
-
-                {/* Step 2 */}
                 {step === 2 && (
                   <div style={{ display: "grid", gap: "1.25rem" }}>
                     <Field label="Certificado Digital">
@@ -618,13 +711,9 @@ export default function EmpresasPage() {
                       </div>
                     </div>
                     <Divider />
-                    <Field label="CNPJ (após emissão)">
-                      <Inp name="cnpj" onChange={handleChange} placeholder="00.000.000/0000-00" value={form.cnpj} />
-                    </Field>
+                    <Field label="CNPJ (após emissão)"><Inp name="cnpj" onChange={handleChange} placeholder="00.000.000/0000-00" value={form.cnpj} /></Field>
                   </div>
                 )}
-
-                {/* Step 3 */}
                 {step === 3 && (
                   <div style={{ display: "grid", gap: "1.25rem" }}>
                     <div>
@@ -654,76 +743,39 @@ export default function EmpresasPage() {
                   </div>
                 )}
               </div>
-
-              {/* Footer */}
-              <div style={{
-                padding: "1.1rem 1.75rem",
-                borderTop: "1px solid #dfece5",
-                display: "flex", justifyContent: "space-between", alignItems: "center",
-                background: "#f3f8f5",
-                gap: "0.75rem",
-              }}>
-                <button
-                  className="small-action"
-                  disabled={step === 1}
-                  onClick={voltar}
-                  style={{ opacity: step === 1 ? 0.4 : 1 }}
-                  type="button"
-                >
-                  ← Anterior
-                </button>
-
+              <div style={{ padding: "1.1rem 1.75rem", borderTop: "1px solid #dfece5", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f3f8f5", gap: "0.75rem" }}>
+                <button className="small-action" disabled={step === 1} onClick={voltar} style={{ opacity: step === 1 ? 0.4 : 1 }} type="button">← Anterior</button>
                 <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                  {STEPS.map((s) => (
-                    <div key={s.number} style={{ width: 7, height: 7, borderRadius: "50%", background: step === s.number ? "#10b981" : "#c9dbd1" }} />
-                  ))}
+                  {STEPS.map((s) => <div key={s.number} style={{ width: 7, height: 7, borderRadius: "50%", background: step === s.number ? "#10b981" : "#c9dbd1" }} />)}
                 </div>
-
                 <div style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
                   <button
                     onClick={handleSalvarRascunho}
-                    style={{
-                      background: rascunhoSalvo ? "#ecfdf5" : "#ffffff",
-                      border: `1px solid ${rascunhoSalvo ? "#a7f3d0" : "#b9d3c6"}`,
-                      color: rascunhoSalvo ? "#047857" : "#0b6040",
-                      borderRadius: 8,
-                      padding: "0.45rem 1rem",
-                      fontSize: "0.82rem",
-                      cursor: "pointer",
-                      fontWeight: 600,
-                      transition: "all 0.2s",
-                      minHeight: 36,
-                    }}
+                    style={{ background: rascunhoSalvo ? "#ecfdf5" : "#ffffff", border: `1px solid ${rascunhoSalvo ? "#a7f3d0" : "#b9d3c6"}`, color: rascunhoSalvo ? "#047857" : "#0b6040", borderRadius: 8, padding: "0.45rem 1rem", fontSize: "0.82rem", cursor: "pointer", fontWeight: 600, transition: "all 0.2s", minHeight: 36 }}
                     type="button"
                   >
                     {rascunhoSalvo ? "✓ Salvo" : "Salvar rascunho"}
                   </button>
-
-                  {step < 3 ? (
-                    <button onClick={avancar} type="button">Próximo →</button>
-                  ) : (
-                    <button disabled={salvando} onClick={handleCriar} type="button">
-                      {salvando ? "Salvando..." : "✓ Criar empresa"}
-                    </button>
-                  )}
+                  {step < 3
+                    ? <button onClick={avancar} type="button">Próximo →</button>
+                    : <button disabled={salvando} onClick={handleCriar} type="button">{salvando ? "Salvando..." : "✓ Criar empresa"}</button>}
                 </div>
               </div>
             </div>
           </div>
         </>
       )}
+
       {/* ── Modal Setores ── */}
-      {setoresEmpresa && (
-        <SetoresModal empresa={setoresEmpresa} onClose={() => setSetoresEmpresa(null)} />
-      )}
+      {setoresEmpresa && <SetoresModal empresa={setoresEmpresa} onClose={() => setSetoresEmpresa(null)} />}
 
       {/* ── Modal Visualizar ── */}
       {visualizando && (() => {
         const initials = visualizando.nome_legal.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase();
         const regimeLabel = REGIMES.find((r) => r.value === visualizando.regime_tributario)?.label ?? visualizando.regime_tributario;
         const statusColors: Record<Empresa["status"], { bg: string; cor: string; dot: string }> = {
-          ativa:     { bg: "#ecfdf5", cor: "#065f46", dot: "#10b981" },
-          suspensa:  { bg: "#fffbeb", cor: "#92400e", dot: "#f59e0b" },
+          ativa: { bg: "#ecfdf5", cor: "#065f46", dot: "#10b981" },
+          suspensa: { bg: "#fffbeb", cor: "#92400e", dot: "#f59e0b" },
           cancelada: { bg: "#fef2f2", cor: "#b91c1c", dot: "#ef4444" },
           encerrada: { bg: "#f3f4f6", cor: "#374151", dot: "#9ca3af" },
         };
@@ -733,16 +785,12 @@ export default function EmpresasPage() {
             <div onClick={() => setVisualizando(null)} style={{ position: "fixed", inset: 0, background: "rgba(6,23,13,0.6)", backdropFilter: "blur(2px)", zIndex: 40 }} />
             <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem", pointerEvents: "none" }}>
               <div style={{ width: "100%", maxWidth: 640, background: "#fff", borderRadius: 18, boxShadow: "0 32px 100px rgba(6,23,13,0.22)", display: "flex", flexDirection: "column", overflow: "hidden", pointerEvents: "auto" }}>
-
-                {/* Hero */}
                 <div style={{ background: "linear-gradient(120deg, #06170d 0%, #0b2e18 70%, #0f3d20 100%)", padding: "2rem 2rem 1.75rem", position: "relative", overflow: "hidden" }}>
                   <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 85% 40%, rgba(16,185,129,0.12) 0%, transparent 60%)", pointerEvents: "none" }} />
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "linear-gradient(90deg, #10b981, #34d399, #6ee7b7)" }} />
                   <button onClick={() => setVisualizando(null)} style={{ position: "absolute", top: "1.1rem", right: "1.25rem", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", color: "#a7c4b4", borderRadius: 8, width: 32, height: 32, cursor: "pointer", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center" }} type="button">×</button>
                   <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
-                    <div style={{ width: 60, height: 60, borderRadius: 16, background: "linear-gradient(135deg, #10b981, #065f46)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.3rem", fontWeight: 900, flexShrink: 0, border: "2px solid rgba(255,255,255,0.15)" }}>
-                      {initials}
-                    </div>
+                    <div style={{ width: 60, height: 60, borderRadius: 16, background: "linear-gradient(135deg, #10b981, #065f46)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.3rem", fontWeight: 900, flexShrink: 0, border: "2px solid rgba(255,255,255,0.15)" }}>{initials}</div>
                     <div>
                       <p style={{ margin: "0 0 0.2rem", fontSize: "0.68rem", fontWeight: 800, color: "#34d399", letterSpacing: "2px", textTransform: "uppercase" }}>Empresa</p>
                       <h2 style={{ margin: "0 0 0.35rem", color: "#fff", fontSize: "1.2rem", fontWeight: 800, lineHeight: 1.2 }}>{visualizando.nome_legal}</h2>
@@ -756,18 +804,11 @@ export default function EmpresasPage() {
                     </div>
                   </div>
                 </div>
-
-                {/* Corpo */}
                 <div style={{ padding: "1.75rem 2rem", display: "grid", gap: "1.5rem" }}>
-
-                  {/* Dados cadastrais */}
                   <div>
                     <p style={{ margin: "0 0 0.75rem", fontSize: "0.68rem", fontWeight: 900, color: "#10b981", letterSpacing: "2px", textTransform: "uppercase" }}>Dados Cadastrais</p>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-                      {[
-                        { label: "CNPJ", value: visualizando.cnpj, icon: "🪪" },
-                        { label: "Regime Tributário", value: regimeLabel, icon: "📋" },
-                      ].map((item) => (
+                      {[{ label: "CNPJ", value: visualizando.cnpj, icon: "🪪" }, { label: "Regime Tributário", value: regimeLabel, icon: "📋" }].map((item) => (
                         <div key={item.label} style={{ background: "#f8fdfb", border: "1px solid #e6f0ea", borderRadius: 10, padding: "0.85rem 1rem" }}>
                           <p style={{ margin: "0 0 0.3rem", fontSize: "0.68rem", fontWeight: 800, color: "#6f8f7c", textTransform: "uppercase", letterSpacing: "1px" }}>{item.icon} {item.label}</p>
                           <p style={{ margin: 0, fontSize: "0.9rem", fontWeight: 700, color: "#07170d" }}>{item.value || "—"}</p>
@@ -775,21 +816,15 @@ export default function EmpresasPage() {
                       ))}
                     </div>
                   </div>
-
-                  {/* Localização */}
                   <div>
                     <p style={{ margin: "0 0 0.75rem", fontSize: "0.68rem", fontWeight: 900, color: "#10b981", letterSpacing: "2px", textTransform: "uppercase" }}>Localização</p>
                     <div style={{ background: "#f8fdfb", border: "1px solid #e6f0ea", borderRadius: 10, padding: "0.85rem 1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
                       <span style={{ fontSize: "1.1rem" }}>📍</span>
                       <span style={{ fontSize: "0.9rem", fontWeight: 600, color: "#07170d" }}>
-                        {visualizando.cidade && visualizando.estado
-                          ? `${visualizando.cidade} — ${visualizando.estado}`
-                          : visualizando.cidade || visualizando.estado || "—"}
+                        {visualizando.cidade && visualizando.estado ? `${visualizando.cidade} — ${visualizando.estado}` : visualizando.cidade || visualizando.estado || "—"}
                       </span>
                     </div>
                   </div>
-
-                  {/* Histórico */}
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                     {[
                       { label: "Criado em", value: new Date(visualizando.created_at).toLocaleString("pt-BR"), icon: "🗓" },
@@ -802,10 +837,9 @@ export default function EmpresasPage() {
                     ))}
                   </div>
                 </div>
-
-                {/* Footer */}
                 <div style={{ padding: "1rem 2rem 1.5rem", display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
-                  <button className="small-action" onClick={() => { setVisualizando(null); abrirEditar(visualizando); }} type="button">✏️ Editar empresa</button>
+                  <button className="small-action" onClick={() => { setVisualizando(null); window.location.href = `/empresas/${visualizando.id}`; }} type="button">🔍 Ver detalhes</button>
+                  <button className="small-action" onClick={() => { setVisualizando(null); abrirEditar(visualizando); }} type="button">✏️ Editar</button>
                   <button onClick={() => setVisualizando(null)} style={{ background: "linear-gradient(135deg, #10b981, #059669)", color: "#fff", border: "none", borderRadius: 8, padding: "0.55rem 1.4rem", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }} type="button">Fechar</button>
                 </div>
               </div>
@@ -831,13 +865,13 @@ export default function EmpresasPage() {
                 {erroEdicao && <p className="error-alert">{erroEdicao}</p>}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                   <Field label="Razão social" required>
-                    <input className="input" name="nome_legal" onChange={(e) => setEditForm((p) => ({ ...p, nome_legal: e.target.value }))} value={editForm.nome_legal ?? ""} />
+                    <input className="input" onChange={(e) => setEditForm((p) => ({ ...p, nome_legal: e.target.value }))} value={editForm.nome_legal ?? ""} />
                   </Field>
                   <Field label="Nome fantasia">
-                    <input className="input" name="nome_fantasia" onChange={(e) => setEditForm((p) => ({ ...p, nome_fantasia: e.target.value }))} value={editForm.nome_fantasia ?? ""} />
+                    <input className="input" onChange={(e) => setEditForm((p) => ({ ...p, nome_fantasia: e.target.value }))} value={editForm.nome_fantasia ?? ""} />
                   </Field>
                   <Field label="CNPJ">
-                    <input className="input" name="cnpj" onChange={(e) => setEditForm((p) => ({ ...p, cnpj: e.target.value }))} placeholder="00.000.000/0000-00" value={editForm.cnpj ?? ""} />
+                    <input className="input" onChange={(e) => setEditForm((p) => ({ ...p, cnpj: e.target.value }))} placeholder="00.000.000/0000-00" value={editForm.cnpj ?? ""} />
                   </Field>
                   <Field label="Regime Tributário">
                     <select className="input" onChange={(e) => setEditForm((p) => ({ ...p, regime_tributario: e.target.value }))} value={editForm.regime_tributario ?? ""}>
@@ -878,12 +912,7 @@ export default function EmpresasPage() {
               </div>
               <div style={{ padding: "1rem 1.75rem", borderTop: "1px solid #fecaca", background: "#fff5f5", display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
                 <button className="small-action" onClick={() => setConfirmandoExcluir(null)} type="button">Cancelar</button>
-                <button
-                  disabled={excluindo}
-                  onClick={handleExcluir}
-                  style={{ background: "linear-gradient(100deg,#dc2626,#b91c1c)" }}
-                  type="button"
-                >
+                <button disabled={excluindo} onClick={handleExcluir} style={{ background: "linear-gradient(100deg,#dc2626,#b91c1c)" }} type="button">
                   {excluindo ? "Excluindo..." : "Sim, excluir"}
                 </button>
               </div>

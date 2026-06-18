@@ -19,11 +19,14 @@ export async function GET(request: Request) {
     return fail("Empresa obrigatoria.");
   }
 
-  const { data, error } = await supabase
-    .from("transactions")
-    .select("*")
-    .eq("company_id", companyId)
-    .order("transaction_date", { ascending: true });
+  const [{ count: clientesAtivos }, { data, error }] = await Promise.all([
+    supabase.from("empresas").select("id", { count: "exact", head: true }),
+    supabase
+      .from("transactions")
+      .select("*")
+      .eq("company_id", companyId)
+      .order("transaction_date", { ascending: true }),
+  ]);
 
   if (error) {
     return fail(error.message, 500);
@@ -59,10 +62,13 @@ export async function GET(request: Request) {
   });
 
   return ok({
+    clientesAtivos: clientesAtivos ?? 0,
     monthly: Array.from(monthlyMap.values()),
+    obrigacoesHoje: 0,
     summary: {
       ...summary,
       balance: summary.income - summary.expense,
     },
+    tarefasAtrasadas: 0,
   });
 }

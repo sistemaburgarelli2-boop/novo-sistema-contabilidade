@@ -13,6 +13,9 @@ export type MonthlyDashboardItem = {
 type DashboardData = {
   summary: DashboardSummary;
   monthly: MonthlyDashboardItem[];
+  clientesAtivos: number;
+  obrigacoesHoje: number;
+  tarefasAtrasadas: number;
 };
 
 type ApiResult<T> = {
