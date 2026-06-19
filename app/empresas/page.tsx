@@ -433,6 +433,11 @@ export default function EmpresasPage() {
     return true;
   });
 
+  const enrichedMock = filteredMock.map((m, i) => ({
+    ...m,
+    realId: empresas[i]?.id ?? m.id,
+  }));
+
   const processosEmAndamento = MOCK_EMPRESAS.filter((m) =>
     m.processStatus === "Em Abertura" || m.processStatus === "Aguardando Cliente" || m.processStatus === "Rascunho"
   );
@@ -608,7 +613,7 @@ export default function EmpresasPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredMock.map((emp) => (
+                    {enrichedMock.map((emp) => (
                       <tr
                         key={emp.id}
                         style={{ borderBottom: "1px solid #f0f4f2", transition: "background 0.1s" }}
@@ -659,13 +664,13 @@ export default function EmpresasPage() {
                         <td style={{ padding: "0.75rem", textAlign: "right" }}>
                           <div style={{ display: "flex", gap: 4, justifyContent: "flex-end", flexWrap: "nowrap" }}>
                             <a
-                              href={`/empresas/${emp.id}`}
+                              href={`/empresas/${emp.realId ?? emp.id}`}
                               style={{ minHeight: 28, border: "1px solid #10b981", background: "#ecfdf5", color: "#065f46", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center" }}
                             >
                               Abrir
                             </a>
                             <a
-                              href={`/portal/${emp.id}`}
+                              href={`/portal/${emp.realId ?? emp.id}`}
                               style={{ minHeight: 28, border: "1px solid #c4b5fd", background: "#f5f3ff", color: "#7c3aed", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600, textDecoration: "none", display: "inline-flex", alignItems: "center" }}
                             >
                               Portal
