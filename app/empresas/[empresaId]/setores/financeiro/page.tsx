@@ -8,12 +8,12 @@ import { SetorShell } from "@/components/empresas/SetorShell";
 
 type StatusLanc = "aberto" | "pago" | "atrasado" | "cancelado" | "parcial";
 type TipoMov = "receita" | "despesa" | "transferencia";
-type FormaPgto = "boleto" | "pix" | "cartao" | "transferencia" | "dinheiro";
+type FormaPgto = "boleto" | "pix" | "cartao" | "transferencia" | "dinheiro" | "debito";
 type StatusMensal = "em_dia" | "atrasado" | "inadimplente" | "cancelado";
 type Plano = "basico" | "intermediario" | "premium" | "personalizado";
 type Modo = "cliente" | "escritorio";
 type TabCliente = "dash_cli" | "pagar" | "receber" | "movimentos" | "conciliacao" | "rel_cli";
-type TabEsc = "dash_esc" | "mensalidades" | "receber_esc" | "pagar_esc" | "comissoes" | "rel_esc";
+type TabEsc = "dash_esc" | "mensalidades" | "receber_esc" | "pagar_esc" | "comissoes" | "automacoes" | "rel_esc";
 
 type LancamentoFin = {
   id: string; descricao: string; categoria: string;
@@ -41,6 +41,11 @@ type Comissao = {
 type LogFin = {
   id: string; data: string; usuario: string;
   acao: string; modulo: string; detalhe: string;
+};
+
+type AutomacaoRegra = {
+  id: string; nome: string; gatilho: string; acao: string;
+  modulo: string; ativa: boolean; execucoes: number; ultimaExec: string | null;
 };
 
 /* ─── Ícone ───────────────────────────────────────────────────── */
@@ -135,6 +140,17 @@ const LOG_INIT: LogFin[] = [
   { id: "l5", data: "2026-06-10T08:00:00", usuario: "Sistema",     acao: "Mensalidade gerada",     modulo: "Mensalidades", detalhe: "8 mensalidades Jul/2026 geradas automaticamente" },
 ];
 
+const AUTOMACOES_INIT: AutomacaoRegra[] = [
+  { id: "a1", nome: "Cobrança automática no vencimento",       gatilho: "SE mensalidade vencer",           acao: "Enviar cobrança via e-mail e WhatsApp", modulo: "Mensalidades", ativa: true,  execucoes: 24, ultimaExec: "2026-06-18T15:00:00" },
+  { id: "a2", nome: "Atualizar status ao receber",             gatilho: "SE pagamento confirmado",         acao: "Marcar como pago e atualizar saldo",    modulo: "Contas Receber", ativa: true,  execucoes: 18, ultimaExec: "2026-06-15T09:00:00" },
+  { id: "a3", nome: "Bloquear portal por inadimplência",       gatilho: "SE atraso > 30 dias",             acao: "Bloquear acesso ao portal do cliente",  modulo: "Portal",       ativa: true,  execucoes: 3,  ultimaExec: "2026-06-17T11:00:00" },
+  { id: "a4", nome: "Gerar mensalidades do próximo mês",       gatilho: "SE dia 25 do mês",                acao: "Criar lançamentos do mês seguinte",     modulo: "Mensalidades", ativa: true,  execucoes: 6,  ultimaExec: "2026-06-25T08:00:00" },
+  { id: "a5", nome: "Alerta de vencimento (3 dias antes)",     gatilho: "SE vencimento em 3 dias",         acao: "Notificar financeiro e cliente",         modulo: "Contas Pagar", ativa: true,  execucoes: 42, ultimaExec: "2026-06-18T07:00:00" },
+  { id: "a6", nome: "Cobrança recorrente — cartão",            gatilho: "SE forma = cartão e dia venc.",    acao: "Processar cobrança automática",         modulo: "Mensalidades", ativa: false, execucoes: 0,  ultimaExec: null },
+  { id: "a7", nome: "Relatório semanal automático",            gatilho: "SE segunda-feira às 8h",           acao: "Enviar resumo financeiro por e-mail",   modulo: "Relatórios",   ativa: true,  execucoes: 12, ultimaExec: "2026-06-16T08:00:00" },
+  { id: "a8", nome: "Juros e multa por atraso",                gatilho: "SE atraso > 1 dia",                acao: "Calcular juros 2% + multa 1%",          modulo: "Contas Receber", ativa: true,  execucoes: 8,  ultimaExec: "2026-06-18T00:00:00" },
+];
+
 /* ─── Configurações visuais ───────────────────────────────────── */
 
 const PLANO_LABEL: Record<Plano, string> = {
@@ -182,6 +198,7 @@ const TABS_ESC: { id: TabEsc; label: string; icon: string }[] = [
   { id: "receber_esc", label: "A receber",     icon: "↓" },
   { id: "pagar_esc",   label: "A pagar",       icon: "↑" },
   { id: "comissoes",   label: "Comissões",     icon: "💰" },
+  { id: "automacoes",  label: "Automações",    icon: "⚡" },
   { id: "rel_esc",     label: "Relatórios",    icon: "📊" },
 ];
 
@@ -235,6 +252,7 @@ export default function FinanceiroPage() {
   const [receberEsc, setReceberEsc] = useState<LancamentoFin[]>(RECEBER_ESC_INIT);
   const [comissoes, setComissoes] = useState<Comissao[]>(COMISSOES_INIT);
   const [log, setLog] = useState<LogFin[]>(LOG_INIT);
+  const [automacoes, setAutomacoes] = useState<AutomacaoRegra[]>(AUTOMACOES_INIT);
 
   /* Filtros */
   const [filtPagarStatus, setFiltPagarStatus] = useState<StatusLanc | "">("");
@@ -306,6 +324,24 @@ export default function FinanceiroPage() {
       if (c.id !== id) return c;
       audit("Comissão paga", "Comissões", `${c.colaborador} — ${fmt(c.valor)}`);
       return { ...c, status: "pago" };
+    }));
+  }
+
+  /* ── Automações ── */
+  function toggleAutomacao(id: string) {
+    setAutomacoes((prev) => prev.map((a) => {
+      if (a.id !== id) return a;
+      const novoEstado = !a.ativa;
+      audit(novoEstado ? "Automação ativada" : "Automação desativada", "Automações", a.nome);
+      return { ...a, ativa: novoEstado };
+    }));
+  }
+
+  function executarAutomacao(id: string) {
+    setAutomacoes((prev) => prev.map((a) => {
+      if (a.id !== id) return a;
+      audit("Automação executada manualmente", "Automações", a.nome);
+      return { ...a, execucoes: a.execucoes + 1, ultimaExec: new Date().toISOString() };
     }));
   }
 
@@ -484,6 +520,28 @@ export default function FinanceiroPage() {
                         ))}
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                {/* Fluxo de trabalho financeiro */}
+                <div className="list-panel">
+                  <div className="list-panel-header"><div><h2>Fluxo Financeiro</h2><p>Etapas do processo financeiro</p></div></div>
+                  <div style={{ padding: "1.25rem", display: "flex", alignItems: "center", justifyContent: "center", gap: 0 }}>
+                    {[
+                      { etapa: "Receber", desc: "Registrar receitas e cobranças", icone: "↓", cor: "#0e7490", bg: "#ecfeff", count: receber.filter((l) => l.status === "aberto").length },
+                      { etapa: "Conciliar", desc: "Conferir extrato bancário", icone: "✓", cor: "#92400e", bg: "#fffbeb", count: concPendentes },
+                      { etapa: "Fechar", desc: "Encerrar período contábil", icone: "🔒", cor: "#065f46", bg: "#f0fdf4", count: 0 },
+                    ].map((f, i) => (
+                      <div key={f.etapa} style={{ display: "flex", alignItems: "center" }}>
+                        <div style={{ background: f.bg, border: `2px solid ${f.cor}33`, borderRadius: 14, padding: "1rem 1.5rem", textAlign: "center", minWidth: 160 }}>
+                          <div style={{ width: 40, height: 40, borderRadius: 12, background: `${f.cor}15`, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 8px", fontSize: "1.2rem", color: f.cor, fontWeight: 900 }}>{f.icone}</div>
+                          <p style={{ margin: "0 0 2px", fontWeight: 800, fontSize: "0.9rem", color: f.cor }}>{f.etapa}</p>
+                          <p style={{ margin: "0 0 6px", fontSize: "0.72rem", color: "#9ca3af" }}>{f.desc}</p>
+                          {f.count > 0 && <span style={{ fontSize: "0.68rem", fontWeight: 700, background: f.cor, color: "#fff", borderRadius: 999, padding: "2px 10px" }}>{f.count} pendente(s)</span>}
+                        </div>
+                        {i < 2 && <div style={{ width: 40, height: 2, background: "#a5f3fc", margin: "0 -4px" }} />}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -856,6 +914,38 @@ export default function FinanceiroPage() {
                   </div>
 
                   <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                    {/* Gráfico anual comparativo */}
+                    <div className="list-panel">
+                      <div className="list-panel-header"><div><h2>Anual — 2025 vs 2026</h2></div></div>
+                      <div style={{ padding: "1rem 1.25rem" }}>
+                        <svg height={100} viewBox="0 0 340 100" width="100%" style={{ overflow: "visible" }}>
+                          {[0, 25, 50, 75, 100].map((y) => <line key={y} x1={0} x2={340} y1={y} y2={y} stroke="#f5f3ff" strokeWidth={1} />)}
+                          {[
+                            { m: "Jan", v25: 52, v26: 62 }, { m: "Fev", v25: 55, v26: 68 },
+                            { m: "Mar", v25: 48, v26: 65 }, { m: "Abr", v25: 60, v26: 72 },
+                            { m: "Mai", v25: 58, v26: 75 }, { m: "Jun", v25: 62, v26: 82 },
+                            { m: "Jul", v25: 64, v26: 0 },  { m: "Ago", v25: 56, v26: 0 },
+                            { m: "Set", v25: 58, v26: 0 },  { m: "Out", v25: 65, v26: 0 },
+                            { m: "Nov", v25: 68, v26: 0 },  { m: "Dez", v25: 72, v26: 0 },
+                          ].map((d, i) => {
+                            const x = i * 27 + 6;
+                            return (
+                              <g key={d.m}>
+                                <rect x={x} y={100 - d.v25} width={10} height={d.v25} fill="#c4b5fd" rx={2} opacity={0.6} />
+                                {d.v26 > 0 && <rect x={x + 12} y={100 - d.v26} width={10} height={d.v26} fill="#7c3aed" rx={2} opacity={0.85} />}
+                                <text x={x + 6} y={113} fill="#9ca3af" fontSize={8} textAnchor="middle">{d.m}</text>
+                              </g>
+                            );
+                          })}
+                        </svg>
+                        <div style={{ display: "flex", gap: 14, marginTop: 8, fontSize: "0.68rem", color: "#9ca3af" }}>
+                          <span style={{ display: "flex", gap: 4, alignItems: "center" }}><span style={{ width: 8, height: 8, background: "#c4b5fd", borderRadius: 2, display: "inline-block" }} />2025</span>
+                          <span style={{ display: "flex", gap: 4, alignItems: "center" }}><span style={{ width: 8, height: 8, background: "#7c3aed", borderRadius: 2, display: "inline-block" }} />2026</span>
+                          <span style={{ marginLeft: "auto", fontWeight: 700, color: "#065f46" }}>+32% vs 2025</span>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Distribuição por plano */}
                     <div className="list-panel">
                       <div className="list-panel-header"><div><h2>Distribuição por plano</h2></div></div>
@@ -1095,6 +1185,100 @@ export default function FinanceiroPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {/* ── Automações ── */}
+            {tabEsc === "automacoes" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Automações Financeiras</h2>
+                  <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#9ca3af" }}>{automacoes.filter((a) => a.ativa).length} regras ativas · {automacoes.reduce((a, r) => a + r.execucoes, 0)} execuções totais</p></div>
+                </div>
+
+                {/* Fluxo visual das automações principais */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+                  {[
+                    { gatilho: "SE vencer", acao: "→ Cobrar", desc: "Envio automático de cobrança por e-mail/WhatsApp no dia do vencimento", icone: "📅", cor: "#92400e", bg: "#fffbeb", borda: "#fbbf24" },
+                    { gatilho: "SE receber", acao: "→ Atualizar status", desc: "Ao confirmar pagamento, marca como pago e atualiza saldo automaticamente", icone: "✅", cor: "#065f46", bg: "#f0fdf4", borda: "#34d399" },
+                    { gatilho: "SE atraso", acao: "→ Bloquear portal", desc: "Após 30 dias de inadimplência, bloqueia o acesso ao portal do cliente", icone: "🔒", cor: "#b91c1c", bg: "#fef2f2", borda: "#fca5a5" },
+                  ].map((fluxo) => (
+                    <div key={fluxo.gatilho} style={{ background: fluxo.bg, border: `2px solid ${fluxo.borda}`, borderRadius: 14, padding: "1.25rem", position: "relative", overflow: "hidden" }}>
+                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: fluxo.borda }} />
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                        <span style={{ fontSize: "1.5rem" }}>{fluxo.icone}</span>
+                        <div>
+                          <p style={{ margin: 0, fontSize: "0.82rem", fontWeight: 900, color: fluxo.cor }}>{fluxo.gatilho}</p>
+                          <p style={{ margin: 0, fontSize: "1rem", fontWeight: 900, color: fluxo.cor }}>{fluxo.acao}</p>
+                        </div>
+                      </div>
+                      <p style={{ margin: 0, fontSize: "0.78rem", color: "#6b7280", lineHeight: 1.5 }}>{fluxo.desc}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Lista completa de regras */}
+                <div className="list-panel">
+                  <div className="list-panel-header"><div><h2>Regras de Automação</h2><p>Configure gatilhos e ações automáticas</p></div></div>
+                  <div style={{ padding: "0.5rem 0 0.5rem" }}>
+                    {automacoes.map((regra) => (
+                      <div key={regra.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "0.875rem 1.25rem", borderBottom: "1px solid #f5f3ff", background: regra.ativa ? "transparent" : "#fafafa" }}>
+                        <button
+                          onClick={() => toggleAutomacao(regra.id)}
+                          style={{
+                            width: 44, height: 24, borderRadius: 12, border: "none", cursor: "pointer", position: "relative", transition: "background 0.2s",
+                            background: regra.ativa ? "#7c3aed" : "#d1d5db",
+                          }}
+                          type="button"
+                        >
+                          <span style={{
+                            position: "absolute", top: 3, width: 18, height: 18, borderRadius: 9, background: "#fff", transition: "left 0.2s", boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+                            left: regra.ativa ? 23 : 3,
+                          }} />
+                        </button>
+                        <div style={{ flex: 1 }}>
+                          <p style={{ margin: "0 0 3px", fontSize: "0.85rem", fontWeight: 700, color: regra.ativa ? "#07170d" : "#9ca3af" }}>{regra.nome}</p>
+                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                            <span style={{ fontSize: "0.68rem", fontWeight: 700, background: "#ecfeff", color: "#0e7490", borderRadius: 999, padding: "1px 7px" }}>{regra.gatilho}</span>
+                            <span style={{ fontSize: "0.68rem", fontWeight: 700, background: "#f5f3ff", color: "#7c3aed", borderRadius: 999, padding: "1px 7px" }}>{regra.acao}</span>
+                            <span style={{ fontSize: "0.68rem", fontWeight: 600, color: "#9ca3af" }}>{regra.modulo}</span>
+                          </div>
+                        </div>
+                        <div style={{ textAlign: "right", minWidth: 100 }}>
+                          <p style={{ margin: "0 0 2px", fontSize: "0.78rem", fontWeight: 700, color: "#7c3aed" }}>{regra.execucoes} exec.</p>
+                          <p style={{ margin: 0, fontSize: "0.68rem", color: "#9ca3af" }}>{regra.ultimaExec ? new Date(regra.ultimaExec).toLocaleDateString("pt-BR") : "—"}</p>
+                        </div>
+                        <div style={{ display: "flex", gap: 4 }}>
+                          {regra.ativa && (
+                            <button className="small-action" onClick={() => executarAutomacao(regra.id)} title="Executar agora" type="button">▶</button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Histórico de automações */}
+                <div className="list-panel">
+                  <div className="list-panel-header"><div><h2>Histórico de Execuções</h2><p>Últimas ações executadas pelo sistema</p></div></div>
+                  <div style={{ padding: "0.25rem 0 0.75rem" }}>
+                    {log.filter((e) => e.usuario === "Sistema" || e.acao.startsWith("Automação")).slice(0, 8).map((entry) => (
+                      <div key={entry.id} style={{ display: "flex", gap: 12, padding: "8px 1.25rem", borderBottom: "1px solid #f5f3ff", alignItems: "center" }}>
+                        <div style={{ width: 32, height: 32, borderRadius: 8, background: entry.acao.includes("bloqueio") ? "#fef2f2" : entry.acao.includes("cobrança") ? "#fffbeb" : "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.85rem", flexShrink: 0 }}>
+                          {entry.acao.includes("bloqueio") ? "🔒" : entry.acao.includes("cobrança") ? "📧" : entry.acao.includes("gerada") ? "📅" : "⚡"}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <p style={{ margin: "0 0 1px", fontSize: "0.82rem", fontWeight: 700, color: "#7c3aed" }}>{entry.acao}</p>
+                          <p style={{ margin: 0, fontSize: "0.75rem", color: "#6b7280" }}>{entry.detalhe}</p>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <p style={{ margin: 0, fontSize: "0.7rem", color: "#9ca3af" }}>{new Date(entry.data).toLocaleDateString("pt-BR")}</p>
+                          <p style={{ margin: 0, fontSize: "0.65rem", color: "#d1d5db" }}>{new Date(entry.data).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
 
