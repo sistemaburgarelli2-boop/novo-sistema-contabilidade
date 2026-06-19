@@ -9,12 +9,14 @@ const navigation = [
   { href: "/dashboard", icon: "dashboard", label: "Dashboard", section: "Visão geral" },
   { href: "/empresas", icon: "building", label: "Empresas", section: "Operacional" },
   { href: "/tarefas", icon: "tasks", label: "Tarefas", section: "Operacional" },
+  { href: "/admin", icon: "admin", label: "Administração", section: "Sistema" },
 ];
 
 const pageTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/empresas": "Empresas",
   "/tarefas": "Central de Tarefas",
+  "/admin": "Administração",
 };
 
 function BrandIcon() {
@@ -54,6 +56,15 @@ function NavIcon({ name }: { name: string }) {
         <rect height="4" rx="1" stroke="currentColor" strokeWidth="2" width="8" x="8" y="2" />
         <path d="M9 12l2 2 4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
         <path d="M9 18h6" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
+      </svg>
+    );
+  }
+
+  if (name === "admin") {
+    return (
+      <svg {...common}>
+        <path d="M12 2l-8 4.5v5c0 4.56 3.41 8.83 8 9.85 4.59-1.02 8-5.29 8-9.85v-5L12 2z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+        <path d="M9 12l2 2 4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
       </svg>
     );
   }

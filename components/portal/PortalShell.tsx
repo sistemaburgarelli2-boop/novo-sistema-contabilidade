@@ -11,13 +11,13 @@ type PortalShellProps = {
 };
 
 const NAV_ITEMS = [
-  { emoji: "🏠", href: "", label: "Dashboard" },
-  { emoji: "📤", href: "/documentos", label: "Enviar documentos" },
-  { emoji: "📋", href: "/impostos", label: "Impostos e guias" },
-  { emoji: "🔄", href: "/solicitacoes", label: "Solicitações" },
-  { emoji: "🎧", href: "/chamados", label: "Abrir chamado" },
-  { emoji: "💰", href: "/financeiro", label: "Financeiro" },
-  { emoji: "🔔", href: "/notificacoes", label: "Notificações" },
+  { emoji: "\u{1F3E0}", href: "", label: "Visão Geral" },
+  { emoji: "\u{1F4C4}", href: "/documentos", label: "Documentos" },
+  { emoji: "\u{1F4CB}", href: "/guias", label: "Guias" },
+  { emoji: "\u{1F504}", href: "/solicitacoes", label: "Solicitações" },
+  { emoji: "\u{1F4B0}", href: "/financeiro", label: "Financeiro" },
+  { emoji: "\u{1F4DC}", href: "/historico", label: "Histórico" },
+  { emoji: "\u{1F514}", href: "/notificacoes", label: "Notificações" },
 ];
 
 export function PortalShell({ children, empresaId, empresaNome }: PortalShellProps) {
@@ -61,9 +61,28 @@ export function PortalShell({ children, empresaId, empresaNome }: PortalShellPro
         </nav>
 
         <div className="portal-sidebar-footer">
-          <Link className="portal-back-link" href="/empresas">
-            ← Voltar ao sistema
-          </Link>
+          <button
+            onClick={() => { window.location.href = "/login"; }}
+            style={{
+              alignItems: "center",
+              background: "none",
+              border: "1px solid var(--border)",
+              borderRadius: 8,
+              color: "var(--muted)",
+              cursor: "pointer",
+              display: "flex",
+              fontSize: 13,
+              fontWeight: 600,
+              gap: 8,
+              justifyContent: "center",
+              padding: "10px 16px",
+              transition: "background 0.15s, color 0.15s",
+              width: "100%",
+            }}
+            type="button"
+          >
+            Sair do portal
+          </button>
         </div>
       </aside>
 

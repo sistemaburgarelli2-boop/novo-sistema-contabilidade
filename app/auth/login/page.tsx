@@ -110,7 +110,14 @@ export default function Login() {
         window.localStorage.removeItem("burgarelli:lastUser");
       }
 
-      window.location.href = "/dashboard";
+      const userTipo = result.user_tipo ?? localStorage.getItem("burgarelli:user_tipo") ?? "interno";
+      const linkedCompany = result.linked_company_id ?? localStorage.getItem("burgarelli:linked_company") ?? null;
+
+      if (userTipo === "cliente" && linkedCompany) {
+        window.location.href = `/portal/${linkedCompany}`;
+      } else {
+        window.location.href = "/dashboard";
+      }
     } finally {
       setLoading(false);
     }

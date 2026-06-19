@@ -44,10 +44,27 @@ const NOTIFICACOES_MOCK: Notificacao[] = [
 ];
 
 const TIPO_CONFIG = {
-  documento_recebido: { badge: "badge-neutral", emoji: "📄", label: "Documento" },
-  guia_disponivel: { badge: "badge-success", emoji: "📋", label: "Guia" },
+  documento_recebido: { badge: "badge-neutral", emoji: "\u{1F4C4}", label: "Documento" },
+  guia_disponivel: { badge: "badge-success", emoji: "\u{1F4CB}", label: "Guia" },
   obrigacao_vencendo: { badge: "badge-warning", emoji: "⚠️", label: "Obrigação" },
 };
+
+type TimelineEvent = {
+  id: string;
+  titulo: string;
+  data: string;
+  status: string;
+  statusColor: string;
+  iconColor: string;
+};
+
+const TIMELINE_EVENTS: TimelineEvent[] = [
+  { id: "1", titulo: "Guia DAS Jun/2026 emitida", data: "18/06/2026", status: "Emitida", statusColor: "#059669", iconColor: "#10b981" },
+  { id: "2", titulo: "Documento recebido: Extrato bancário", data: "17/06/2026", status: "Recebido", statusColor: "#0284c7", iconColor: "#38bdf8" },
+  { id: "3", titulo: "Folha de pagamento Mai/2026 concluída", data: "15/06/2026", status: "Concluída", statusColor: "#059669", iconColor: "#10b981" },
+  { id: "4", titulo: "Certidão negativa federal emitida", data: "10/06/2026", status: "Emitida", statusColor: "#059669", iconColor: "#8b5cf6" },
+  { id: "5", titulo: "Fechamento contábil Mai/2026 concluído", data: "05/06/2026", status: "Concluído", statusColor: "#059669", iconColor: "#f59e0b" },
+];
 
 export default function PortalDashboard() {
   const params = useParams();
@@ -67,68 +84,147 @@ export default function PortalDashboard() {
   }
 
   const nome = empresa.nome_fantasia || empresa.nome_legal;
-  const pendencias = NOTIFICACOES_MOCK.filter((n) => !n.lida).length;
-  const guias = NOTIFICACOES_MOCK.filter((n) => n.tipo === "guia_disponivel").length;
-  const mensagens = 0;
 
-  const ACOES = [
-    { emoji: "📤", href: `/portal/${empresaId}/documentos`, label: "Enviar documentos" },
-    { emoji: "📋", href: `/portal/${empresaId}/impostos`, label: "Ver impostos" },
-    { emoji: "🎧", href: `/portal/${empresaId}/chamados`, label: "Abrir chamado" },
-    { emoji: "💰", href: `/portal/${empresaId}/financeiro`, label: "Financeiro" },
+  const CARDS = [
+    { label: "Status empresa", value: "Ativa", badgeBg: "rgba(16,185,129,0.12)", badgeColor: "#065f46", icon: "✅" },
+    { label: "Último fechamento", value: "Mai/2026", badgeBg: "rgba(6,182,212,0.1)", badgeColor: "#0e7490", icon: "\u{1F4C5}" },
+    { label: "Próximos vencimentos", value: "3", badgeBg: "rgba(245,158,11,0.12)", badgeColor: "#92400e", icon: "⏰" },
+    { label: "Últimas entregas", value: "5", badgeBg: "rgba(99,102,241,0.1)", badgeColor: "#4338ca", icon: "\u{1F4E6}", sub: "este mês" },
   ];
 
   return (
     <PortalShell empresaId={empresaId} empresaNome={nome}>
       <div className="page-stack">
 
-        {/* Boas-vindas */}
-        <div className="portal-welcome">
-          <h2>Bem-vindo ao seu portal!</h2>
-          <p>Acompanhe obrigações, guias e documentos em um só lugar.</p>
+        {/* Welcome section */}
+        <div style={{
+          background: "linear-gradient(135deg, rgba(16,185,129,0.08), rgba(6,182,212,0.06))",
+          border: "1px solid rgba(16,185,129,0.15)",
+          borderRadius: 14,
+          padding: "28px 32px",
+        }}>
+          <h2 style={{ fontSize: 22, margin: "0 0 6px", fontWeight: 800 }}>
+            Bem-vindo, {nome}
+          </h2>
+          <p style={{ color: "var(--muted)", fontSize: 14, margin: 0 }}>
+            Competência atual: <strong style={{ color: "var(--ink)" }}>Junho/2026</strong>
+          </p>
         </div>
 
-        {/* KPIs */}
-        <div className="kpi-strip" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
-          <article className={`metric-card${pendencias > 0 ? " kpi-warning" : ""}`}>
-            <span>Pendências</span>
-            <strong className="kpi-num">{pendencias}</strong>
-            <p>{pendencias === 0 ? "Nada pendente" : "Itens aguardando sua ação"}</p>
-          </article>
-          <article className="metric-card">
-            <span>Guias disponíveis</span>
-            <strong className="kpi-num">{guias}</strong>
-            <p>Prontas para pagamento</p>
-          </article>
-          <article className="metric-card">
-            <span>Mensagens</span>
-            <strong className="kpi-num">{mensagens}</strong>
-            <p>{mensagens === 0 ? "Nenhuma mensagem nova" : "Não lidas"}</p>
-          </article>
+        {/* Cards (4) */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+          {CARDS.map((card) => (
+            <div
+              key={card.label}
+              style={{
+                background: "#fff",
+                border: "1px solid var(--border)",
+                borderRadius: 12,
+                padding: "18px 20px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  {card.label}
+                </span>
+                <span style={{ fontSize: 18 }}>{card.icon}</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{
+                  background: card.badgeBg,
+                  borderRadius: 20,
+                  color: card.badgeColor,
+                  fontSize: card.value.length <= 2 ? 22 : 15,
+                  fontWeight: 800,
+                  padding: card.value.length <= 2 ? "4px 14px" : "5px 14px",
+                }}>
+                  {card.value}
+                </span>
+                {card.sub && (
+                  <span style={{ fontSize: 12, color: "var(--muted)" }}>{card.sub}</span>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Ações rápidas */}
-        <div>
-          <h3 style={{ margin: "0 0 14px", fontSize: 14, fontWeight: 700 }}>Ações rápidas</h3>
-          <div className="portal-actions-grid">
-            {ACOES.map((a) => (
-              <Link className="portal-action-card" href={a.href} key={a.href}>
-                <span>{a.emoji}</span>
-                <strong>{a.label}</strong>
-              </Link>
+        {/* Timeline */}
+        <div className="list-panel">
+          <div className="list-panel-header">
+            <div>
+              <h2>Atividade recente</h2>
+              <p>Últimos eventos da sua empresa</p>
+            </div>
+            <Link className="small-action" href={`/portal/${empresaId}/historico`} style={{ textDecoration: "none" }}>
+              Ver histórico completo
+            </Link>
+          </div>
+          <div style={{ padding: "0 20px 20px" }}>
+            {TIMELINE_EVENTS.map((evt, idx) => (
+              <div
+                key={evt.id}
+                style={{
+                  alignItems: "flex-start",
+                  display: "flex",
+                  gap: 14,
+                  paddingBottom: idx < TIMELINE_EVENTS.length - 1 ? 16 : 0,
+                  marginBottom: idx < TIMELINE_EVENTS.length - 1 ? 16 : 0,
+                  borderBottom: idx < TIMELINE_EVENTS.length - 1 ? "1px solid var(--border)" : "none",
+                }}
+              >
+                {/* Icon circle */}
+                <div style={{
+                  alignItems: "center",
+                  background: `${evt.iconColor}18`,
+                  border: `2px solid ${evt.iconColor}`,
+                  borderRadius: "50%",
+                  display: "flex",
+                  flexShrink: 0,
+                  height: 36,
+                  justifyContent: "center",
+                  width: 36,
+                }}>
+                  <div style={{
+                    background: evt.iconColor,
+                    borderRadius: "50%",
+                    height: 10,
+                    width: 10,
+                  }} />
+                </div>
+                {/* Content */}
+                <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                  <div>
+                    <strong style={{ fontSize: 14, display: "block", marginBottom: 3 }}>{evt.titulo}</strong>
+                    <span style={{ fontSize: 12, color: "var(--muted)" }}>{evt.data}</span>
+                  </div>
+                  <span style={{
+                    background: `${evt.statusColor}15`,
+                    borderRadius: 20,
+                    color: evt.statusColor,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    padding: "3px 12px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.3px",
+                    flexShrink: 0,
+                  }}>
+                    {evt.status}
+                  </span>
+                </div>
+              </div>
             ))}
           </div>
         </div>
 
-        {/* Notificações */}
+        {/* Avisos recentes */}
         <div className="list-panel">
           <div className="list-panel-header">
             <div>
-              <h2>Notificações recentes</h2>
+              <h2>Avisos recentes</h2>
               <p>Avisos do seu escritório contábil</p>
             </div>
             <Link className="small-action" href={`/portal/${empresaId}/notificacoes`} style={{ textDecoration: "none" }}>
-              Ver todas
+              Ver todos
             </Link>
           </div>
           <div className="task-list">
