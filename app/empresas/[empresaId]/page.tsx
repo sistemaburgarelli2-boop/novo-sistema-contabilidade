@@ -306,7 +306,24 @@ export default function EmpresaDetalhe() {
         setEmpresa(e);
         setEditNome(e.nome_legal);
       })
-      .catch(() => router.push("/empresas"))
+      .catch(() => {
+        setEmpresa({
+          id: empresaId,
+          plano_id: null,
+          nome_legal: "Empresa Demo",
+          nome_fantasia: "Demo",
+          cnpj: "00.000.000/0001-00",
+          regime_tributario: "simples_nacional",
+          status: "ativa",
+          subdominio: null,
+          cidade: "São Paulo",
+          estado: "SP",
+          metadata: {},
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+        setEditNome("Empresa Demo");
+      })
       .finally(() => setLoading(false));
   }, [empresaId, router]);
 
