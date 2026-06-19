@@ -8,11 +8,13 @@ import { LogoutButton } from "@/components/auth/LogoutButton";
 const navigation = [
   { href: "/dashboard", icon: "dashboard", label: "Dashboard", section: "Visão geral" },
   { href: "/empresas", icon: "building", label: "Empresas", section: "Operacional" },
+  { href: "/tarefas", icon: "tasks", label: "Tarefas", section: "Operacional" },
 ];
 
 const pageTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/empresas": "Empresas",
+  "/tarefas": "Central de Tarefas",
 };
 
 function BrandIcon() {
@@ -41,6 +43,17 @@ function NavIcon({ name }: { name: string }) {
       <svg {...common}>
         <path d="M4 21V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v16" stroke="currentColor" strokeWidth="2" />
         <path d="M9 8h3M9 12h3M9 16h3M3 21h18" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
+      </svg>
+    );
+  }
+
+  if (name === "tasks") {
+    return (
+      <svg {...common}>
+        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" strokeWidth="2" />
+        <rect height="4" rx="1" stroke="currentColor" strokeWidth="2" width="8" x="8" y="2" />
+        <path d="M9 12l2 2 4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+        <path d="M9 18h6" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
       </svg>
     );
   }
