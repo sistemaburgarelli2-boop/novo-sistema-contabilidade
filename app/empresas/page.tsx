@@ -62,6 +62,77 @@ const STEPS = [
 
 const DRAFT_KEY = "empresas_rascunhos";
 
+/* ─── Mock Data: Onboarding Fields ───────────────────────────── */
+
+type ProcessStatus = "Rascunho" | "Aguardando Cliente" | "Documentação Recebida" | "Pronto para Ativação" | "Ativa" | "Suspensa" | "Encerrada" | "Em Abertura";
+
+type MockEmpresa = {
+  id: string;
+  razao: string;
+  fantasia: string;
+  cnpj: string;
+  cliente: string;
+  responsavel: string;
+  regime: string;
+  processStatus: ProcessStatus;
+  pendencias: string;
+  ultimoAcesso: string;
+  progresso: number;
+  proximaAcao: string;
+  ultimaAtualizacao: string;
+};
+
+const MOCK_EMPRESAS: MockEmpresa[] = [
+  { id: "1", razao: "Alfa Comércio Ltda", fantasia: "Alfa Comércio", cnpj: "12.345.678/0001-01", cliente: "Maria Silva", responsavel: "Ana Lima", regime: "Simples", processStatus: "Ativa", pendencias: "0", ultimoAcesso: "18/06/2026", progresso: 100, proximaAcao: "", ultimaAtualizacao: "18/06/2026" },
+  { id: "2", razao: "Beta Serviços ME", fantasia: "Beta Serviços", cnpj: "23.456.789/0001-02", cliente: "João Santos", responsavel: "Carlos Silva", regime: "MEI", processStatus: "Ativa", pendencias: "1 doc", ultimoAcesso: "15/06/2026", progresso: 100, proximaAcao: "", ultimaAtualizacao: "15/06/2026" },
+  { id: "3", razao: "Gama Tech Eireli", fantasia: "Gama Tech", cnpj: "34.567.890/0001-03", cliente: "Pedro Costa", responsavel: "Ana Lima", regime: "Presumido", processStatus: "Ativa", pendencias: "0", ultimoAcesso: "17/06/2026", progresso: 100, proximaAcao: "", ultimaAtualizacao: "17/06/2026" },
+  { id: "4", razao: "Delta Holding S/A", fantasia: "Delta Holding", cnpj: "45.678.901/0001-04", cliente: "André Oliveira", responsavel: "Ana Lima", regime: "Real", processStatus: "Ativa", pendencias: "2 docs", ultimoAcesso: "10/06/2026", progresso: 100, proximaAcao: "", ultimaAtualizacao: "10/06/2026" },
+  { id: "5", razao: "Épsilon Ltda", fantasia: "Épsilon", cnpj: "56.789.012/0001-05", cliente: "Lucia Ferreira", responsavel: "Carlos Silva", regime: "Simples", processStatus: "Ativa", pendencias: "0", ultimoAcesso: "19/06/2026", progresso: 100, proximaAcao: "", ultimaAtualizacao: "19/06/2026" },
+  { id: "6", razao: "Zeta Construções", fantasia: "Zeta", cnpj: "67.890.123/0001-06", cliente: "Roberto Lima", responsavel: "Marcos Souza", regime: "Presumido", processStatus: "Ativa", pendencias: "0", ultimoAcesso: "12/06/2026", progresso: 100, proximaAcao: "", ultimaAtualizacao: "12/06/2026" },
+  { id: "7", razao: "Eta Logística", fantasia: "Eta Log", cnpj: "78.901.234/0001-07", cliente: "Carlos Mendes", responsavel: "Ana Lima", regime: "Simples", processStatus: "Ativa", pendencias: "1 guia", ultimoAcesso: "16/06/2026", progresso: 100, proximaAcao: "", ultimaAtualizacao: "16/06/2026" },
+  { id: "8", razao: "Theta Indústrias", fantasia: "Theta", cnpj: "89.012.345/0001-08", cliente: "Fernanda Alves", responsavel: "Carlos Silva", regime: "Real", processStatus: "Ativa", pendencias: "0", ultimoAcesso: "14/06/2026", progresso: 100, proximaAcao: "", ultimaAtualizacao: "14/06/2026" },
+  { id: "9", razao: "Iota Seguros", fantasia: "Iota", cnpj: "90.123.456/0001-09", cliente: "Ricardo Pinto", responsavel: "Ana Lima", regime: "Presumido", processStatus: "Ativa", pendencias: "0", ultimoAcesso: "11/06/2026", progresso: 100, proximaAcao: "", ultimaAtualizacao: "11/06/2026" },
+  { id: "10", razao: "Kappa Digital", fantasia: "Kappa", cnpj: "", cliente: "Juliana Ramos", responsavel: "Marcos Souza", regime: "Simples", processStatus: "Em Abertura", pendencias: "3 docs pendentes", ultimoAcesso: "—", progresso: 40, proximaAcao: "Enviar documentação", ultimaAtualizacao: "17/06/2026" },
+  { id: "11", razao: "Lambda Foods", fantasia: "Lambda", cnpj: "", cliente: "Marcelo Dias", responsavel: "Ana Lima", regime: "MEI", processStatus: "Em Abertura", pendencias: "Contrato", ultimoAcesso: "—", progresso: 60, proximaAcao: "Assinar contrato", ultimaAtualizacao: "16/06/2026" },
+  { id: "12", razao: "Mu Consultoria", fantasia: "Mu", cnpj: "", cliente: "Patricia Souza", responsavel: "Carlos Silva", regime: "Simples", processStatus: "Em Abertura", pendencias: "CNAE", ultimoAcesso: "—", progresso: 25, proximaAcao: "Definir CNAE", ultimaAtualizacao: "15/06/2026" },
+  { id: "13", razao: "Nu Design", fantasia: "Nu", cnpj: "", cliente: "Camila Torres", responsavel: "Ana Lima", regime: "MEI", processStatus: "Aguardando Cliente", pendencias: "CPF, Contrato", ultimoAcesso: "—", progresso: 15, proximaAcao: "Aguardar envio de CPF", ultimaAtualizacao: "14/06/2026" },
+  { id: "14", razao: "Xi Marketing", fantasia: "Xi", cnpj: "", cliente: "Bruno Neves", responsavel: "Marcos Souza", regime: "Simples", processStatus: "Aguardando Cliente", pendencias: "Certificado", ultimoAcesso: "—", progresso: 50, proximaAcao: "Aguardar certificado", ultimaAtualizacao: "13/06/2026" },
+  { id: "15", razao: "Omicron Têxtil", fantasia: "Omicron", cnpj: "", cliente: "Sandra Lopes", responsavel: "Carlos Silva", regime: "Presumido", processStatus: "Rascunho", pendencias: "—", ultimoAcesso: "—", progresso: 5, proximaAcao: "Completar cadastro", ultimaAtualizacao: "10/06/2026" },
+];
+
+const PROCESS_STATUS_STYLES: Record<ProcessStatus, { bg: string; color: string }> = {
+  "Rascunho": { bg: "#f3f4f6", color: "#6b7280" },
+  "Aguardando Cliente": { bg: "#fffbeb", color: "#92400e" },
+  "Documentação Recebida": { bg: "#ecfeff", color: "#0e7490" },
+  "Pronto para Ativação": { bg: "#f5f3ff", color: "#7c3aed" },
+  "Ativa": { bg: "#f0fdf4", color: "#065f46" },
+  "Suspensa": { bg: "#fef2f2", color: "#b91c1c" },
+  "Encerrada": { bg: "#f3f4f6", color: "#6b7280" },
+  "Em Abertura": { bg: "#ecfeff", color: "#0e7490" },
+};
+
+type SideTab = "Todas" | "Ativas" | "Em Abertura" | "Aguardando Cliente" | "Rascunhos" | "Arquivadas";
+
+const SIDE_TABS: { label: SideTab; count: number }[] = [
+  { label: "Todas", count: 24 },
+  { label: "Ativas", count: 18 },
+  { label: "Em Abertura", count: 3 },
+  { label: "Aguardando Cliente", count: 2 },
+  { label: "Rascunhos", count: 1 },
+  { label: "Arquivadas", count: 0 },
+];
+
+const TAB_STATUS_MAP: Record<SideTab, ProcessStatus[] | null> = {
+  "Todas": null,
+  "Ativas": ["Ativa"],
+  "Em Abertura": ["Em Abertura"],
+  "Aguardando Cliente": ["Aguardando Cliente"],
+  "Rascunhos": ["Rascunho"],
+  "Arquivadas": ["Encerrada"],
+};
+
+const RESPONSAVEIS = ["Ana Lima", "Carlos Silva", "Marcos Souza"];
+
 /* ─── Tipos ───────────────────────────────────────────────────── */
 
 type FormData = {
@@ -152,6 +223,28 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   return <p style={{ margin: "0 0 0.6rem", fontWeight: 800, fontSize: "0.8rem", color: "#0b351e", letterSpacing: "0.4px", textTransform: "uppercase" }}>{children}</p>;
 }
 
+function getInitials(name: string): string {
+  return name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
+}
+
+function ProgressBar({ percent }: { percent: number }) {
+  return (
+    <div style={{ width: 60, height: 6, borderRadius: 3, background: "#e5e7eb", overflow: "hidden", display: "inline-block", verticalAlign: "middle", marginLeft: 6 }}>
+      <div style={{ width: `${percent}%`, height: "100%", borderRadius: 3, background: percent === 100 ? "#10b981" : percent >= 50 ? "#3b82f6" : "#f59e0b", transition: "width 0.3s" }} />
+    </div>
+  );
+}
+
+function StatusBadge({ status }: { status: ProcessStatus }) {
+  const s = PROCESS_STATUS_STYLES[status];
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: s.bg, color: s.color, borderRadius: 999, padding: "3px 10px", fontSize: "0.72rem", fontWeight: 700, whiteSpace: "nowrap" }}>
+      <span style={{ width: 6, height: 6, borderRadius: "50%", background: s.color, display: "inline-block", opacity: 0.7 }} />
+      {status}
+    </span>
+  );
+}
+
 /* ─── Página ──────────────────────────────────────────────────── */
 
 export default function EmpresasPage() {
@@ -178,11 +271,12 @@ export default function EmpresasPage() {
   const [salvandoEdicao, setSalvandoEdicao] = useState(false);
   const [erroEdicao, setErroEdicao] = useState<string | null>(null);
 
-  // Filtros
+  // New filters
+  const [activeTab, setActiveTab] = useState<SideTab>("Todas");
   const [filtroNome, setFiltroNome] = useState("");
-  const [filtroCnpj, setFiltroCnpj] = useState("");
   const [filtroRegime, setFiltroRegime] = useState("");
-  const [filtroCidade, setFiltroCidade] = useState("");
+  const [filtroResponsavel, setFiltroResponsavel] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState("");
 
   useEffect(() => {
     setEmpresaAtiva(localStorage.getItem("empresaAtivaId"));
@@ -323,288 +417,363 @@ export default function EmpresasPage() {
     } finally { setArquivando(false); }
   }
 
-  /* ── KPIs e filtros ── */
-  const totalEmpresas = empresas.length;
-  const totalAtivas = empresas.filter((e) => e.status === "ativa").length;
-  const totalPendentes = empresas.filter((e) => e.status === "suspensa").length;
-  const totalInadimplentes = 0;
-
-  const empresasFiltradas = empresas.filter((emp) => {
-    const nome = (emp.nome_legal + " " + (emp.nome_fantasia ?? "")).toLowerCase();
-    const matchNome = !filtroNome || nome.includes(filtroNome.toLowerCase());
-    const matchCnpj = !filtroCnpj || (emp.cnpj ?? "").includes(filtroCnpj);
-    const matchRegime = !filtroRegime || emp.regime_tributario === filtroRegime;
-    const matchCidade = !filtroCidade || (emp.cidade ?? "").toLowerCase().includes(filtroCidade.toLowerCase());
-    return matchNome && matchCnpj && matchRegime && matchCidade;
+  /* ── Filtered mock data ── */
+  const filteredMock = MOCK_EMPRESAS.filter((m) => {
+    const tabStatuses = TAB_STATUS_MAP[activeTab];
+    if (tabStatuses && !tabStatuses.includes(m.processStatus)) return false;
+    if (filtroNome) {
+      const search = filtroNome.toLowerCase();
+      const matchName = m.razao.toLowerCase().includes(search) || m.fantasia.toLowerCase().includes(search);
+      const matchCnpj = m.cnpj.includes(filtroNome);
+      if (!matchName && !matchCnpj) return false;
+    }
+    if (filtroRegime && m.regime !== filtroRegime) return false;
+    if (filtroResponsavel && m.responsavel !== filtroResponsavel) return false;
+    if (filtroStatus && m.processStatus !== filtroStatus) return false;
+    return true;
   });
 
-  const temFiltro = !!(filtroNome || filtroCnpj || filtroRegime || filtroCidade);
+  const processosEmAndamento = MOCK_EMPRESAS.filter((m) =>
+    m.processStatus === "Em Abertura" || m.processStatus === "Aguardando Cliente" || m.processStatus === "Rascunho"
+  );
+
+  const temFiltro = !!(filtroNome || filtroRegime || filtroResponsavel || filtroStatus);
+
+  /* ── KPIs ── */
+  const kpis = [
+    { label: "Empresas Ativas", value: 18, color: "#065f46", bg: "#f0fdf4", border: "#bbf7d0" },
+    { label: "Em Abertura", value: 3, color: "#0e7490", bg: "#ecfeff", border: "#a5f3fc" },
+    { label: "Aguardando Cliente", value: 2, color: "#92400e", bg: "#fffbeb", border: "#fde68a" },
+    { label: "Sem Portal", value: 1, color: "#7c3aed", bg: "#f5f3ff", border: "#c4b5fd" },
+    { label: "Inadimplentes", value: 1, color: "#b91c1c", bg: "#fef2f2", border: "#fecaca" },
+  ];
 
   /* ── Render ── */
   return (
     <AppShell>
       <div className="page-stack">
 
-        {/* Cabeçalho */}
-        <div className="module-hero">
-          <div>
-            <h1>Empresas</h1>
-            <p>Gerencie clientes, acompanhe obrigações e acesse setores operacionais.</p>
+        {/* Hero Header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "2rem 2.5rem 1.5rem", background: "linear-gradient(135deg, #06170d 0%, #0b2e18 60%, #0f3d20 100%)", borderRadius: 16, margin: "0 0 1.5rem", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 80% 30%, rgba(16,185,129,0.1) 0%, transparent 60%)", pointerEvents: "none" }} />
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <h1 style={{ margin: 0, fontSize: "1.6rem", fontWeight: 900, color: "#ffffff", letterSpacing: "-0.3px" }}>Empresas</h1>
+            <p style={{ margin: "0.3rem 0 0", fontSize: "0.88rem", color: "#7fb89a", fontWeight: 500 }}>Gestao de clientes e processos de abertura</p>
           </div>
-          <div className="hero-actions">
-            <button onClick={() => abrirModal()} type="button">+ Nova empresa</button>
-          </div>
+          <a
+            href="/empresas/novo"
+            style={{ position: "relative", zIndex: 1, display: "inline-flex", alignItems: "center", gap: 6, background: "linear-gradient(135deg, #10b981, #059669)", color: "#fff", border: "none", borderRadius: 10, padding: "0.65rem 1.4rem", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", textDecoration: "none", boxShadow: "0 4px 16px rgba(16,185,129,0.25)" }}
+          >
+            + Novo Cliente
+          </a>
         </div>
 
-        {/* KPI Strip */}
-        <div className="kpi-strip">
-          <article className="metric-card">
-            <span>Total de Empresas</span>
-            <strong className="kpi-num">{totalEmpresas}</strong>
-            <p>Clientes cadastrados</p>
-          </article>
-          <article className="metric-card">
-            <span>Empresas Ativas</span>
-            <strong className="kpi-num">{totalAtivas}</strong>
-            <p>Com status ativo</p>
-          </article>
-          <article className="metric-card kpi-warning">
-            <span>Pendentes</span>
-            <strong className="kpi-num">{totalPendentes}</strong>
-            <p>Suspensas ou com restrições</p>
-          </article>
-          <article className="metric-card kpi-danger">
-            <span>Inadimplentes</span>
-            <strong className="kpi-num">{totalInadimplentes}</strong>
-            <p>Com pagamento em atraso</p>
-          </article>
-        </div>
-
-        {/* ── Lista de empresas ── */}
-        <div className="list-panel">
-          <div className="list-panel-header">
-            <div>
-              <h2>Empresas cadastradas</h2>
-              <p>
-                {loading ? "Carregando..." :
-                  empresasFiltradas.length === 0 ? "Nenhuma empresa encontrada." :
-                    `${empresasFiltradas.length}${temFiltro ? ` de ${totalEmpresas}` : ""} empresa${empresasFiltradas.length !== 1 ? "s" : ""}`}
-              </p>
+        {/* KPI Cards */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "1rem", marginBottom: "1.5rem" }}>
+          {kpis.map((kpi) => (
+            <div key={kpi.label} style={{ background: kpi.bg, border: `1px solid ${kpi.border}`, borderRadius: 12, padding: "1.1rem 1.2rem", display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={{ fontSize: "0.72rem", fontWeight: 700, color: kpi.color, textTransform: "uppercase", letterSpacing: "0.5px", opacity: 0.85 }}>{kpi.label}</span>
+              <strong style={{ fontSize: "1.6rem", fontWeight: 900, color: kpi.color, lineHeight: 1.1 }}>{kpi.value}</strong>
             </div>
-            <button className="small-action" onClick={carregarEmpresas} type="button">Atualizar</button>
+          ))}
+        </div>
+
+        {/* Main Content: Side Tabs + Table */}
+        <div style={{ display: "flex", gap: "1.5rem", minHeight: 500 }}>
+
+          {/* Side Tabs */}
+          <div style={{ width: 200, flexShrink: 0 }}>
+            <div style={{ background: "#ffffff", border: "1px solid #e6f0ea", borderRadius: 12, overflow: "hidden" }}>
+              <div style={{ padding: "0.85rem 1rem 0.5rem", borderBottom: "1px solid #e6f0ea" }}>
+                <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "#6f8f7c", textTransform: "uppercase", letterSpacing: "1px" }}>Filtrar por status</span>
+              </div>
+              {SIDE_TABS.map((tab) => {
+                const isActive = activeTab === tab.label;
+                return (
+                  <button
+                    key={tab.label}
+                    onClick={() => setActiveTab(tab.label)}
+                    style={{
+                      display: "flex", alignItems: "center", justifyContent: "space-between",
+                      width: "100%", padding: "0.7rem 1rem", border: "none",
+                      background: isActive ? "#f0fdf4" : "transparent",
+                      borderLeft: isActive ? "3px solid #10b981" : "3px solid transparent",
+                      color: isActive ? "#065f46" : "#4b6358",
+                      fontWeight: isActive ? 700 : 500, fontSize: "0.82rem",
+                      cursor: "pointer", textAlign: "left", transition: "all 0.15s",
+                    }}
+                    type="button"
+                  >
+                    <span>{tab.label}</span>
+                    <span style={{
+                      background: isActive ? "#d1fae5" : "#f3f4f6",
+                      color: isActive ? "#065f46" : "#6b7280",
+                      borderRadius: 999, padding: "1px 8px", fontSize: "0.72rem", fontWeight: 700,
+                      minWidth: 22, textAlign: "center",
+                    }}>{tab.count}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Filtros */}
-          {totalEmpresas > 0 && (
-            <div className="filter-bar">
+          {/* Right Content */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+
+            {/* Filters Bar */}
+            <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1rem", flexWrap: "wrap", alignItems: "center" }}>
               <input
                 className="input"
                 onChange={(e) => setFiltroNome(e.target.value)}
-                placeholder="Buscar por nome..."
+                placeholder="Buscar por nome ou CNPJ..."
+                style={{ flex: 1, minWidth: 200 }}
                 type="text"
                 value={filtroNome}
-              />
-              <input
-                className="input"
-                onChange={(e) => setFiltroCnpj(e.target.value)}
-                placeholder="Filtrar CNPJ..."
-                type="text"
-                value={filtroCnpj}
               />
               <select
                 className="input"
                 onChange={(e) => setFiltroRegime(e.target.value)}
+                style={{ minWidth: 140 }}
                 value={filtroRegime}
               >
                 <option value="">Todos os regimes</option>
-                {REGIMES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
+                <option value="MEI">MEI</option>
+                <option value="Simples">Simples</option>
+                <option value="Presumido">Presumido</option>
+                <option value="Real">Real</option>
               </select>
-              <input
+              <select
                 className="input"
-                onChange={(e) => setFiltroCidade(e.target.value)}
-                placeholder="Filtrar cidade..."
-                type="text"
-                value={filtroCidade}
-              />
+                onChange={(e) => setFiltroResponsavel(e.target.value)}
+                style={{ minWidth: 150 }}
+                value={filtroResponsavel}
+              >
+                <option value="">Todos os responsaveis</option>
+                {RESPONSAVEIS.map((r) => <option key={r} value={r}>{r}</option>)}
+              </select>
+              <select
+                className="input"
+                onChange={(e) => setFiltroStatus(e.target.value)}
+                style={{ minWidth: 160 }}
+                value={filtroStatus}
+              >
+                <option value="">Todos os status</option>
+                {Object.keys(PROCESS_STATUS_STYLES).map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
               {temFiltro && (
                 <button
                   className="small-action"
-                  onClick={() => { setFiltroNome(""); setFiltroCnpj(""); setFiltroRegime(""); setFiltroCidade(""); }}
+                  onClick={() => { setFiltroNome(""); setFiltroRegime(""); setFiltroResponsavel(""); setFiltroStatus(""); }}
+                  style={{ whiteSpace: "nowrap" }}
                   type="button"
                 >
-                  ✕ Limpar
+                  Limpar filtros
                 </button>
               )}
             </div>
-          )}
 
-          {erro && <p className="error-alert" style={{ margin: "1rem 1.5rem" }}>{erro}</p>}
+            {/* Main Table */}
+            <div style={{ background: "#ffffff", border: "1px solid #e6f0ea", borderRadius: 12, overflow: "hidden" }}>
+              <div style={{ padding: "1rem 1.5rem", borderBottom: "1px solid #e6f0ea", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800, color: "#06170d" }}>Empresas cadastradas</h2>
+                  <p style={{ margin: "0.15rem 0 0", fontSize: "0.78rem", color: "#6f8f7c" }}>
+                    {filteredMock.length} empresa{filteredMock.length !== 1 ? "s" : ""}{temFiltro ? " filtrada" + (filteredMock.length !== 1 ? "s" : "") : ""}
+                  </p>
+                </div>
+                <button className="small-action" onClick={carregarEmpresas} type="button">Atualizar</button>
+              </div>
 
-          {!loading && !erro && totalEmpresas === 0 && (
-            <div style={{ padding: "3rem", textAlign: "center", color: "var(--text-muted)" }}>
-              <p>Nenhuma empresa cadastrada ainda.</p>
-              <button onClick={() => abrirModal()} style={{ marginTop: "1rem" }} type="button">+ Criar primeira empresa</button>
-            </div>
-          )}
-
-          {!loading && empresasFiltradas.length === 0 && totalEmpresas > 0 && (
-            <div style={{ padding: "2rem", textAlign: "center", color: "var(--muted)", fontSize: 14 }}>
-              Nenhuma empresa corresponde aos filtros.
-            </div>
-          )}
-
-          {!loading && empresasFiltradas.length > 0 && (
-            <div style={{ padding: "0 1.5rem 1.5rem", overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
-                <thead>
-                  <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                    {["Razão social / Fantasia", "CNPJ", "Regime", "Cidade / UF", "Status", "Última atividade", "Ações"].map((h, i) => (
-                      <th
-                        key={h}
-                        style={{
-                          textAlign: i === 6 ? "right" : "left",
-                          padding: "0.75rem 0.5rem",
-                          color: "#6f8f7c",
-                          fontWeight: 700,
-                          fontSize: "0.78rem",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.5px",
-                        }}
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.84rem" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid #e6f0ea" }}>
+                      {["Empresa", "Cliente", "Responsavel", "Regime", "Status do Processo", "Pendencias", "Ultimo acesso", "Acoes"].map((h, i) => (
+                        <th
+                          key={h}
+                          style={{
+                            textAlign: i === 7 ? "right" : "left",
+                            padding: "0.75rem 0.75rem",
+                            color: "#6f8f7c",
+                            fontWeight: 700,
+                            fontSize: "0.72rem",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.5px",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredMock.map((emp) => (
+                      <tr
+                        key={emp.id}
+                        style={{ borderBottom: "1px solid #f0f4f2", transition: "background 0.1s" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = "#fafcfb")}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                       >
-                        {h}
-                      </th>
+                        {/* Empresa */}
+                        <td style={{ padding: "0.75rem", minWidth: 200 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <div style={{
+                              width: 36, height: 36, borderRadius: 10,
+                              background: "linear-gradient(135deg, #10b981, #065f46)",
+                              color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
+                              fontSize: "0.72rem", fontWeight: 800, flexShrink: 0,
+                            }}>
+                              {getInitials(emp.razao)}
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 700, color: "#06170d", fontSize: "0.84rem", lineHeight: 1.25 }}>{emp.razao}</div>
+                              <div style={{ color: "#6f8f7c", fontSize: "0.75rem" }}>{emp.fantasia}</div>
+                            </div>
+                          </div>
+                        </td>
+                        {/* Cliente */}
+                        <td style={{ padding: "0.75rem", color: "#374151", fontWeight: 500, whiteSpace: "nowrap" }}>{emp.cliente}</td>
+                        {/* Responsavel */}
+                        <td style={{ padding: "0.75rem", color: "#6f8f7c", fontSize: "0.8rem", whiteSpace: "nowrap" }}>{emp.responsavel}</td>
+                        {/* Regime */}
+                        <td style={{ padding: "0.75rem" }}>
+                          <span style={{ background: "#f3f8f5", color: "#3a5c47", borderRadius: 6, padding: "2px 8px", fontSize: "0.75rem", fontWeight: 600 }}>{emp.regime}</span>
+                        </td>
+                        {/* Status do Processo */}
+                        <td style={{ padding: "0.75rem" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                            <StatusBadge status={emp.processStatus} />
+                            {emp.processStatus !== "Ativa" && emp.processStatus !== "Encerrada" && (
+                              <ProgressBar percent={emp.progresso} />
+                            )}
+                          </div>
+                        </td>
+                        {/* Pendencias */}
+                        <td style={{ padding: "0.75rem", color: emp.pendencias !== "0" && emp.pendencias !== "—" ? "#b45309" : "#9ca3af", fontSize: "0.8rem", fontWeight: emp.pendencias !== "0" && emp.pendencias !== "—" ? 600 : 400 }}>
+                          {emp.pendencias}
+                        </td>
+                        {/* Ultimo acesso */}
+                        <td style={{ padding: "0.75rem", color: "#6f8f7c", fontSize: "0.78rem" }}>{emp.ultimoAcesso}</td>
+                        {/* Acoes */}
+                        <td style={{ padding: "0.75rem", textAlign: "right" }}>
+                          <div style={{ display: "flex", gap: 4, justifyContent: "flex-end", flexWrap: "nowrap" }}>
+                            <a
+                              href={`/empresas/${emp.id}`}
+                              style={{ minHeight: 28, border: "1px solid #10b981", background: "#ecfdf5", color: "#065f46", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center" }}
+                            >
+                              Abrir
+                            </a>
+                            <a
+                              href={`/portal/${emp.id}`}
+                              style={{ minHeight: 28, border: "1px solid #c4b5fd", background: "#f5f3ff", color: "#7c3aed", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600, textDecoration: "none", display: "inline-flex", alignItems: "center" }}
+                            >
+                              Portal
+                            </a>
+                            <button
+                              style={{ minHeight: 28, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#374151", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600 }}
+                              type="button"
+                            >
+                              Docs
+                            </button>
+                            <button
+                              style={{ minHeight: 28, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#374151", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600 }}
+                              type="button"
+                            >
+                              Hist.
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
                     ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {empresasFiltradas.map((emp) => (
-                    <tr
-                      key={emp.id}
+                  </tbody>
+                </table>
+              </div>
+
+              {filteredMock.length === 0 && (
+                <div style={{ padding: "3rem", textAlign: "center", color: "#6f8f7c", fontSize: "0.88rem" }}>
+                  Nenhuma empresa encontrada com os filtros aplicados.
+                </div>
+              )}
+            </div>
+
+            {/* Processos em Andamento */}
+            <div style={{ marginTop: "2rem" }}>
+              <h2 style={{ margin: "0 0 1rem", fontSize: "1.05rem", fontWeight: 800, color: "#06170d" }}>Processos em Andamento</h2>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "1rem" }}>
+                {processosEmAndamento.map((proc) => (
+                  <div
+                    key={proc.id}
+                    style={{
+                      background: "#ffffff", border: "1px solid #e6f0ea", borderRadius: 14,
+                      padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.75rem",
+                      transition: "box-shadow 0.15s",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.06)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
+                  >
+                    {/* Card header */}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <div>
+                        <div style={{ fontWeight: 700, color: "#06170d", fontSize: "0.9rem" }}>{proc.cliente}</div>
+                        <div style={{ color: "#6f8f7c", fontSize: "0.78rem" }}>{proc.razao}</div>
+                      </div>
+                      <StatusBadge status={proc.processStatus} />
+                    </div>
+
+                    {/* Progress */}
+                    <div>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                        <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "#6f8f7c" }}>Progresso</span>
+                        <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#374151" }}>{proc.progresso}%</span>
+                      </div>
+                      <div style={{ width: "100%", height: 8, borderRadius: 4, background: "#e5e7eb", overflow: "hidden" }}>
+                        <div style={{
+                          width: `${proc.progresso}%`, height: "100%", borderRadius: 4,
+                          background: proc.progresso >= 50 ? "linear-gradient(90deg, #3b82f6, #10b981)" : "linear-gradient(90deg, #f59e0b, #eab308)",
+                          transition: "width 0.3s",
+                        }} />
+                      </div>
+                    </div>
+
+                    {/* Details */}
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem" }}>
+                      <div>
+                        <span style={{ color: "#6f8f7c" }}>Responsavel: </span>
+                        <span style={{ fontWeight: 600, color: "#374151" }}>{proc.responsavel}</span>
+                      </div>
+                      <div>
+                        <span style={{ color: "#6f8f7c" }}>Atualizado: </span>
+                        <span style={{ fontWeight: 500, color: "#374151" }}>{proc.ultimaAtualizacao}</span>
+                      </div>
+                    </div>
+
+                    {/* Pendencias */}
+                    {proc.pendencias !== "—" && (
+                      <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8, padding: "0.4rem 0.65rem", fontSize: "0.75rem", color: "#92400e", fontWeight: 600 }}>
+                        Pendencias: {proc.pendencias}
+                      </div>
+                    )}
+
+                    {/* Action */}
+                    <a
+                      href={`/empresas/${proc.id}`}
                       style={{
-                        borderBottom: "1px solid var(--border)",
-                        background: empresaAtiva === emp.id ? "rgba(74,222,128,0.05)" : undefined,
+                        display: "inline-flex", alignItems: "center", justifyContent: "center",
+                        background: "linear-gradient(135deg, #10b981, #059669)", color: "#fff",
+                        border: "none", borderRadius: 8, padding: "0.5rem 1rem",
+                        fontWeight: 700, fontSize: "0.82rem", cursor: "pointer",
+                        textDecoration: "none", textAlign: "center",
                       }}
                     >
-                      <td style={{ padding: "0.875rem 0.5rem" }}>
-                        <strong>{emp.nome_legal}</strong>
-                        {emp.nome_fantasia && (
-                          <div style={{ color: "var(--muted)", fontSize: "0.8rem" }}>{emp.nome_fantasia}</div>
-                        )}
-                      </td>
-                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--muted)" }}>{emp.cnpj ?? "—"}</td>
-                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--muted)" }}>
-                        {REGIMES.find((r) => r.value === emp.regime_tributario)?.label ?? emp.regime_tributario ?? "—"}
-                      </td>
-                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--muted)" }}>
-                        {[emp.cidade, emp.estado].filter(Boolean).join(" / ") || "—"}
-                      </td>
-                      <td style={{ padding: "0.875rem 0.5rem" }}>
-                        <span className={`priority-badge ${STATUS_CLASS[emp.status]}`}>{STATUS_LABEL[emp.status]}</span>
-                      </td>
-                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--muted)", fontSize: "0.8rem" }}>
-                        {new Date(emp.updated_at).toLocaleDateString("pt-BR")}
-                      </td>
-                      <td style={{ padding: "0.875rem 0.5rem", textAlign: "right" }}>
-                        <div style={{ display: "flex", gap: "0.35rem", justifyContent: "flex-end", alignItems: "center" }}>
-                          {empresaAtiva === emp.id
-                            ? <span style={{ fontSize: "0.75rem", color: "#10b981", fontWeight: 700, marginRight: 2 }}>✓ Ativa</span>
-                            : <button className="small-action" onClick={() => handleAtivar(emp.id)} type="button">Ativar</button>}
-                          <button
-                            onClick={() => window.location.href = `/empresas/${emp.id}`}
-                            style={{ minHeight: 30, border: "1px solid var(--border)", background: "#fff", color: "var(--ink)", borderRadius: 8, padding: "0 10px", fontSize: "0.75rem", cursor: "pointer", fontWeight: 600 }}
-                            title="Visualizar"
-                            type="button"
-                          >
-                            👁 Ver
-                          </button>
-                          <button
-                            onClick={() => setSetoresEmpresa(emp)}
-                            style={{ minHeight: 30, border: "1px solid #6ee7b7", background: "#ecfdf5", color: "#065f46", borderRadius: 8, padding: "0 10px", fontSize: "0.75rem", cursor: "pointer", fontWeight: 700 }}
-                            title="Setores"
-                            type="button"
-                          >
-                            Setores
-                          </button>
-                          <button className="small-action" onClick={() => abrirEditar(emp)} title="Editar" type="button">✏️</button>
-                          <button
-                            onClick={() => setConfirmandoArquivar(emp)}
-                            style={{ minHeight: 30, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#6b7280", borderRadius: 8, padding: "0 10px", fontSize: "0.75rem", cursor: "pointer", fontWeight: 600 }}
-                            title="Arquivar"
-                            type="button"
-                          >
-                            📦
-                          </button>
-                          <button
-                            onClick={() => setConfirmandoExcluir(emp)}
-                            style={{ minHeight: 30, border: "1px solid #fecaca", background: "#fff", color: "#b91c1c", borderRadius: 8, padding: "0 10px", fontSize: "0.75rem", cursor: "pointer", fontWeight: 600 }}
-                            title="Excluir"
-                            type="button"
-                          >
-                            🗑
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      {proc.proximaAcao || "Ver detalhes"}
+                    </a>
+                  </div>
+                ))}
+              </div>
             </div>
-          )}
-        </div>
 
-        {/* ── Rascunhos ── */}
-        <div className="list-panel">
-          <div className="list-panel-header">
-            <div>
-              <h2>Empresas salvas</h2>
-              <p>{rascunhos.length === 0 ? "Nenhum rascunho salvo." : `${rascunhos.length} rascunho${rascunhos.length > 1 ? "s" : ""} aguardando conclusão.`}</p>
-            </div>
           </div>
-          {rascunhos.length === 0 && (
-            <div style={{ padding: "2rem", textAlign: "center", color: "var(--muted)", fontSize: "0.875rem" }}>
-              Rascunhos de empresas em abertura aparecerão aqui.
-            </div>
-          )}
-          {rascunhos.length > 0 && (
-            <div style={{ padding: "0 1.5rem 1.5rem", overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
-                <thead>
-                  <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                    {["Razão social", "Regime", "CNAE", "Salvo em", "Ações"].map((h, i) => (
-                      <th key={h} style={{ textAlign: i === 4 ? "right" : "left", padding: "0.75rem 0.5rem", color: "var(--muted)", fontWeight: 600 }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {rascunhos.map((r) => (
-                    <tr key={r.id} style={{ borderBottom: "1px solid var(--border)" }}>
-                      <td style={{ padding: "0.875rem 0.5rem" }}>
-                        <strong>{r.nome_legal || <em style={{ color: "var(--muted)" }}>Sem nome</em>}</strong>
-                        {r.nome_fantasia && <div style={{ color: "var(--muted)", fontSize: "0.8rem" }}>{r.nome_fantasia}</div>}
-                      </td>
-                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--muted)" }}>
-                        {REGIMES.find((rg) => rg.value === r.regime_tributario)?.label ?? "—"}
-                      </td>
-                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--muted)" }}>{r.cnae_principal || "—"}</td>
-                      <td style={{ padding: "0.875rem 0.5rem", color: "var(--muted)", fontSize: "0.8rem" }}>
-                        {new Date(r.salvo_em).toLocaleString("pt-BR")}
-                      </td>
-                      <td style={{ padding: "0.875rem 0.5rem", textAlign: "right", display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
-                        <button className="small-action" onClick={() => abrirModal(r)} type="button">Editar</button>
-                        <button
-                          onClick={() => excluirRascunho(r.id)}
-                          style={{ background: "none", border: "1px solid #f87171", color: "#f87171", borderRadius: 6, padding: "0.3rem 0.75rem", fontSize: "0.78rem", cursor: "pointer" }}
-                          type="button"
-                        >
-                          Excluir
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
         </div>
       </div>
 
@@ -748,7 +917,7 @@ export default function EmpresasPage() {
                 )}
               </div>
               <div style={{ padding: "1.1rem 1.75rem", borderTop: "1px solid #dfece5", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f3f8f5", gap: "0.75rem" }}>
-                <button className="small-action" disabled={step === 1} onClick={voltar} style={{ opacity: step === 1 ? 0.4 : 1 }} type="button">← Anterior</button>
+                <button className="small-action" disabled={step === 1} onClick={voltar} style={{ opacity: step === 1 ? 0.4 : 1 }} type="button">Anterior</button>
                 <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                   {STEPS.map((s) => <div key={s.number} style={{ width: 7, height: 7, borderRadius: "50%", background: step === s.number ? "#10b981" : "#c9dbd1" }} />)}
                 </div>
@@ -758,11 +927,11 @@ export default function EmpresasPage() {
                     style={{ background: rascunhoSalvo ? "#ecfdf5" : "#ffffff", border: `1px solid ${rascunhoSalvo ? "#a7f3d0" : "#b9d3c6"}`, color: rascunhoSalvo ? "#047857" : "#0b6040", borderRadius: 8, padding: "0.45rem 1rem", fontSize: "0.82rem", cursor: "pointer", fontWeight: 600, transition: "all 0.2s", minHeight: 36 }}
                     type="button"
                   >
-                    {rascunhoSalvo ? "✓ Salvo" : "Salvar rascunho"}
+                    {rascunhoSalvo ? "Salvo" : "Salvar rascunho"}
                   </button>
                   {step < 3
-                    ? <button onClick={avancar} type="button">Próximo →</button>
-                    : <button disabled={salvando} onClick={handleCriar} type="button">{salvando ? "Salvando..." : "✓ Criar empresa"}</button>}
+                    ? <button onClick={avancar} type="button">Proximo</button>
+                    : <button disabled={salvando} onClick={handleCriar} type="button">{salvando ? "Salvando..." : "Criar empresa"}</button>}
                 </div>
               </div>
             </div>
@@ -792,7 +961,7 @@ export default function EmpresasPage() {
                 <div style={{ background: "linear-gradient(120deg, #06170d 0%, #0b2e18 70%, #0f3d20 100%)", padding: "2rem 2rem 1.75rem", position: "relative", overflow: "hidden" }}>
                   <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 85% 40%, rgba(16,185,129,0.12) 0%, transparent 60%)", pointerEvents: "none" }} />
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "linear-gradient(90deg, #10b981, #34d399, #6ee7b7)" }} />
-                  <button onClick={() => setVisualizando(null)} style={{ position: "absolute", top: "1.1rem", right: "1.25rem", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", color: "#a7c4b4", borderRadius: 8, width: 32, height: 32, cursor: "pointer", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center" }} type="button">×</button>
+                  <button onClick={() => setVisualizando(null)} style={{ position: "absolute", top: "1.1rem", right: "1.25rem", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", color: "#a7c4b4", borderRadius: 8, width: 32, height: 32, cursor: "pointer", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center" }} type="button">x</button>
                   <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
                     <div style={{ width: 60, height: 60, borderRadius: 16, background: "linear-gradient(135deg, #10b981, #065f46)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.3rem", fontWeight: 900, flexShrink: 0, border: "2px solid rgba(255,255,255,0.15)" }}>{initials}</div>
                     <div>
@@ -812,9 +981,9 @@ export default function EmpresasPage() {
                   <div>
                     <p style={{ margin: "0 0 0.75rem", fontSize: "0.68rem", fontWeight: 900, color: "#10b981", letterSpacing: "2px", textTransform: "uppercase" }}>Dados Cadastrais</p>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-                      {[{ label: "CNPJ", value: visualizando.cnpj, icon: "🪪" }, { label: "Regime Tributário", value: regimeLabel, icon: "📋" }].map((item) => (
+                      {[{ label: "CNPJ", value: visualizando.cnpj }, { label: "Regime Tributário", value: regimeLabel }].map((item) => (
                         <div key={item.label} style={{ background: "#f8fdfb", border: "1px solid #e6f0ea", borderRadius: 10, padding: "0.85rem 1rem" }}>
-                          <p style={{ margin: "0 0 0.3rem", fontSize: "0.68rem", fontWeight: 800, color: "#6f8f7c", textTransform: "uppercase", letterSpacing: "1px" }}>{item.icon} {item.label}</p>
+                          <p style={{ margin: "0 0 0.3rem", fontSize: "0.68rem", fontWeight: 800, color: "#6f8f7c", textTransform: "uppercase", letterSpacing: "1px" }}>{item.label}</p>
                           <p style={{ margin: 0, fontSize: "0.9rem", fontWeight: 700, color: "#07170d" }}>{item.value || "—"}</p>
                         </div>
                       ))}
@@ -822,8 +991,7 @@ export default function EmpresasPage() {
                   </div>
                   <div>
                     <p style={{ margin: "0 0 0.75rem", fontSize: "0.68rem", fontWeight: 900, color: "#10b981", letterSpacing: "2px", textTransform: "uppercase" }}>Localização</p>
-                    <div style={{ background: "#f8fdfb", border: "1px solid #e6f0ea", borderRadius: 10, padding: "0.85rem 1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <span style={{ fontSize: "1.1rem" }}>📍</span>
+                    <div style={{ background: "#f8fdfb", border: "1px solid #e6f0ea", borderRadius: 10, padding: "0.85rem 1rem" }}>
                       <span style={{ fontSize: "0.9rem", fontWeight: 600, color: "#07170d" }}>
                         {visualizando.cidade && visualizando.estado ? `${visualizando.cidade} — ${visualizando.estado}` : visualizando.cidade || visualizando.estado || "—"}
                       </span>
@@ -831,19 +999,19 @@ export default function EmpresasPage() {
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                     {[
-                      { label: "Criado em", value: new Date(visualizando.created_at).toLocaleString("pt-BR"), icon: "🗓" },
-                      { label: "Atualizado em", value: new Date(visualizando.updated_at).toLocaleString("pt-BR"), icon: "🔄" },
+                      { label: "Criado em", value: new Date(visualizando.created_at).toLocaleString("pt-BR") },
+                      { label: "Atualizado em", value: new Date(visualizando.updated_at).toLocaleString("pt-BR") },
                     ].map((item) => (
                       <div key={item.label} style={{ background: "#f8fdfb", border: "1px solid #e6f0ea", borderRadius: 10, padding: "0.75rem 1rem" }}>
-                        <p style={{ margin: "0 0 0.25rem", fontSize: "0.68rem", fontWeight: 800, color: "#6f8f7c", textTransform: "uppercase", letterSpacing: "1px" }}>{item.icon} {item.label}</p>
+                        <p style={{ margin: "0 0 0.25rem", fontSize: "0.68rem", fontWeight: 800, color: "#6f8f7c", textTransform: "uppercase", letterSpacing: "1px" }}>{item.label}</p>
                         <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#4b6358" }}>{item.value}</p>
                       </div>
                     ))}
                   </div>
                 </div>
                 <div style={{ padding: "1rem 2rem 1.5rem", display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
-                  <button className="small-action" onClick={() => { setVisualizando(null); window.location.href = `/empresas/${visualizando.id}`; }} type="button">🔍 Ver detalhes</button>
-                  <button className="small-action" onClick={() => { setVisualizando(null); abrirEditar(visualizando); }} type="button">✏️ Editar</button>
+                  <button className="small-action" onClick={() => { setVisualizando(null); window.location.href = `/empresas/${visualizando.id}`; }} type="button">Ver detalhes</button>
+                  <button className="small-action" onClick={() => { setVisualizando(null); abrirEditar(visualizando); }} type="button">Editar</button>
                   <button onClick={() => setVisualizando(null)} style={{ background: "linear-gradient(135deg, #10b981, #059669)", color: "#fff", border: "none", borderRadius: 8, padding: "0.55rem 1.4rem", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }} type="button">Fechar</button>
                 </div>
               </div>
@@ -863,7 +1031,7 @@ export default function EmpresasPage() {
                   <h2 style={{ margin: 0, fontSize: "1rem", color: "#06170d" }}>Editar empresa</h2>
                   <p style={{ margin: "0.2rem 0 0", fontSize: "0.78rem", color: "#6f8f7c" }}>{editandoEmpresa.nome_legal}</p>
                 </div>
-                <button onClick={() => setEditandoEmpresa(null)} style={{ background: "none", border: "none", color: "#6f8f7c", fontSize: "1.4rem", cursor: "pointer" }} type="button">×</button>
+                <button onClick={() => setEditandoEmpresa(null)} style={{ background: "none", border: "none", color: "#6f8f7c", fontSize: "1.4rem", cursor: "pointer" }} type="button">x</button>
               </div>
               <div style={{ overflowY: "auto", padding: "1.5rem 1.75rem", display: "grid", gap: "1rem", background: "#fafcfb" }}>
                 {erroEdicao && <p className="error-alert">{erroEdicao}</p>}
@@ -906,10 +1074,9 @@ export default function EmpresasPage() {
           <div onClick={() => setConfirmandoArquivar(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(3px)", zIndex: 40 }} />
           <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem", pointerEvents: "none" }}>
             <div style={{ width: "100%", maxWidth: 440, background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", boxShadow: "0 32px 80px rgba(0,0,0,0.18)", overflow: "hidden", pointerEvents: "auto" }}>
-              {/* Header */}
               <div style={{ padding: "1.5rem 1.75rem 1.25rem", display: "flex", gap: "1rem", alignItems: "flex-start" }}>
                 <div style={{ width: 44, height: 44, borderRadius: 12, background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.4rem", flexShrink: 0 }}>
-                  📦
+                  A
                 </div>
                 <div>
                   <h2 style={{ margin: "0 0 0.3rem", fontSize: "1rem", fontWeight: 800, color: "#111827" }}>Arquivar empresa</h2>
@@ -918,29 +1085,21 @@ export default function EmpresasPage() {
                   </p>
                 </div>
               </div>
-              {/* Aviso */}
               <div style={{ margin: "0 1.75rem 1.25rem", background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 10, padding: "0.75rem 1rem", display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
-                <span style={{ fontSize: "0.9rem", flexShrink: 0 }}>ℹ️</span>
+                <span style={{ fontSize: "0.9rem", flexShrink: 0 }}>i</span>
                 <p style={{ margin: 0, fontSize: "0.8rem", color: "#6b7280", lineHeight: 1.45 }}>
                   Esta ação pode ser revertida editando o status da empresa posteriormente.
                 </p>
               </div>
-              {/* Ações */}
               <div style={{ padding: "1rem 1.75rem 1.5rem", display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
-                <button
-                  className="small-action"
-                  onClick={() => setConfirmandoArquivar(null)}
-                  type="button"
-                >
-                  Cancelar
-                </button>
+                <button className="small-action" onClick={() => setConfirmandoArquivar(null)} type="button">Cancelar</button>
                 <button
                   disabled={arquivando}
                   onClick={handleArquivarConfirmado}
                   style={{ background: "linear-gradient(135deg, #4b5563, #374151)", color: "#fff", border: "none", borderRadius: 8, padding: "0.55rem 1.4rem", fontWeight: 700, fontSize: "0.85rem", cursor: arquivando ? "not-allowed" : "pointer", opacity: arquivando ? 0.7 : 1, display: "flex", alignItems: "center", gap: "0.4rem" }}
                   type="button"
                 >
-                  {arquivando ? "Arquivando..." : "📦 Arquivar empresa"}
+                  {arquivando ? "Arquivando..." : "Arquivar empresa"}
                 </button>
               </div>
             </div>
