@@ -610,6 +610,284 @@ CREATE TABLE IF NOT EXISTS public.company_members (
 );
 
 -- =============================================================================
+-- 8B. MODULOS OPERACIONAIS (Tarefas, Documentos, Contratos, Consultoria, etc.)
+-- =============================================================================
+
+-- -----------------------------------------------
+-- Tarefas
+-- -----------------------------------------------
+CREATE TABLE IF NOT EXISTS public.tarefas (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  empresa_id    UUID REFERENCES public.empresas(id) ON DELETE CASCADE,
+  setor         TEXT NOT NULL DEFAULT 'geral',
+  atividade     TEXT NOT NULL,
+  descricao     TEXT,
+  prazo         DATE,
+  responsavel   TEXT,
+  status        TEXT NOT NULL DEFAULT 'nao_iniciado' CHECK (status IN ('nao_iniciado','em_andamento','revisao','concluido','atrasado','cancelado')),
+  prioridade    TEXT DEFAULT 'media' CHECK (prioridade IN ('baixa','media','alta','urgente')),
+  competencia   TEXT,
+  criado_por    UUID REFERENCES public.usuarios(id),
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- -----------------------------------------------
+-- Documentos (por empresa, organizados por competência e setor)
+-- -----------------------------------------------
+CREATE TABLE IF NOT EXISTS public.documentos (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  empresa_id    UUID REFERENCES public.empresas(id) ON DELETE CASCADE,
+  nome          TEXT NOT NULL,
+  categoria     TEXT NOT NULL DEFAULT 'outros' CHECK (categoria IN ('extratos','notas','contratos','guias','folha','rg','cpf','comprovante','contrato_social','cnpj','certificado','outros')),
+  setor         TEXT DEFAULT 'geral',
+  competencia   TEXT,
+  status        TEXT NOT NULL DEFAULT 'recebido' CHECK (status IN ('pendente','recebido','conferido','processado','arquivado','rejeitado')),
+  arquivo_url   TEXT,
+  arquivo_nome  TEXT,
+  arquivo_tipo  TEXT,
+  arquivo_tam   INTEGER,
+  enviado_por   UUID REFERENCES public.usuarios(id),
+  conferido_por UUID REFERENCES public.usuarios(id),
+  observacoes   TEXT,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- -----------------------------------------------
+-- Guias (impostos e obrigações para download pelo cliente)
+-- -----------------------------------------------
+CREATE TABLE IF NOT EXISTS public.guias (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  empresa_id    UUID REFERENCES public.empresas(id) ON DELETE CASCADE,
+  competencia   TEXT NOT NULL,
+  imposto       TEXT NOT NULL,
+  vencimento    DATE NOT NULL,
+  valor         NUMERIC NOT NULL DEFAULT 0,
+  status        TEXT NOT NULL DEFAULT 'pendente' CHECK (status IN ('pendente','disponivel','paga','vencida','cancelada')),
+  codigo_barras TEXT,
+  arquivo_url   TEXT,
+  emitida_por   UUID REFERENCES public.usuarios(id),
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- -----------------------------------------------
+-- Solicitações (pedidos do cliente ao escritório)
+-- -----------------------------------------------
+CREATE TABLE IF NOT EXISTS public.solicitacoes (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  empresa_id    UUID REFERENCES public.empresas(id) ON DELETE CASCADE,
+  usuario_id    UUID REFERENCES public.usuarios(id),
+  assunto       TEXT NOT NULL,
+  categoria     TEXT NOT NULL DEFAULT 'geral' CHECK (categoria IN ('fiscal','dp','financeiro','societario','contabil','geral')),
+  descricao     TEXT,
+  prioridade    TEXT DEFAULT 'normal' CHECK (prioridade IN ('normal','urgente')),
+  status        TEXT NOT NULL DEFAULT 'aberto' CHECK (status IN ('aberto','em_andamento','concluido','cancelado')),
+  responsavel   TEXT,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- -----------------------------------------------
+-- Mensagens de solicitações (chat interno)
+-- -----------------------------------------------
+CREATE TABLE IF NOT EXISTS public.solicitacao_mensagens (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  solicitacao_id  UUID REFERENCES public.solicitacoes(id) ON DELETE CASCADE,
+  usuario_id      UUID REFERENCES public.usuarios(id),
+  mensagem        TEXT NOT NULL,
+  remetente_tipo  TEXT DEFAULT 'interno' CHECK (remetente_tipo IN ('interno','cliente')),
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- -----------------------------------------------
+-- Notificações
+-- -----------------------------------------------
+CREATE TABLE IF NOT EXISTS public.notificacoes (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  empresa_id    UUID REFERENCES public.empresas(id) ON DELETE CASCADE,
+  usuario_id    UUID REFERENCES public.usuarios(id),
+  titulo        TEXT NOT NULL,
+  descricao     TEXT,
+  tipo          TEXT NOT NULL DEFAULT 'info' CHECK (tipo IN ('info','alerta','urgente','documento','guia','solicitacao')),
+  lida          BOOLEAN DEFAULT FALSE,
+  link          TEXT,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- -----------------------------------------------
+-- Contratos (templates e contratos gerados)
+-- -----------------------------------------------
+CREATE TABLE IF NOT EXISTS public.contrato_templates (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  nome          TEXT NOT NULL,
+  slug          TEXT UNIQUE NOT NULL,
+  categoria     TEXT NOT NULL,
+  descricao     TEXT,
+  preco         NUMERIC NOT NULL DEFAULT 0,
+  conteudo      TEXT,
+  variaveis     JSONB DEFAULT '[]'::JSONB,
+  clausulas     JSONB DEFAULT '[]'::JSONB,
+  ativo         BOOLEAN DEFAULT TRUE,
+  versao        INTEGER DEFAULT 1,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.contratos (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  empresa_id      UUID REFERENCES public.empresas(id) ON DELETE SET NULL,
+  template_id     UUID REFERENCES public.contrato_templates(id),
+  numero          TEXT NOT NULL UNIQUE,
+  tipo            TEXT NOT NULL,
+  modo            TEXT DEFAULT 'interno' CHECK (modo IN ('interno','cliente','publico')),
+  status          TEXT NOT NULL DEFAULT 'rascunho' CHECK (status IN ('rascunho','aguardando_pagamento','pago','pendente_assinatura','assinado','ativo','concluido','cancelado','expirado')),
+  valor           NUMERIC DEFAULT 0,
+  dados_partes    JSONB DEFAULT '[]'::JSONB,
+  dados_contrato  JSONB DEFAULT '{}'::JSONB,
+  conteudo_final  TEXT,
+  hash_documento  TEXT,
+  arquivo_pdf_url TEXT,
+  solicitante_nome  TEXT,
+  solicitante_doc   TEXT,
+  solicitante_email TEXT,
+  pagamento_metodo  TEXT,
+  pagamento_data    TIMESTAMPTZ,
+  assinado_em       TIMESTAMPTZ,
+  expira_em         TIMESTAMPTZ,
+  criado_por      UUID REFERENCES public.usuarios(id),
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- -----------------------------------------------
+-- Assinaturas de contratos (signatários)
+-- -----------------------------------------------
+CREATE TABLE IF NOT EXISTS public.contrato_assinaturas (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  contrato_id   UUID REFERENCES public.contratos(id) ON DELETE CASCADE,
+  nome          TEXT NOT NULL,
+  documento     TEXT,
+  email         TEXT,
+  papel         TEXT DEFAULT 'contratante',
+  status        TEXT DEFAULT 'pendente' CHECK (status IN ('pendente','assinado','recusado','expirado')),
+  assinado_em   TIMESTAMPTZ,
+  ip_assinatura TEXT,
+  token         TEXT UNIQUE,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- -----------------------------------------------
+-- Consultoria (estudos e planejamento tributário)
+-- -----------------------------------------------
+CREATE TABLE IF NOT EXISTS public.estudos_consultoria (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  empresa_id      UUID REFERENCES public.empresas(id) ON DELETE SET NULL,
+  cliente_nome    TEXT NOT NULL,
+  cliente_email   TEXT,
+  cliente_telefone TEXT,
+  cliente_cpf     TEXT,
+  cliente_cidade  TEXT,
+  objetivo        TEXT NOT NULL,
+  etapa           TEXT NOT NULL DEFAULT 'diagnostico' CHECK (etapa IN ('diagnostico','planejamento','simulacao','viabilidade','plano','apresentacao','aprovacao','convertido','cancelado')),
+  status          TEXT NOT NULL DEFAULT 'novo' CHECK (status IN ('novo','em_andamento','aguardando','concluido','convertido','cancelado')),
+  responsavel     TEXT,
+  dados_diagnostico   JSONB DEFAULT '{}'::JSONB,
+  dados_tributario    JSONB DEFAULT '{}'::JSONB,
+  dados_viabilidade   JSONB DEFAULT '{}'::JSONB,
+  dados_plano         JSONB DEFAULT '{}'::JSONB,
+  regime_recomendado  TEXT,
+  score_complexidade  INTEGER DEFAULT 0,
+  score_risco         INTEGER DEFAULT 0,
+  score_potencial     INTEGER DEFAULT 0,
+  resultado_viabilidade TEXT CHECK (resultado_viabilidade IN ('viavel','viavel_com_ajustes','nao_recomendado')),
+  aprovacao_status    TEXT CHECK (aprovacao_status IN ('aprovado','ajustes','rejeitado')),
+  aprovacao_data      TIMESTAMPTZ,
+  aprovacao_obs       TEXT,
+  convertido_empresa_id UUID REFERENCES public.empresas(id),
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- -----------------------------------------------
+-- Simulações tributárias (histórico)
+-- -----------------------------------------------
+CREATE TABLE IF NOT EXISTS public.simulacoes_tributarias (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  estudo_id       UUID REFERENCES public.estudos_consultoria(id) ON DELETE CASCADE,
+  faturamento     NUMERIC NOT NULL,
+  custos          NUMERIC DEFAULT 0,
+  funcionarios    INTEGER DEFAULT 0,
+  pro_labore      NUMERIC DEFAULT 0,
+  tipo_atividade  TEXT,
+  resultado_mei       JSONB,
+  resultado_simples   JSONB,
+  resultado_presumido JSONB,
+  resultado_real      JSONB,
+  regime_recomendado  TEXT,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- -----------------------------------------------
+-- Onboarding (processos de abertura de empresa)
+-- -----------------------------------------------
+CREATE TABLE IF NOT EXISTS public.onboarding_processos (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  empresa_id      UUID REFERENCES public.empresas(id) ON DELETE SET NULL,
+  estudo_id       UUID REFERENCES public.estudos_consultoria(id),
+  cliente_nome    TEXT,
+  cliente_cpf     TEXT,
+  cliente_email   TEXT,
+  status          TEXT NOT NULL DEFAULT 'rascunho' CHECK (status IN ('rascunho','aguardando_cliente','documentacao_recebida','pronto_ativacao','ativo','cancelado')),
+  progresso       INTEGER DEFAULT 0,
+  dados_cliente   JSONB DEFAULT '{}'::JSONB,
+  dados_empresa   JSONB DEFAULT '{}'::JSONB,
+  dados_socios    JSONB DEFAULT '[]'::JSONB,
+  dados_tributacao JSONB DEFAULT '{}'::JSONB,
+  dados_portal    JSONB DEFAULT '{}'::JSONB,
+  responsavel     TEXT,
+  proxima_acao    TEXT,
+  pendencias      TEXT,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- -----------------------------------------------
+-- Mensalidades (cobranças do escritório aos clientes)
+-- -----------------------------------------------
+CREATE TABLE IF NOT EXISTS public.mensalidades (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  empresa_id    UUID REFERENCES public.empresas(id) ON DELETE CASCADE,
+  competencia   TEXT NOT NULL,
+  valor         NUMERIC NOT NULL,
+  vencimento    DATE NOT NULL,
+  status        TEXT NOT NULL DEFAULT 'pendente' CHECK (status IN ('pendente','pago','atrasado','cancelado')),
+  forma_pagamento TEXT DEFAULT 'boleto' CHECK (forma_pagamento IN ('boleto','pix','cartao','transferencia')),
+  pago_em       TIMESTAMPTZ,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- -----------------------------------------------
+-- CRM (leads e oportunidades)
+-- -----------------------------------------------
+CREATE TABLE IF NOT EXISTS public.crm_leads (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  nome          TEXT NOT NULL,
+  email         TEXT,
+  telefone      TEXT,
+  empresa       TEXT,
+  origem        TEXT DEFAULT 'site',
+  status        TEXT NOT NULL DEFAULT 'novo' CHECK (status IN ('novo','contato','qualificado','proposta','negociacao','ganho','perdido')),
+  valor_estimado NUMERIC DEFAULT 0,
+  responsavel   TEXT,
+  observacoes   TEXT,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- =============================================================================
 -- 9. INDICES
 -- =============================================================================
 
@@ -645,6 +923,27 @@ CREATE INDEX IF NOT EXISTS idx_taxes_due_date ON public.taxes(due_date);
 CREATE INDEX IF NOT EXISTS idx_employees_company_id ON public.employees(company_id);
 CREATE INDEX IF NOT EXISTS idx_invoices_company_id ON public.invoices(company_id);
 CREATE INDEX IF NOT EXISTS idx_invoices_issue_date ON public.invoices(company_id, issue_date);
+
+-- Indices modulos operacionais
+CREATE INDEX IF NOT EXISTS idx_tarefas_empresa_id ON public.tarefas(empresa_id);
+CREATE INDEX IF NOT EXISTS idx_tarefas_status ON public.tarefas(status);
+CREATE INDEX IF NOT EXISTS idx_tarefas_prazo ON public.tarefas(prazo);
+CREATE INDEX IF NOT EXISTS idx_documentos_empresa_id ON public.documentos(empresa_id);
+CREATE INDEX IF NOT EXISTS idx_documentos_status ON public.documentos(status);
+CREATE INDEX IF NOT EXISTS idx_guias_empresa_id ON public.guias(empresa_id);
+CREATE INDEX IF NOT EXISTS idx_guias_vencimento ON public.guias(vencimento);
+CREATE INDEX IF NOT EXISTS idx_solicitacoes_empresa_id ON public.solicitacoes(empresa_id);
+CREATE INDEX IF NOT EXISTS idx_solicitacao_msgs_solicitacao ON public.solicitacao_mensagens(solicitacao_id);
+CREATE INDEX IF NOT EXISTS idx_notificacoes_empresa_id ON public.notificacoes(empresa_id);
+CREATE INDEX IF NOT EXISTS idx_notificacoes_usuario_id ON public.notificacoes(usuario_id);
+CREATE INDEX IF NOT EXISTS idx_contratos_empresa_id ON public.contratos(empresa_id);
+CREATE INDEX IF NOT EXISTS idx_contratos_numero ON public.contratos(numero);
+CREATE INDEX IF NOT EXISTS idx_contrato_assinaturas_contrato ON public.contrato_assinaturas(contrato_id);
+CREATE INDEX IF NOT EXISTS idx_estudos_consultoria_empresa ON public.estudos_consultoria(empresa_id);
+CREATE INDEX IF NOT EXISTS idx_simulacoes_estudo ON public.simulacoes_tributarias(estudo_id);
+CREATE INDEX IF NOT EXISTS idx_onboarding_empresa ON public.onboarding_processos(empresa_id);
+CREATE INDEX IF NOT EXISTS idx_mensalidades_empresa ON public.mensalidades(empresa_id);
+CREATE INDEX IF NOT EXISTS idx_crm_leads_status ON public.crm_leads(status);
 
 -- =============================================================================
 -- 10. FUNCOES DE AUTORIZACAO (RBAC)
@@ -870,6 +1169,22 @@ ALTER TABLE public.company_members    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.categories         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.transactions       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.employees          ENABLE ROW LEVEL SECURITY;
+
+-- Modulos operacionais
+ALTER TABLE public.tarefas              ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.documentos           ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.guias                ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.solicitacoes         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.solicitacao_mensagens ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notificacoes         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.contrato_templates   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.contratos            ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.contrato_assinaturas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.estudos_consultoria  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.simulacoes_tributarias ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.onboarding_processos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.mensalidades         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.crm_leads            ENABLE ROW LEVEL SECURITY;
 
 -- -----------------------------------------------
 -- POLICIES: Usuarios
@@ -1358,6 +1673,133 @@ ON public.invoices FOR ALL
 USING (public.is_company_member(company_id))
 WITH CHECK (public.is_company_member(company_id));
 
+-- -----------------------------------------------
+-- Policies para modulos operacionais (empresa_id based)
+-- -----------------------------------------------
+
+DO $$ BEGIN
+CREATE POLICY "tarefas_acesso" ON public.tarefas FOR ALL
+USING (public.tem_acesso_empresa(empresa_id))
+WITH CHECK (public.tem_acesso_empresa(empresa_id));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+CREATE POLICY "documentos_acesso" ON public.documentos FOR ALL
+USING (public.tem_acesso_empresa(empresa_id))
+WITH CHECK (public.tem_acesso_empresa(empresa_id));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+CREATE POLICY "guias_acesso" ON public.guias FOR ALL
+USING (public.tem_acesso_empresa(empresa_id))
+WITH CHECK (public.tem_acesso_empresa(empresa_id));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+CREATE POLICY "solicitacoes_acesso" ON public.solicitacoes FOR ALL
+USING (public.tem_acesso_empresa(empresa_id))
+WITH CHECK (public.tem_acesso_empresa(empresa_id));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+CREATE POLICY "sol_msgs_acesso" ON public.solicitacao_mensagens FOR ALL
+USING (EXISTS (SELECT 1 FROM public.solicitacoes s WHERE s.id = solicitacao_id AND public.tem_acesso_empresa(s.empresa_id)));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+CREATE POLICY "notificacoes_acesso" ON public.notificacoes FOR ALL
+USING (usuario_id = auth.uid() OR public.tem_acesso_empresa(empresa_id));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+CREATE POLICY "templates_leitura" ON public.contrato_templates FOR SELECT USING (true);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+CREATE POLICY "contratos_acesso" ON public.contratos FOR ALL
+USING (empresa_id IS NULL OR public.tem_acesso_empresa(empresa_id) OR criado_por = auth.uid())
+WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+CREATE POLICY "contrato_ass_acesso" ON public.contrato_assinaturas FOR ALL
+USING (EXISTS (SELECT 1 FROM public.contratos c WHERE c.id = contrato_id AND (c.empresa_id IS NULL OR public.tem_acesso_empresa(c.empresa_id) OR c.criado_por = auth.uid())));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+CREATE POLICY "estudos_acesso" ON public.estudos_consultoria FOR ALL
+USING (empresa_id IS NULL OR public.tem_acesso_empresa(empresa_id))
+WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+CREATE POLICY "simulacoes_acesso" ON public.simulacoes_tributarias FOR ALL
+USING (EXISTS (SELECT 1 FROM public.estudos_consultoria e WHERE e.id = estudo_id AND (e.empresa_id IS NULL OR public.tem_acesso_empresa(e.empresa_id))));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+CREATE POLICY "onboarding_acesso" ON public.onboarding_processos FOR ALL
+USING (empresa_id IS NULL OR public.tem_acesso_empresa(empresa_id))
+WITH CHECK (true);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+CREATE POLICY "mensalidades_acesso" ON public.mensalidades FOR ALL
+USING (public.tem_acesso_empresa(empresa_id))
+WITH CHECK (public.tem_acesso_empresa(empresa_id));
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+CREATE POLICY "crm_leads_acesso" ON public.crm_leads FOR ALL USING (true);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+-- -----------------------------------------------
+-- Triggers updated_at para novas tabelas
+-- -----------------------------------------------
+DROP TRIGGER IF EXISTS set_updated_at_tarefas ON public.tarefas;
+CREATE TRIGGER set_updated_at_tarefas BEFORE UPDATE ON public.tarefas FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS set_updated_at_documentos ON public.documentos;
+CREATE TRIGGER set_updated_at_documentos BEFORE UPDATE ON public.documentos FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS set_updated_at_guias ON public.guias;
+CREATE TRIGGER set_updated_at_guias BEFORE UPDATE ON public.guias FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS set_updated_at_solicitacoes ON public.solicitacoes;
+CREATE TRIGGER set_updated_at_solicitacoes BEFORE UPDATE ON public.solicitacoes FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS set_updated_at_contratos ON public.contratos;
+CREATE TRIGGER set_updated_at_contratos BEFORE UPDATE ON public.contratos FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS set_updated_at_contrato_templates ON public.contrato_templates;
+CREATE TRIGGER set_updated_at_contrato_templates BEFORE UPDATE ON public.contrato_templates FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS set_updated_at_estudos ON public.estudos_consultoria;
+CREATE TRIGGER set_updated_at_estudos BEFORE UPDATE ON public.estudos_consultoria FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS set_updated_at_onboarding ON public.onboarding_processos;
+CREATE TRIGGER set_updated_at_onboarding BEFORE UPDATE ON public.onboarding_processos FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS set_updated_at_mensalidades ON public.mensalidades;
+CREATE TRIGGER set_updated_at_mensalidades BEFORE UPDATE ON public.mensalidades FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS set_updated_at_crm ON public.crm_leads;
+CREATE TRIGGER set_updated_at_crm BEFORE UPDATE ON public.crm_leads FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
 -- =============================================================================
 -- 13. SEED DATA: Permissoes
 -- =============================================================================
@@ -1390,7 +1832,26 @@ INSERT INTO public.permissoes (chave, modulo, descricao) VALUES
   ('guia.download',      'guias',         'Baixar guias'),
   ('solicitacao.create', 'solicitacoes',  'Criar solicitacao'),
   ('solicitacao.read',   'solicitacoes',  'Visualizar solicitacoes'),
-  ('notificacao.read',   'notificacoes',  'Visualizar notificacoes')
+  ('notificacao.read',   'notificacoes',  'Visualizar notificacoes'),
+  -- Tarefas
+  ('tarefa.read',        'tarefas',       'Visualizar tarefas'),
+  ('tarefa.write',       'tarefas',       'Criar e editar tarefas'),
+  -- Contratos
+  ('contrato.read',      'contratos',     'Visualizar contratos'),
+  ('contrato.write',     'contratos',     'Criar e editar contratos'),
+  ('contrato.assinar',   'contratos',     'Assinar contratos'),
+  -- Consultoria
+  ('consultoria.read',   'consultoria',   'Visualizar estudos'),
+  ('consultoria.write',  'consultoria',   'Criar e editar estudos'),
+  -- CRM
+  ('crm.read',           'crm',           'Visualizar leads'),
+  ('crm.write',          'crm',           'Criar e editar leads'),
+  -- Mensalidades
+  ('mensalidade.read',   'financeiro',    'Visualizar mensalidades'),
+  ('mensalidade.write',  'financeiro',    'Gerenciar mensalidades'),
+  -- Onboarding
+  ('onboarding.read',    'onboarding',    'Visualizar processos'),
+  ('onboarding.write',   'onboarding',    'Gerenciar processos de abertura')
 ON CONFLICT (chave) DO UPDATE
 SET modulo = EXCLUDED.modulo,
     descricao = EXCLUDED.descricao,
