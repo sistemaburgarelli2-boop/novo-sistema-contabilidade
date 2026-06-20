@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { emoji: "\u{1F4C4}", href: "/documentos", label: "Documentos" },
   { emoji: "\u{1F4CB}", href: "/guias", label: "Guias" },
   { emoji: "\u{1F504}", href: "/solicitacoes", label: "Solicitações" },
+  { emoji: "\u{1F4D1}", href: "/contratos", label: "Contratos" },
   { emoji: "\u{1F4B0}", href: "/financeiro", label: "Financeiro" },
   { emoji: "\u{1F4DC}", href: "/historico", label: "Histórico" },
   { emoji: "\u{1F514}", href: "/notificacoes", label: "Notificações" },

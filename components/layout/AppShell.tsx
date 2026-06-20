@@ -8,6 +8,7 @@ import { LogoutButton } from "@/components/auth/LogoutButton";
 const navigation = [
   { href: "/dashboard", icon: "dashboard", label: "Dashboard", section: "Visão geral" },
   { href: "/empresas", icon: "building", label: "Empresas", section: "Operacional" },
+  { href: "/contratos", icon: "contract", label: "Contratos", section: "Operacional" },
   { href: "/tarefas", icon: "tasks", label: "Tarefas", section: "Operacional" },
   { href: "/admin", icon: "admin", label: "Administração", section: "Sistema" },
 ];
@@ -15,6 +16,7 @@ const navigation = [
 const pageTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/empresas": "Empresas",
+  "/contratos": "Contratos",
   "/tarefas": "Central de Tarefas",
   "/admin": "Administração",
 };
@@ -56,6 +58,16 @@ function NavIcon({ name }: { name: string }) {
         <rect height="4" rx="1" stroke="currentColor" strokeWidth="2" width="8" x="8" y="2" />
         <path d="M9 12l2 2 4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
         <path d="M9 18h6" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
+      </svg>
+    );
+  }
+
+  if (name === "contract") {
+    return (
+      <svg {...common}>
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+        <path d="M14 2v6h6" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+        <path d="M16 13H8M16 17H8M10 9H8" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
       </svg>
     );
   }
