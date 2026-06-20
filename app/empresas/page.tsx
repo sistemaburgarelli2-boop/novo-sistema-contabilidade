@@ -113,14 +113,7 @@ const PROCESS_STATUS_STYLES: Record<ProcessStatus, { bg: string; color: string }
 
 type SideTab = "Todas" | "Ativas" | "Em Abertura" | "Aguardando Cliente" | "Rascunhos" | "Arquivadas";
 
-const SIDE_TABS: { label: SideTab; count: number }[] = [
-  { label: "Todas", count: 24 },
-  { label: "Ativas", count: 18 },
-  { label: "Em Abertura", count: 3 },
-  { label: "Aguardando Cliente", count: 2 },
-  { label: "Rascunhos", count: 1 },
-  { label: "Arquivadas", count: 0 },
-];
+// SIDE_TABS counts are now computed dynamically from real data in the component
 
 const TAB_STATUS_MAP: Record<SideTab, ProcessStatus[] | null> = {
   "Todas": null,
@@ -417,26 +410,87 @@ export default function EmpresasPage() {
     } finally { setArquivando(false); }
   }
 
-  /* ── Filtered mock data ── */
-  const filteredMock = MOCK_EMPRESAS.filter((m) => {
+  /* ── Map real Empresa status to ProcessStatus ── */
+  function statusToProcess(status: Empresa["status"]): ProcessStatus {
+    switch (status) {
+      case "ativa": return "Ativa";
+      case "suspensa": return "Suspensa";
+      case "encerrada": return "Encerrada";
+      case "cancelada": return "Encerrada";
+      default: return "Ativa";
+    }
+  }
+
+  /* ── Map real Empresa regime to display label ── */
+  function regimeLabel(regime: string | null): string {
+    if (!regime) return "—";
+    const found = REGIMES.find((r) => r.value === regime);
+    return found ? found.label : regime;
+  }
+
+  /* ── Data source: real empresas with mock fallback ── */
+  const useRealData = !loading && empresas.length > 0;
+
+  type TableRow = {
+    id: string;
+    razao: string;
+    fantasia: string;
+    cnpj: string;
+    cliente: string;
+    responsavel: string;
+    regime: string;
+    processStatus: ProcessStatus;
+    pendencias: string;
+    ultimoAcesso: string;
+    progresso: number;
+    isReal: boolean;
+  };
+
+  const tableSource: TableRow[] = useRealData
+    ? empresas.map((emp) => ({
+        id: emp.id,
+        razao: emp.nome_legal,
+        fantasia: emp.nome_fantasia ?? "",
+        cnpj: emp.cnpj ?? "",
+        cliente: "—",
+        responsavel: "—",
+        regime: regimeLabel(emp.regime_tributario),
+        processStatus: statusToProcess(emp.status),
+        pendencias: "—",
+        ultimoAcesso: emp.updated_at ? new Date(emp.updated_at).toLocaleDateString("pt-BR") : "—",
+        progresso: emp.status === "ativa" ? 100 : 0,
+        isReal: true,
+      }))
+    : MOCK_EMPRESAS.map((m) => ({
+        id: m.id,
+        razao: m.razao,
+        fantasia: m.fantasia,
+        cnpj: m.cnpj,
+        cliente: m.cliente,
+        responsavel: m.responsavel,
+        regime: m.regime,
+        processStatus: m.processStatus,
+        pendencias: m.pendencias,
+        ultimoAcesso: m.ultimoAcesso,
+        progresso: m.progresso,
+        isReal: false,
+      }));
+
+  /* ── Filtered data ── */
+  const filteredRows = tableSource.filter((row) => {
     const tabStatuses = TAB_STATUS_MAP[activeTab];
-    if (tabStatuses && !tabStatuses.includes(m.processStatus)) return false;
+    if (tabStatuses && !tabStatuses.includes(row.processStatus)) return false;
     if (filtroNome) {
       const search = filtroNome.toLowerCase();
-      const matchName = m.razao.toLowerCase().includes(search) || m.fantasia.toLowerCase().includes(search);
-      const matchCnpj = m.cnpj.includes(filtroNome);
+      const matchName = row.razao.toLowerCase().includes(search) || row.fantasia.toLowerCase().includes(search);
+      const matchCnpj = row.cnpj.includes(filtroNome);
       if (!matchName && !matchCnpj) return false;
     }
-    if (filtroRegime && m.regime !== filtroRegime) return false;
-    if (filtroResponsavel && m.responsavel !== filtroResponsavel) return false;
-    if (filtroStatus && m.processStatus !== filtroStatus) return false;
+    if (filtroRegime && row.regime !== filtroRegime) return false;
+    if (filtroResponsavel && row.responsavel !== filtroResponsavel) return false;
+    if (filtroStatus && row.processStatus !== filtroStatus) return false;
     return true;
   });
-
-  const enrichedMock = filteredMock.map((m, i) => ({
-    ...m,
-    realId: empresas[i]?.id ?? m.id,
-  }));
 
   const processosEmAndamento = MOCK_EMPRESAS.filter((m) =>
     m.processStatus === "Em Abertura" || m.processStatus === "Aguardando Cliente" || m.processStatus === "Rascunho"
@@ -444,14 +498,36 @@ export default function EmpresasPage() {
 
   const temFiltro = !!(filtroNome || filtroRegime || filtroResponsavel || filtroStatus);
 
-  /* ── KPIs ── */
-  const kpis = [
-    { label: "Empresas Ativas", value: 18, color: "#065f46", bg: "#f0fdf4", border: "#bbf7d0" },
-    { label: "Em Abertura", value: 3, color: "#0e7490", bg: "#ecfeff", border: "#a5f3fc" },
-    { label: "Aguardando Cliente", value: 2, color: "#92400e", bg: "#fffbeb", border: "#fde68a" },
-    { label: "Sem Portal", value: 1, color: "#7c3aed", bg: "#f5f3ff", border: "#c4b5fd" },
-    { label: "Inadimplentes", value: 1, color: "#b91c1c", bg: "#fef2f2", border: "#fecaca" },
-  ];
+  /* ── KPIs (real counts when available) ── */
+  const kpis = useRealData
+    ? [
+        { label: "Empresas Ativas", value: empresas.filter((e) => e.status === "ativa").length, color: "#065f46", bg: "#f0fdf4", border: "#bbf7d0" },
+        { label: "Suspensas", value: empresas.filter((e) => e.status === "suspensa").length, color: "#92400e", bg: "#fffbeb", border: "#fde68a" },
+        { label: "Encerradas", value: empresas.filter((e) => e.status === "encerrada" || e.status === "cancelada").length, color: "#6b7280", bg: "#f3f4f6", border: "#e5e7eb" },
+        { label: "Total cadastradas", value: empresas.length, color: "#0e7490", bg: "#ecfeff", border: "#a5f3fc" },
+        { label: "Em Abertura", value: processosEmAndamento.length, color: "#7c3aed", bg: "#f5f3ff", border: "#c4b5fd" },
+      ]
+    : [
+        { label: "Empresas Ativas", value: 18, color: "#065f46", bg: "#f0fdf4", border: "#bbf7d0" },
+        { label: "Em Abertura", value: 3, color: "#0e7490", bg: "#ecfeff", border: "#a5f3fc" },
+        { label: "Aguardando Cliente", value: 2, color: "#92400e", bg: "#fffbeb", border: "#fde68a" },
+        { label: "Sem Portal", value: 1, color: "#7c3aed", bg: "#f5f3ff", border: "#c4b5fd" },
+        { label: "Inadimplentes", value: 1, color: "#b91c1c", bg: "#fef2f2", border: "#fecaca" },
+      ];
+
+  /* ── Side tab counts (real when available) ── */
+  const sideTabCounts: Record<SideTab, number> = useRealData
+    ? {
+        "Todas": tableSource.length,
+        "Ativas": tableSource.filter((r) => r.processStatus === "Ativa").length,
+        "Em Abertura": processosEmAndamento.filter((m) => m.processStatus === "Em Abertura").length,
+        "Aguardando Cliente": processosEmAndamento.filter((m) => m.processStatus === "Aguardando Cliente").length,
+        "Rascunhos": processosEmAndamento.filter((m) => m.processStatus === "Rascunho").length,
+        "Arquivadas": tableSource.filter((r) => r.processStatus === "Encerrada").length,
+      }
+    : {
+        "Todas": 24, "Ativas": 18, "Em Abertura": 3, "Aguardando Cliente": 2, "Rascunhos": 1, "Arquivadas": 0,
+      };
 
   /* ── Render ── */
   return (
@@ -492,12 +568,13 @@ export default function EmpresasPage() {
               <div style={{ padding: "0.85rem 1rem 0.5rem", borderBottom: "1px solid #e6f0ea" }}>
                 <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "#6f8f7c", textTransform: "uppercase", letterSpacing: "1px" }}>Filtrar por status</span>
               </div>
-              {SIDE_TABS.map((tab) => {
-                const isActive = activeTab === tab.label;
+              {(Object.keys(sideTabCounts) as SideTab[]).map((label) => {
+                const isActive = activeTab === label;
+                const count = sideTabCounts[label];
                 return (
                   <button
-                    key={tab.label}
-                    onClick={() => setActiveTab(tab.label)}
+                    key={label}
+                    onClick={() => setActiveTab(label)}
                     style={{
                       display: "flex", alignItems: "center", justifyContent: "space-between",
                       width: "100%", padding: "0.7rem 1rem", border: "none",
@@ -509,13 +586,13 @@ export default function EmpresasPage() {
                     }}
                     type="button"
                   >
-                    <span>{tab.label}</span>
+                    <span>{label}</span>
                     <span style={{
                       background: isActive ? "#d1fae5" : "#f3f4f6",
                       color: isActive ? "#065f46" : "#6b7280",
                       borderRadius: 999, padding: "1px 8px", fontSize: "0.72rem", fontWeight: 700,
                       minWidth: 22, textAlign: "center",
-                    }}>{tab.count}</span>
+                    }}>{count}</span>
                   </button>
                 );
               })}
@@ -583,7 +660,7 @@ export default function EmpresasPage() {
                 <div>
                   <h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800, color: "#06170d" }}>Empresas cadastradas</h2>
                   <p style={{ margin: "0.15rem 0 0", fontSize: "0.78rem", color: "#6f8f7c" }}>
-                    {filteredMock.length} empresa{filteredMock.length !== 1 ? "s" : ""}{temFiltro ? " filtrada" + (filteredMock.length !== 1 ? "s" : "") : ""}
+                    {loading ? "Carregando..." : `${filteredRows.length} empresa${filteredRows.length !== 1 ? "s" : ""}${temFiltro ? " filtrada" + (filteredRows.length !== 1 ? "s" : "") : ""}${useRealData ? " (dados reais)" : " (dados de exemplo)"}`}
                   </p>
                 </div>
                 <button className="small-action" onClick={carregarEmpresas} type="button">Atualizar</button>
@@ -613,7 +690,7 @@ export default function EmpresasPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {enrichedMock.map((emp) => (
+                    {filteredRows.map((emp) => (
                       <tr
                         key={emp.id}
                         style={{ borderBottom: "1px solid #f0f4f2", transition: "background 0.1s" }}
@@ -664,13 +741,13 @@ export default function EmpresasPage() {
                         <td style={{ padding: "0.75rem", textAlign: "right" }}>
                           <div style={{ display: "flex", gap: 4, justifyContent: "flex-end", flexWrap: "nowrap" }}>
                             <a
-                              href={`/empresas/${emp.realId ?? emp.id}`}
+                              href={`/empresas/${emp.id}`}
                               style={{ minHeight: 28, border: "1px solid #10b981", background: "#ecfdf5", color: "#065f46", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center" }}
                             >
                               Abrir
                             </a>
                             <a
-                              href={`/portal/${emp.realId ?? emp.id}`}
+                              href={`/portal/${emp.id}`}
                               style={{ minHeight: 28, border: "1px solid #c4b5fd", background: "#f5f3ff", color: "#7c3aed", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600, textDecoration: "none", display: "inline-flex", alignItems: "center" }}
                             >
                               Portal
@@ -695,7 +772,7 @@ export default function EmpresasPage() {
                 </table>
               </div>
 
-              {filteredMock.length === 0 && (
+              {filteredRows.length === 0 && !loading && (
                 <div style={{ padding: "3rem", textAlign: "center", color: "#6f8f7c", fontSize: "0.88rem" }}>
                   Nenhuma empresa encontrada com os filtros aplicados.
                 </div>

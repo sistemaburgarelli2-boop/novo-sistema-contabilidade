@@ -12,6 +12,12 @@ const protectedRoutes = [
   "/billing",
   "/rbac",
   "/auditoria",
+  "/tarefas",
+  "/admin",
+  "/contratos",
+  "/consultoria",
+  "/crm",
+  "/portal",
 ];
 const authRoutes = ["/auth/login"];
 

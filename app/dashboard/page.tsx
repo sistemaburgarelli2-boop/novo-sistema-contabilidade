@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
+import { listarEmpresasTenant } from "@/services/empresaClientService";
 
-/* ── Mock Data ────────────────────────────────────────────── */
+/* ── Mock Data (fallback) ────────────────────────────────── */
 
-const kpis = [
+const MOCK_KPIS = [
   { label: "Empresas ativas", value: "24", sub: "Carteira atual do escritório", color: "#065f46", bg: "#ecfdf5" },
   { label: "Empresas pendentes", value: "3", sub: "Aguardando documentação", color: "#92400e", bg: "#fffbeb", tag: "Atenção" },
   { label: "Obrigações hoje", value: "8", sub: "Entregas previstas para hoje", color: "#0e7490", bg: "#ecfeff" },
@@ -194,6 +196,40 @@ function ChartProdutividade() {
 /* ── Page Component ───────────────────────────────────────── */
 
 export default function Dashboard() {
+  const [empresasAtivas, setEmpresasAtivas] = useState<number | null>(null);
+  const [loadingEmpresas, setLoadingEmpresas] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadEmpresas() {
+      setLoadingEmpresas(true);
+      try {
+        const lista = await listarEmpresasTenant();
+        if (!cancelled) {
+          setEmpresasAtivas(lista.filter((e) => e.status === "ativa").length);
+        }
+      } catch {
+        // Em caso de erro, mantém null e o mock será usado como fallback
+        if (!cancelled) setEmpresasAtivas(null);
+      } finally {
+        if (!cancelled) setLoadingEmpresas(false);
+      }
+    }
+    loadEmpresas();
+    return () => { cancelled = true; };
+  }, []);
+
+  const kpis = MOCK_KPIS.map((kpi) => {
+    if (kpi.label === "Empresas ativas") {
+      return {
+        ...kpi,
+        value: loadingEmpresas ? "..." : (empresasAtivas !== null ? String(empresasAtivas) : kpi.value),
+        sub: empresasAtivas !== null ? "Dados em tempo real" : kpi.sub,
+      };
+    }
+    return kpi;
+  });
+
   return (
     <AppShell>
       <div className="page-stack">
