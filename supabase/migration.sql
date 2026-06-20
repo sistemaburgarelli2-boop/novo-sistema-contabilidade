@@ -1400,6 +1400,42 @@ SET modulo = EXCLUDED.modulo,
 -- 14. SEED DATA: Planos
 -- =============================================================================
 
+-- =============================================================================
+-- GARANTIR COLUNAS NOVAS EM TABELAS PRE-EXISTENTES
+-- =============================================================================
+-- Se as tabelas ja existiam com schema diferente, adiciona colunas faltantes
+
+DO $$ BEGIN
+  ALTER TABLE public.usuarios ADD COLUMN IF NOT EXISTS tipo TEXT DEFAULT 'interno';
+  ALTER TABLE public.usuarios ADD COLUMN IF NOT EXISTS ativo BOOLEAN DEFAULT TRUE;
+  ALTER TABLE public.usuarios ADD COLUMN IF NOT EXISTS ultimo_login TIMESTAMPTZ;
+  ALTER TABLE public.usuarios ADD COLUMN IF NOT EXISTS telefone TEXT;
+  ALTER TABLE public.usuarios ADD COLUMN IF NOT EXISTS cpf TEXT;
+  ALTER TABLE public.usuarios ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE public.empresas ADD COLUMN IF NOT EXISTS responsavel TEXT;
+  ALTER TABLE public.empresas ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::JSONB;
+  ALTER TABLE public.empresas ADD COLUMN IF NOT EXISTS cidade TEXT;
+  ALTER TABLE public.empresas ADD COLUMN IF NOT EXISTS estado TEXT;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
+-- Garantir que colunas novas existam em tabelas pre-existentes
+DO $$ BEGIN
+  ALTER TABLE public.planos ADD COLUMN IF NOT EXISTS descricao TEXT;
+  ALTER TABLE public.planos ADD COLUMN IF NOT EXISTS preco NUMERIC DEFAULT 0;
+  ALTER TABLE public.planos ADD COLUMN IF NOT EXISTS preco_centavos INTEGER NOT NULL DEFAULT 0;
+  ALTER TABLE public.planos ADD COLUMN IF NOT EXISTS limite_empresas INTEGER NOT NULL DEFAULT 1;
+  ALTER TABLE public.planos ADD COLUMN IF NOT EXISTS limite_usuarios INTEGER NOT NULL DEFAULT 3;
+  ALTER TABLE public.planos ADD COLUMN IF NOT EXISTS limite_transacoes INTEGER DEFAULT 100;
+  ALTER TABLE public.planos ADD COLUMN IF NOT EXISTS limite_transacoes_mes INTEGER NOT NULL DEFAULT 1000;
+  ALTER TABLE public.planos ADD COLUMN IF NOT EXISTS recursos JSONB NOT NULL DEFAULT '{}'::JSONB;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
 INSERT INTO public.planos (
   codigo, nome, descricao, preco, preco_centavos,
   limite_empresas, limite_usuarios, limite_transacoes, limite_transacoes_mes,
