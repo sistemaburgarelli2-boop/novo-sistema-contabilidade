@@ -62,69 +62,21 @@ const STEPS = [
 
 const DRAFT_KEY = "empresas_rascunhos";
 
-/* ─── Mock Data: Onboarding Fields ───────────────────────────── */
-
-type ProcessStatus = "Rascunho" | "Aguardando Cliente" | "Documentação Recebida" | "Pronto para Ativação" | "Ativa" | "Suspensa" | "Encerrada" | "Em Abertura";
-
-type MockEmpresa = {
-  id: string;
-  razao: string;
-  fantasia: string;
-  cnpj: string;
-  cliente: string;
-  responsavel: string;
-  regime: string;
-  processStatus: ProcessStatus;
-  pendencias: string;
-  ultimoAcesso: string;
-  progresso: number;
-  proximaAcao: string;
-  ultimaAtualizacao: string;
+const REGIME_LABELS: Record<string, string> = {
+  simples_nacional: "Simples Nacional",
+  lucro_presumido: "Lucro Presumido",
+  lucro_real: "Lucro Real",
+  mei: "MEI",
 };
 
-const MOCK_EMPRESAS: MockEmpresa[] = [
-  { id: "1", razao: "Alfa Comércio Ltda", fantasia: "Alfa Comércio", cnpj: "12.345.678/0001-01", cliente: "Maria Silva", responsavel: "Ana Lima", regime: "Simples", processStatus: "Ativa", pendencias: "0", ultimoAcesso: "18/06/2026", progresso: 100, proximaAcao: "", ultimaAtualizacao: "18/06/2026" },
-  { id: "2", razao: "Beta Serviços ME", fantasia: "Beta Serviços", cnpj: "23.456.789/0001-02", cliente: "João Santos", responsavel: "Carlos Silva", regime: "MEI", processStatus: "Ativa", pendencias: "1 doc", ultimoAcesso: "15/06/2026", progresso: 100, proximaAcao: "", ultimaAtualizacao: "15/06/2026" },
-  { id: "3", razao: "Gama Tech Eireli", fantasia: "Gama Tech", cnpj: "34.567.890/0001-03", cliente: "Pedro Costa", responsavel: "Ana Lima", regime: "Presumido", processStatus: "Ativa", pendencias: "0", ultimoAcesso: "17/06/2026", progresso: 100, proximaAcao: "", ultimaAtualizacao: "17/06/2026" },
-  { id: "4", razao: "Delta Holding S/A", fantasia: "Delta Holding", cnpj: "45.678.901/0001-04", cliente: "André Oliveira", responsavel: "Ana Lima", regime: "Real", processStatus: "Ativa", pendencias: "2 docs", ultimoAcesso: "10/06/2026", progresso: 100, proximaAcao: "", ultimaAtualizacao: "10/06/2026" },
-  { id: "5", razao: "Épsilon Ltda", fantasia: "Épsilon", cnpj: "56.789.012/0001-05", cliente: "Lucia Ferreira", responsavel: "Carlos Silva", regime: "Simples", processStatus: "Ativa", pendencias: "0", ultimoAcesso: "19/06/2026", progresso: 100, proximaAcao: "", ultimaAtualizacao: "19/06/2026" },
-  { id: "6", razao: "Zeta Construções", fantasia: "Zeta", cnpj: "67.890.123/0001-06", cliente: "Roberto Lima", responsavel: "Marcos Souza", regime: "Presumido", processStatus: "Ativa", pendencias: "0", ultimoAcesso: "12/06/2026", progresso: 100, proximaAcao: "", ultimaAtualizacao: "12/06/2026" },
-  { id: "7", razao: "Eta Logística", fantasia: "Eta Log", cnpj: "78.901.234/0001-07", cliente: "Carlos Mendes", responsavel: "Ana Lima", regime: "Simples", processStatus: "Ativa", pendencias: "1 guia", ultimoAcesso: "16/06/2026", progresso: 100, proximaAcao: "", ultimaAtualizacao: "16/06/2026" },
-  { id: "8", razao: "Theta Indústrias", fantasia: "Theta", cnpj: "89.012.345/0001-08", cliente: "Fernanda Alves", responsavel: "Carlos Silva", regime: "Real", processStatus: "Ativa", pendencias: "0", ultimoAcesso: "14/06/2026", progresso: 100, proximaAcao: "", ultimaAtualizacao: "14/06/2026" },
-  { id: "9", razao: "Iota Seguros", fantasia: "Iota", cnpj: "90.123.456/0001-09", cliente: "Ricardo Pinto", responsavel: "Ana Lima", regime: "Presumido", processStatus: "Ativa", pendencias: "0", ultimoAcesso: "11/06/2026", progresso: 100, proximaAcao: "", ultimaAtualizacao: "11/06/2026" },
-  { id: "10", razao: "Kappa Digital", fantasia: "Kappa", cnpj: "", cliente: "Juliana Ramos", responsavel: "Marcos Souza", regime: "Simples", processStatus: "Em Abertura", pendencias: "3 docs pendentes", ultimoAcesso: "—", progresso: 40, proximaAcao: "Enviar documentação", ultimaAtualizacao: "17/06/2026" },
-  { id: "11", razao: "Lambda Foods", fantasia: "Lambda", cnpj: "", cliente: "Marcelo Dias", responsavel: "Ana Lima", regime: "MEI", processStatus: "Em Abertura", pendencias: "Contrato", ultimoAcesso: "—", progresso: 60, proximaAcao: "Assinar contrato", ultimaAtualizacao: "16/06/2026" },
-  { id: "12", razao: "Mu Consultoria", fantasia: "Mu", cnpj: "", cliente: "Patricia Souza", responsavel: "Carlos Silva", regime: "Simples", processStatus: "Em Abertura", pendencias: "CNAE", ultimoAcesso: "—", progresso: 25, proximaAcao: "Definir CNAE", ultimaAtualizacao: "15/06/2026" },
-  { id: "13", razao: "Nu Design", fantasia: "Nu", cnpj: "", cliente: "Camila Torres", responsavel: "Ana Lima", regime: "MEI", processStatus: "Aguardando Cliente", pendencias: "CPF, Contrato", ultimoAcesso: "—", progresso: 15, proximaAcao: "Aguardar envio de CPF", ultimaAtualizacao: "14/06/2026" },
-  { id: "14", razao: "Xi Marketing", fantasia: "Xi", cnpj: "", cliente: "Bruno Neves", responsavel: "Marcos Souza", regime: "Simples", processStatus: "Aguardando Cliente", pendencias: "Certificado", ultimoAcesso: "—", progresso: 50, proximaAcao: "Aguardar certificado", ultimaAtualizacao: "13/06/2026" },
-  { id: "15", razao: "Omicron Têxtil", fantasia: "Omicron", cnpj: "", cliente: "Sandra Lopes", responsavel: "Carlos Silva", regime: "Presumido", processStatus: "Rascunho", pendencias: "—", ultimoAcesso: "—", progresso: 5, proximaAcao: "Completar cadastro", ultimaAtualizacao: "10/06/2026" },
-];
+type SideTab = "Todas" | "Ativas" | "Suspensas" | "Encerradas";
 
-const PROCESS_STATUS_STYLES: Record<ProcessStatus, { bg: string; color: string }> = {
-  "Rascunho": { bg: "#f3f4f6", color: "#6b7280" },
-  "Aguardando Cliente": { bg: "#fffbeb", color: "#92400e" },
-  "Documentação Recebida": { bg: "#ecfeff", color: "#0e7490" },
-  "Pronto para Ativação": { bg: "#f5f3ff", color: "#7c3aed" },
-  "Ativa": { bg: "#f0fdf4", color: "#065f46" },
-  "Suspensa": { bg: "#fef2f2", color: "#b91c1c" },
-  "Encerrada": { bg: "#f3f4f6", color: "#6b7280" },
-  "Em Abertura": { bg: "#ecfeff", color: "#0e7490" },
-};
-
-type SideTab = "Todas" | "Ativas" | "Em Abertura" | "Aguardando Cliente" | "Rascunhos" | "Arquivadas";
-
-// SIDE_TABS counts are now computed dynamically from real data in the component
-
-const TAB_STATUS_MAP: Record<SideTab, ProcessStatus[] | null> = {
+const TAB_STATUS_MAP: Record<SideTab, Empresa["status"][] | null> = {
   "Todas": null,
-  "Ativas": ["Ativa"],
-  "Em Abertura": ["Em Abertura"],
-  "Aguardando Cliente": ["Aguardando Cliente"],
-  "Rascunhos": ["Rascunho"],
-  "Arquivadas": ["Encerrada"],
+  "Ativas": ["ativa"],
+  "Suspensas": ["suspensa"],
+  "Encerradas": ["encerrada", "cancelada"],
 };
-
-const RESPONSAVEIS = ["Ana Lima", "Carlos Silva", "Marcos Souza"];
 
 /* ─── Tipos ───────────────────────────────────────────────────── */
 
@@ -220,20 +172,19 @@ function getInitials(name: string): string {
   return name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
 }
 
-function ProgressBar({ percent }: { percent: number }) {
-  return (
-    <div style={{ width: 60, height: 6, borderRadius: 3, background: "#e5e7eb", overflow: "hidden", display: "inline-block", verticalAlign: "middle", marginLeft: 6 }}>
-      <div style={{ width: `${percent}%`, height: "100%", borderRadius: 3, background: percent === 100 ? "#10b981" : percent >= 50 ? "#3b82f6" : "#f59e0b", transition: "width 0.3s" }} />
-    </div>
-  );
-}
+const STATUS_BADGE_STYLES: Record<Empresa["status"], { bg: string; color: string }> = {
+  ativa: { bg: "#f0fdf4", color: "#065f46" },
+  suspensa: { bg: "#fffbeb", color: "#92400e" },
+  cancelada: { bg: "#fef2f2", color: "#b91c1c" },
+  encerrada: { bg: "#f3f4f6", color: "#6b7280" },
+};
 
-function StatusBadge({ status }: { status: ProcessStatus }) {
-  const s = PROCESS_STATUS_STYLES[status];
+function EmpresaStatusBadge({ status }: { status: Empresa["status"] }) {
+  const s = STATUS_BADGE_STYLES[status];
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: s.bg, color: s.color, borderRadius: 999, padding: "3px 10px", fontSize: "0.72rem", fontWeight: 700, whiteSpace: "nowrap" }}>
       <span style={{ width: 6, height: 6, borderRadius: "50%", background: s.color, display: "inline-block", opacity: 0.7 }} />
-      {status}
+      {STATUS_LABEL[status]}
     </span>
   );
 }
@@ -264,12 +215,10 @@ export default function EmpresasPage() {
   const [salvandoEdicao, setSalvandoEdicao] = useState(false);
   const [erroEdicao, setErroEdicao] = useState<string | null>(null);
 
-  // New filters
+  // Filters
   const [activeTab, setActiveTab] = useState<SideTab>("Todas");
   const [filtroNome, setFiltroNome] = useState("");
   const [filtroRegime, setFiltroRegime] = useState("");
-  const [filtroResponsavel, setFiltroResponsavel] = useState("");
-  const [filtroStatus, setFiltroStatus] = useState("");
 
   useEffect(() => {
     setEmpresaAtiva(localStorage.getItem("empresaAtivaId"));
@@ -410,124 +359,43 @@ export default function EmpresasPage() {
     } finally { setArquivando(false); }
   }
 
-  /* ── Map real Empresa status to ProcessStatus ── */
-  function statusToProcess(status: Empresa["status"]): ProcessStatus {
-    switch (status) {
-      case "ativa": return "Ativa";
-      case "suspensa": return "Suspensa";
-      case "encerrada": return "Encerrada";
-      case "cancelada": return "Encerrada";
-      default: return "Ativa";
-    }
-  }
-
-  /* ── Map real Empresa regime to display label ── */
-  function regimeLabel(regime: string | null): string {
+  /* ── Regime label helper ── */
+  function regimeLabel(regime: string | null | undefined): string {
     if (!regime) return "—";
-    const found = REGIMES.find((r) => r.value === regime);
-    return found ? found.label : regime;
+    return REGIME_LABELS[regime] ?? regime;
   }
-
-  /* ── Data source: real empresas with mock fallback ── */
-  const useRealData = !loading && empresas.length > 0;
-
-  type TableRow = {
-    id: string;
-    razao: string;
-    fantasia: string;
-    cnpj: string;
-    cliente: string;
-    responsavel: string;
-    regime: string;
-    processStatus: ProcessStatus;
-    pendencias: string;
-    ultimoAcesso: string;
-    progresso: number;
-    isReal: boolean;
-  };
-
-  const tableSource: TableRow[] = useRealData
-    ? empresas.map((emp) => ({
-        id: emp.id,
-        razao: emp.nome_legal,
-        fantasia: emp.nome_fantasia ?? "",
-        cnpj: emp.cnpj ?? "",
-        cliente: "—",
-        responsavel: "—",
-        regime: regimeLabel(emp.regime_tributario),
-        processStatus: statusToProcess(emp.status),
-        pendencias: "—",
-        ultimoAcesso: emp.updated_at ? new Date(emp.updated_at).toLocaleDateString("pt-BR") : "—",
-        progresso: emp.status === "ativa" ? 100 : 0,
-        isReal: true,
-      }))
-    : MOCK_EMPRESAS.map((m) => ({
-        id: m.id,
-        razao: m.razao,
-        fantasia: m.fantasia,
-        cnpj: m.cnpj,
-        cliente: m.cliente,
-        responsavel: m.responsavel,
-        regime: m.regime,
-        processStatus: m.processStatus,
-        pendencias: m.pendencias,
-        ultimoAcesso: m.ultimoAcesso,
-        progresso: m.progresso,
-        isReal: false,
-      }));
 
   /* ── Filtered data ── */
-  const filteredRows = tableSource.filter((row) => {
+  const filteredRows = empresas.filter((emp) => {
     const tabStatuses = TAB_STATUS_MAP[activeTab];
-    if (tabStatuses && !tabStatuses.includes(row.processStatus)) return false;
+    if (tabStatuses && !tabStatuses.includes(emp.status)) return false;
     if (filtroNome) {
       const search = filtroNome.toLowerCase();
-      const matchName = row.razao.toLowerCase().includes(search) || row.fantasia.toLowerCase().includes(search);
-      const matchCnpj = row.cnpj.includes(filtroNome);
+      const matchName = emp.nome_legal.toLowerCase().includes(search) || (emp.nome_fantasia ?? "").toLowerCase().includes(search);
+      const matchCnpj = (emp.cnpj ?? "").includes(filtroNome);
       if (!matchName && !matchCnpj) return false;
     }
-    if (filtroRegime && row.regime !== filtroRegime) return false;
-    if (filtroResponsavel && row.responsavel !== filtroResponsavel) return false;
-    if (filtroStatus && row.processStatus !== filtroStatus) return false;
+    if (filtroRegime && emp.regime_tributario !== filtroRegime) return false;
     return true;
   });
 
-  const processosEmAndamento = MOCK_EMPRESAS.filter((m) =>
-    m.processStatus === "Em Abertura" || m.processStatus === "Aguardando Cliente" || m.processStatus === "Rascunho"
-  );
+  const temFiltro = !!(filtroNome || filtroRegime);
 
-  const temFiltro = !!(filtroNome || filtroRegime || filtroResponsavel || filtroStatus);
+  /* ── KPIs ── */
+  const kpis = [
+    { label: "Empresas Ativas", value: empresas.filter((e) => e.status === "ativa").length, color: "#065f46", bg: "#f0fdf4", border: "#bbf7d0" },
+    { label: "Suspensas", value: empresas.filter((e) => e.status === "suspensa").length, color: "#92400e", bg: "#fffbeb", border: "#fde68a" },
+    { label: "Encerradas", value: empresas.filter((e) => e.status === "encerrada" || e.status === "cancelada").length, color: "#6b7280", bg: "#f3f4f6", border: "#e5e7eb" },
+    { label: "Total cadastradas", value: empresas.length, color: "#0e7490", bg: "#ecfeff", border: "#a5f3fc" },
+  ];
 
-  /* ── KPIs (real counts when available) ── */
-  const kpis = useRealData
-    ? [
-        { label: "Empresas Ativas", value: empresas.filter((e) => e.status === "ativa").length, color: "#065f46", bg: "#f0fdf4", border: "#bbf7d0" },
-        { label: "Suspensas", value: empresas.filter((e) => e.status === "suspensa").length, color: "#92400e", bg: "#fffbeb", border: "#fde68a" },
-        { label: "Encerradas", value: empresas.filter((e) => e.status === "encerrada" || e.status === "cancelada").length, color: "#6b7280", bg: "#f3f4f6", border: "#e5e7eb" },
-        { label: "Total cadastradas", value: empresas.length, color: "#0e7490", bg: "#ecfeff", border: "#a5f3fc" },
-        { label: "Em Abertura", value: processosEmAndamento.length, color: "#7c3aed", bg: "#f5f3ff", border: "#c4b5fd" },
-      ]
-    : [
-        { label: "Empresas Ativas", value: 18, color: "#065f46", bg: "#f0fdf4", border: "#bbf7d0" },
-        { label: "Em Abertura", value: 3, color: "#0e7490", bg: "#ecfeff", border: "#a5f3fc" },
-        { label: "Aguardando Cliente", value: 2, color: "#92400e", bg: "#fffbeb", border: "#fde68a" },
-        { label: "Sem Portal", value: 1, color: "#7c3aed", bg: "#f5f3ff", border: "#c4b5fd" },
-        { label: "Inadimplentes", value: 1, color: "#b91c1c", bg: "#fef2f2", border: "#fecaca" },
-      ];
-
-  /* ── Side tab counts (real when available) ── */
-  const sideTabCounts: Record<SideTab, number> = useRealData
-    ? {
-        "Todas": tableSource.length,
-        "Ativas": tableSource.filter((r) => r.processStatus === "Ativa").length,
-        "Em Abertura": processosEmAndamento.filter((m) => m.processStatus === "Em Abertura").length,
-        "Aguardando Cliente": processosEmAndamento.filter((m) => m.processStatus === "Aguardando Cliente").length,
-        "Rascunhos": processosEmAndamento.filter((m) => m.processStatus === "Rascunho").length,
-        "Arquivadas": tableSource.filter((r) => r.processStatus === "Encerrada").length,
-      }
-    : {
-        "Todas": 24, "Ativas": 18, "Em Abertura": 3, "Aguardando Cliente": 2, "Rascunhos": 1, "Arquivadas": 0,
-      };
+  /* ── Side tab counts ── */
+  const sideTabCounts: Record<SideTab, number> = {
+    "Todas": empresas.length,
+    "Ativas": empresas.filter((e) => e.status === "ativa").length,
+    "Suspensas": empresas.filter((e) => e.status === "suspensa").length,
+    "Encerradas": empresas.filter((e) => e.status === "encerrada" || e.status === "cancelada").length,
+  };
 
   /* ── Render ── */
   return (
@@ -550,7 +418,7 @@ export default function EmpresasPage() {
         </div>
 
         {/* KPI Cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "1rem", marginBottom: "1.5rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", marginBottom: "1.5rem" }}>
           {kpis.map((kpi) => (
             <div key={kpi.label} style={{ background: kpi.bg, border: `1px solid ${kpi.border}`, borderRadius: 12, padding: "1.1rem 1.2rem", display: "flex", flexDirection: "column", gap: 4 }}>
               <span style={{ fontSize: "0.72rem", fontWeight: 700, color: kpi.color, textTransform: "uppercase", letterSpacing: "0.5px", opacity: 0.85 }}>{kpi.label}</span>
@@ -615,37 +483,16 @@ export default function EmpresasPage() {
               <select
                 className="input"
                 onChange={(e) => setFiltroRegime(e.target.value)}
-                style={{ minWidth: 140 }}
+                style={{ minWidth: 180 }}
                 value={filtroRegime}
               >
                 <option value="">Todos os regimes</option>
-                <option value="MEI">MEI</option>
-                <option value="Simples">Simples</option>
-                <option value="Presumido">Presumido</option>
-                <option value="Real">Real</option>
-              </select>
-              <select
-                className="input"
-                onChange={(e) => setFiltroResponsavel(e.target.value)}
-                style={{ minWidth: 150 }}
-                value={filtroResponsavel}
-              >
-                <option value="">Todos os responsaveis</option>
-                {RESPONSAVEIS.map((r) => <option key={r} value={r}>{r}</option>)}
-              </select>
-              <select
-                className="input"
-                onChange={(e) => setFiltroStatus(e.target.value)}
-                style={{ minWidth: 160 }}
-                value={filtroStatus}
-              >
-                <option value="">Todos os status</option>
-                {Object.keys(PROCESS_STATUS_STYLES).map((s) => <option key={s} value={s}>{s}</option>)}
+                {REGIMES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
               </select>
               {temFiltro && (
                 <button
                   className="small-action"
-                  onClick={() => { setFiltroNome(""); setFiltroRegime(""); setFiltroResponsavel(""); setFiltroStatus(""); }}
+                  onClick={() => { setFiltroNome(""); setFiltroRegime(""); }}
                   style={{ whiteSpace: "nowrap" }}
                   type="button"
                 >
@@ -654,13 +501,18 @@ export default function EmpresasPage() {
               )}
             </div>
 
+            {/* Error message */}
+            {erro && (
+              <div className="error-alert" style={{ marginBottom: "1rem" }}>{erro}</div>
+            )}
+
             {/* Main Table */}
             <div style={{ background: "#ffffff", border: "1px solid #e6f0ea", borderRadius: 12, overflow: "hidden" }}>
               <div style={{ padding: "1rem 1.5rem", borderBottom: "1px solid #e6f0ea", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div>
                   <h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800, color: "#06170d" }}>Empresas cadastradas</h2>
                   <p style={{ margin: "0.15rem 0 0", fontSize: "0.78rem", color: "#6f8f7c" }}>
-                    {loading ? "Carregando..." : `${filteredRows.length} empresa${filteredRows.length !== 1 ? "s" : ""}${temFiltro ? " filtrada" + (filteredRows.length !== 1 ? "s" : "") : ""}${useRealData ? " (dados reais)" : " (dados de exemplo)"}`}
+                    {loading ? "Carregando..." : `${filteredRows.length} empresa${filteredRows.length !== 1 ? "s" : ""}${temFiltro ? " filtrada" + (filteredRows.length !== 1 ? "s" : "") : ""}`}
                   </p>
                 </div>
                 <button className="small-action" onClick={carregarEmpresas} type="button">Atualizar</button>
@@ -670,11 +522,11 @@ export default function EmpresasPage() {
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.84rem" }}>
                   <thead>
                     <tr style={{ borderBottom: "1px solid #e6f0ea" }}>
-                      {["Empresa", "Cliente", "Responsavel", "Regime", "Status do Processo", "Pendencias", "Ultimo acesso", "Acoes"].map((h, i) => (
+                      {["Empresa", "CNPJ", "Regime", "Cidade/UF", "Status", "Ultima atualizacao", "Acoes"].map((h, i) => (
                         <th
                           key={h}
                           style={{
-                            textAlign: i === 7 ? "right" : "left",
+                            textAlign: i === 6 ? "right" : "left",
                             padding: "0.75rem 0.75rem",
                             color: "#6f8f7c",
                             fontWeight: 700,
@@ -706,37 +558,32 @@ export default function EmpresasPage() {
                               color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
                               fontSize: "0.72rem", fontWeight: 800, flexShrink: 0,
                             }}>
-                              {getInitials(emp.razao)}
+                              {getInitials(emp.nome_legal)}
                             </div>
                             <div>
-                              <div style={{ fontWeight: 700, color: "#06170d", fontSize: "0.84rem", lineHeight: 1.25 }}>{emp.razao}</div>
-                              <div style={{ color: "#6f8f7c", fontSize: "0.75rem" }}>{emp.fantasia}</div>
+                              <div style={{ fontWeight: 700, color: "#06170d", fontSize: "0.84rem", lineHeight: 1.25 }}>{emp.nome_legal}</div>
+                              {emp.nome_fantasia && <div style={{ color: "#6f8f7c", fontSize: "0.75rem" }}>{emp.nome_fantasia}</div>}
                             </div>
                           </div>
                         </td>
-                        {/* Cliente */}
-                        <td style={{ padding: "0.75rem", color: "#374151", fontWeight: 500, whiteSpace: "nowrap" }}>{emp.cliente}</td>
-                        {/* Responsavel */}
-                        <td style={{ padding: "0.75rem", color: "#6f8f7c", fontSize: "0.8rem", whiteSpace: "nowrap" }}>{emp.responsavel}</td>
+                        {/* CNPJ */}
+                        <td style={{ padding: "0.75rem", color: "#374151", fontWeight: 500, whiteSpace: "nowrap", fontSize: "0.8rem" }}>{emp.cnpj || "—"}</td>
                         {/* Regime */}
                         <td style={{ padding: "0.75rem" }}>
-                          <span style={{ background: "#f3f8f5", color: "#3a5c47", borderRadius: 6, padding: "2px 8px", fontSize: "0.75rem", fontWeight: 600 }}>{emp.regime}</span>
+                          <span style={{ background: "#f3f8f5", color: "#3a5c47", borderRadius: 6, padding: "2px 8px", fontSize: "0.75rem", fontWeight: 600 }}>{regimeLabel(emp.regime_tributario)}</span>
                         </td>
-                        {/* Status do Processo */}
+                        {/* Cidade/UF */}
+                        <td style={{ padding: "0.75rem", color: "#6f8f7c", fontSize: "0.8rem", whiteSpace: "nowrap" }}>
+                          {emp.cidade && emp.estado ? `${emp.cidade}/${emp.estado}` : emp.cidade || emp.estado || "—"}
+                        </td>
+                        {/* Status */}
                         <td style={{ padding: "0.75rem" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                            <StatusBadge status={emp.processStatus} />
-                            {emp.processStatus !== "Ativa" && emp.processStatus !== "Encerrada" && (
-                              <ProgressBar percent={emp.progresso} />
-                            )}
-                          </div>
+                          <EmpresaStatusBadge status={emp.status} />
                         </td>
-                        {/* Pendencias */}
-                        <td style={{ padding: "0.75rem", color: emp.pendencias !== "0" && emp.pendencias !== "—" ? "#b45309" : "#9ca3af", fontSize: "0.8rem", fontWeight: emp.pendencias !== "0" && emp.pendencias !== "—" ? 600 : 400 }}>
-                          {emp.pendencias}
+                        {/* Ultima atualizacao */}
+                        <td style={{ padding: "0.75rem", color: "#6f8f7c", fontSize: "0.78rem" }}>
+                          {emp.updated_at ? new Date(emp.updated_at).toLocaleDateString("pt-BR") : "—"}
                         </td>
-                        {/* Ultimo acesso */}
-                        <td style={{ padding: "0.75rem", color: "#6f8f7c", fontSize: "0.78rem" }}>{emp.ultimoAcesso}</td>
                         {/* Acoes */}
                         <td style={{ padding: "0.75rem", textAlign: "right" }}>
                           <div style={{ display: "flex", gap: 4, justifyContent: "flex-end", flexWrap: "nowrap" }}>
@@ -753,16 +600,32 @@ export default function EmpresasPage() {
                               Portal
                             </a>
                             <button
+                              onClick={() => setSetoresEmpresa(emp)}
                               style={{ minHeight: 28, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#374151", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600 }}
                               type="button"
                             >
-                              Docs
+                              Setores
                             </button>
                             <button
+                              onClick={() => abrirEditar(emp)}
                               style={{ minHeight: 28, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#374151", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600 }}
                               type="button"
                             >
-                              Hist.
+                              Editar
+                            </button>
+                            <button
+                              onClick={() => setConfirmandoArquivar(emp)}
+                              style={{ minHeight: 28, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#374151", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600 }}
+                              type="button"
+                            >
+                              Arquivar
+                            </button>
+                            <button
+                              onClick={() => setConfirmandoExcluir(emp)}
+                              style={{ minHeight: 28, border: "1px solid #fecaca", background: "#fef2f2", color: "#b91c1c", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600 }}
+                              type="button"
+                            >
+                              Excluir
                             </button>
                           </div>
                         </td>
@@ -772,87 +635,22 @@ export default function EmpresasPage() {
                 </table>
               </div>
 
+              {/* Empty state */}
               {filteredRows.length === 0 && !loading && (
-                <div style={{ padding: "3rem", textAlign: "center", color: "#6f8f7c", fontSize: "0.88rem" }}>
-                  Nenhuma empresa encontrada com os filtros aplicados.
+                <div style={{ padding: "3rem", textAlign: "center" }}>
+                  <p style={{ color: "#6f8f7c", fontSize: "0.95rem", marginBottom: "1rem" }}>
+                    {temFiltro ? "Nenhuma empresa encontrada com os filtros aplicados." : "Nenhuma empresa cadastrada"}
+                  </p>
+                  {!temFiltro && (
+                    <a
+                      href="/empresas/novo"
+                      style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "linear-gradient(135deg, #10b981, #059669)", color: "#fff", border: "none", borderRadius: 10, padding: "0.65rem 1.4rem", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", textDecoration: "none" }}
+                    >
+                      + Novo Cliente
+                    </a>
+                  )}
                 </div>
               )}
-            </div>
-
-            {/* Processos em Andamento */}
-            <div style={{ marginTop: "2rem" }}>
-              <h2 style={{ margin: "0 0 1rem", fontSize: "1.05rem", fontWeight: 800, color: "#06170d" }}>Processos em Andamento</h2>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "1rem" }}>
-                {processosEmAndamento.map((proc) => (
-                  <div
-                    key={proc.id}
-                    style={{
-                      background: "#ffffff", border: "1px solid #e6f0ea", borderRadius: 14,
-                      padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.75rem",
-                      transition: "box-shadow 0.15s",
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.06)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "none")}
-                  >
-                    {/* Card header */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <div>
-                        <div style={{ fontWeight: 700, color: "#06170d", fontSize: "0.9rem" }}>{proc.cliente}</div>
-                        <div style={{ color: "#6f8f7c", fontSize: "0.78rem" }}>{proc.razao}</div>
-                      </div>
-                      <StatusBadge status={proc.processStatus} />
-                    </div>
-
-                    {/* Progress */}
-                    <div>
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                        <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "#6f8f7c" }}>Progresso</span>
-                        <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#374151" }}>{proc.progresso}%</span>
-                      </div>
-                      <div style={{ width: "100%", height: 8, borderRadius: 4, background: "#e5e7eb", overflow: "hidden" }}>
-                        <div style={{
-                          width: `${proc.progresso}%`, height: "100%", borderRadius: 4,
-                          background: proc.progresso >= 50 ? "linear-gradient(90deg, #3b82f6, #10b981)" : "linear-gradient(90deg, #f59e0b, #eab308)",
-                          transition: "width 0.3s",
-                        }} />
-                      </div>
-                    </div>
-
-                    {/* Details */}
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem" }}>
-                      <div>
-                        <span style={{ color: "#6f8f7c" }}>Responsavel: </span>
-                        <span style={{ fontWeight: 600, color: "#374151" }}>{proc.responsavel}</span>
-                      </div>
-                      <div>
-                        <span style={{ color: "#6f8f7c" }}>Atualizado: </span>
-                        <span style={{ fontWeight: 500, color: "#374151" }}>{proc.ultimaAtualizacao}</span>
-                      </div>
-                    </div>
-
-                    {/* Pendencias */}
-                    {proc.pendencias !== "—" && (
-                      <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 8, padding: "0.4rem 0.65rem", fontSize: "0.75rem", color: "#92400e", fontWeight: 600 }}>
-                        Pendencias: {proc.pendencias}
-                      </div>
-                    )}
-
-                    {/* Action */}
-                    <a
-                      href={`/empresas/${proc.id}`}
-                      style={{
-                        display: "inline-flex", alignItems: "center", justifyContent: "center",
-                        background: "linear-gradient(135deg, #10b981, #059669)", color: "#fff",
-                        border: "none", borderRadius: 8, padding: "0.5rem 1rem",
-                        fontWeight: 700, fontSize: "0.82rem", cursor: "pointer",
-                        textDecoration: "none", textAlign: "center",
-                      }}
-                    >
-                      {proc.proximaAcao || "Ver detalhes"}
-                    </a>
-                  </div>
-                ))}
-              </div>
             </div>
 
           </div>
