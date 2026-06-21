@@ -6,36 +6,7 @@ import { PortalShell } from "@/components/portal/PortalShell";
 import { buscarEmpresaTenant } from "@/services/empresaClientService";
 import type { Empresa } from "@/modules/empresas/empresas.types";
 
-type Documento = {
-  id: string;
-  nome: string;
-  categoria: "Fiscal" | "Contábil" | "DP" | "Societário";
-  setor: string;
-  data: string;
-  status: "Recebido" | "Analisando" | "Processado";
-};
-
-const STATUS_STYLES: Record<Documento["status"], { bg: string; color: string }> = {
-  Recebido: { bg: "rgba(6,182,212,0.1)", color: "#0e7490" },
-  Analisando: { bg: "rgba(245,158,11,0.12)", color: "#92400e" },
-  Processado: { bg: "rgba(16,185,129,0.1)", color: "#065f46" },
-};
-
-const DOCUMENTOS_MOCK: Documento[] = [
-  { id: "1", nome: "Extrato bancário Jun/2026", categoria: "Fiscal", setor: "Financeiro", data: "2026-06-18", status: "Recebido" },
-  { id: "2", nome: "Notas fiscais saída Jun/2026", categoria: "Fiscal", setor: "Fiscal", data: "2026-06-17", status: "Processado" },
-  { id: "3", nome: "Balancete Mai/2026", categoria: "Contábil", setor: "Contábil", data: "2026-06-15", status: "Processado" },
-  { id: "4", nome: "DRE Mai/2026", categoria: "Contábil", setor: "Contábil", data: "2026-06-14", status: "Processado" },
-  { id: "5", nome: "Folha Mai/2026", categoria: "DP", setor: "Pessoal", data: "2026-06-12", status: "Processado" },
-  { id: "6", nome: "Holerites Mai/2026", categoria: "DP", setor: "Pessoal", data: "2026-06-11", status: "Analisando" },
-  { id: "7", nome: "Contrato social atualizado", categoria: "Societário", setor: "Societário", data: "2026-06-10", status: "Recebido" },
-  { id: "8", nome: "Comprovantes INSS", categoria: "DP", setor: "Pessoal", data: "2026-06-08", status: "Recebido" },
-  { id: "9", nome: "XML NFe Jun/2026", categoria: "Fiscal", setor: "Fiscal", data: "2026-06-06", status: "Analisando" },
-  { id: "10", nome: "Recibo férias", categoria: "DP", setor: "Pessoal", data: "2026-06-04", status: "Processado" },
-];
-
 const CATEGORIAS = ["Todos", "Fiscal", "Contábil", "DP", "Societário"];
-
 const FILE_TYPES = [
   { label: "PDF", bg: "rgba(239,68,95,0.1)", color: "#b91c1c" },
   { label: "XML", bg: "rgba(245,158,11,0.1)", color: "#92400e" },
@@ -64,10 +35,6 @@ export default function PortalDocumentos() {
   }
 
   const nome = empresa.nome_fantasia || empresa.nome_legal;
-
-  const documentosFiltrados = filtro === "Todos"
-    ? DOCUMENTOS_MOCK
-    : DOCUMENTOS_MOCK.filter((d) => d.categoria === filtro);
 
   return (
     <PortalShell empresaId={empresaId} empresaNome={nome}>
@@ -104,117 +71,11 @@ export default function PortalDocumentos() {
           ))}
         </div>
 
-        {/* Documents table */}
-        <div className="list-panel">
-          <div className="list-panel-header">
-            <div>
-              <h2>Documentos ({documentosFiltrados.length})</h2>
-              <p>Todos os documentos da empresa</p>
-            </div>
-          </div>
-          <div style={{ padding: "0 20px 20px", overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-              <thead>
-                <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                  {["Documento", "Categoria", "Setor", "Data", "Status", "Ações"].map((h) => (
-                    <th
-                      key={h}
-                      style={{
-                        color: "var(--muted)",
-                        fontSize: 11,
-                        fontWeight: 700,
-                        letterSpacing: "0.5px",
-                        padding: "10px 8px",
-                        textAlign: "left",
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {documentosFiltrados.map((doc) => {
-                  const st = STATUS_STYLES[doc.status];
-                  return (
-                    <tr key={doc.id} style={{ borderBottom: "1px solid var(--border)" }}>
-                      <td style={{ padding: "10px 8px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span>{"\u{1F4C4}"}</span>
-                          <strong style={{ fontSize: 13 }}>{doc.nome}</strong>
-                        </div>
-                      </td>
-                      <td style={{ padding: "10px 8px" }}>
-                        <span style={{
-                          background: "rgba(99,102,241,0.08)",
-                          borderRadius: 12,
-                          color: "#4338ca",
-                          fontSize: 11,
-                          fontWeight: 700,
-                          padding: "3px 10px",
-                        }}>
-                          {doc.categoria}
-                        </span>
-                      </td>
-                      <td style={{ color: "var(--muted)", padding: "10px 8px" }}>{doc.setor}</td>
-                      <td style={{ color: "var(--muted)", padding: "10px 8px" }}>
-                        {new Date(doc.data).toLocaleDateString("pt-BR")}
-                      </td>
-                      <td style={{ padding: "10px 8px" }}>
-                        <span style={{
-                          background: st.bg,
-                          borderRadius: 20,
-                          color: st.color,
-                          fontSize: 11,
-                          fontWeight: 700,
-                          padding: "3px 10px",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.3px",
-                        }}>
-                          {doc.status}
-                        </span>
-                      </td>
-                      <td style={{ padding: "10px 8px" }}>
-                        <div style={{ display: "flex", gap: 6 }}>
-                          <button
-                            style={{
-                              background: "rgba(6,182,212,0.08)",
-                              border: "none",
-                              borderRadius: 6,
-                              color: "#0e7490",
-                              cursor: "pointer",
-                              fontSize: 12,
-                              fontWeight: 600,
-                              padding: "5px 10px",
-                            }}
-                            type="button"
-                          >
-                            Visualizar
-                          </button>
-                          <button
-                            style={{
-                              background: "rgba(99,102,241,0.08)",
-                              border: "none",
-                              borderRadius: 6,
-                              color: "#4338ca",
-                              cursor: "pointer",
-                              fontSize: 12,
-                              fontWeight: 600,
-                              padding: "5px 10px",
-                            }}
-                            type="button"
-                          >
-                            Baixar
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+        {/* Empty state */}
+        <div className="list-panel" style={{ textAlign: "center", padding: "3rem" }}>
+          <p style={{ fontSize: "2rem", marginBottom: 8 }}>📄</p>
+          <p style={{ fontWeight: 700, fontSize: 15, color: "var(--ink)", margin: "0 0 4px" }}>Nenhum documento disponível</p>
+          <p style={{ color: "var(--muted)", fontSize: 13, margin: 0 }}>Os documentos aparecerão aqui conforme forem enviados ou processados.</p>
         </div>
 
         {/* Upload section */}
@@ -253,7 +114,7 @@ export default function PortalDocumentos() {
                 style={{ display: "none" }}
                 type="file"
               />
-              <div style={{ fontSize: 32 }}>{"\u{1F4E4}"}</div>
+              <div style={{ fontSize: 32 }}>📤</div>
               <div style={{ textAlign: "center" }}>
                 <p style={{ fontSize: 14, fontWeight: 600, margin: "0 0 4px" }}>
                   Arraste arquivos aqui ou clique para selecionar
@@ -262,7 +123,6 @@ export default function PortalDocumentos() {
                   Formatos aceitos: PDF, XML, ZIP, Excel
                 </p>
               </div>
-              {/* File type badges */}
               <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
                 {FILE_TYPES.map((ft) => (
                   <span
