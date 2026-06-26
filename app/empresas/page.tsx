@@ -600,20 +600,6 @@ export default function EmpresasPage() {
                               Portal
                             </a>
                             <button
-                              onClick={() => setSetoresEmpresa(emp)}
-                              style={{ minHeight: 28, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#374151", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600 }}
-                              type="button"
-                            >
-                              Setores
-                            </button>
-                            <button
-                              onClick={() => abrirEditar(emp)}
-                              style={{ minHeight: 28, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#374151", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600 }}
-                              type="button"
-                            >
-                              Editar
-                            </button>
-                            <button
                               onClick={() => setConfirmandoArquivar(emp)}
                               style={{ minHeight: 28, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#374151", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600 }}
                               type="button"
