@@ -11,6 +11,7 @@ const navigation = [
   { href: "/contratos", icon: "contract", label: "Contratos", section: "Operacional" },
   { href: "/consultoria", icon: "consultoria", label: "Consultoria", section: "Operacional" },
   { href: "/tarefas", icon: "tasks", label: "Tarefas", section: "Operacional" },
+  { href: "/servicos", icon: "servicos", label: "Serviços Avulsos", section: "Ferramentas" },
   { href: "/admin", icon: "admin", label: "Administração", section: "Sistema" },
 ];
 
@@ -20,6 +21,7 @@ const pageTitles: Record<string, string> = {
   "/contratos": "Contratos",
   "/consultoria": "Consultoria",
   "/tarefas": "Central de Tarefas",
+  "/servicos": "Serviços Avulsos",
   "/admin": "Administração",
 };
 
@@ -80,6 +82,14 @@ function NavIcon({ name }: { name: string }) {
         <path d="M12 2a7 7 0 0 0-7 7c0 2.4 1.2 4.5 3 5.7V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.3c1.8-1.2 3-3.3 3-5.7a7 7 0 0 0-7-7z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
         <path d="M10 21h4" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
         <path d="M12 2v1M4.22 4.22l.7.7M2 12h1M4.22 19.78l.7-.7M20 12h1M19.78 4.22l-.7.7" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5" />
+      </svg>
+    );
+  }
+
+  if (name === "servicos") {
+    return (
+      <svg {...common}>
+        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
       </svg>
     );
   }
