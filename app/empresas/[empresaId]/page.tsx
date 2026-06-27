@@ -143,7 +143,7 @@ export default function EmpresaDetalhe() {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>("geral");
   const [editando, setEditando] = useState(false);
-  const [editNome, setEditNome] = useState("");
+  const [editForm, setEditForm] = useState({ nome_legal: "", nome_fantasia: "", cnpj: "", regime_tributario: "", cidade: "", estado: "", status: "" });
   const [salvando, setSalvando] = useState(false);
 
   // Real data states
@@ -156,25 +156,9 @@ export default function EmpresaDetalhe() {
     buscarEmpresaTenant(empresaId)
       .then((e) => {
         setEmpresa(e);
-        setEditNome(e.nome_legal);
       })
       .catch(() => {
-        setEmpresa({
-          id: empresaId,
-          plano_id: null,
-          nome_legal: "Empresa Demo",
-          nome_fantasia: "Demo",
-          cnpj: "00.000.000/0001-00",
-          regime_tributario: "simples_nacional",
-          status: "ativa",
-          subdominio: null,
-          cidade: "São Paulo",
-          estado: "SP",
-          metadata: {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        });
-        setEditNome("Empresa Demo");
+        setEmpresa(null);
       })
       .finally(() => setLoading(false));
   }, [empresaId, router]);
@@ -203,11 +187,33 @@ export default function EmpresaDetalhe() {
       .catch(() => setMensalidades([]));
   }, [tab, empresaId]);
 
-  async function handleSalvarNome() {
+  function abrirEdicao() {
+    if (!empresa) return;
+    setEditForm({
+      nome_legal: empresa.nome_legal || "",
+      nome_fantasia: empresa.nome_fantasia || "",
+      cnpj: empresa.cnpj || "",
+      regime_tributario: empresa.regime_tributario || "",
+      cidade: empresa.cidade || "",
+      estado: empresa.estado || "",
+      status: empresa.status || "",
+    });
+    setEditando(true);
+  }
+
+  async function handleSalvar() {
     if (!empresa) return;
     setSalvando(true);
     try {
-      const updated = await atualizarEmpresaTenant(empresa.id, { nome_legal: editNome });
+      const updated = await atualizarEmpresaTenant(empresa.id, {
+        nome_legal: editForm.nome_legal || undefined,
+        nome_fantasia: editForm.nome_fantasia || undefined,
+        cnpj: editForm.cnpj || undefined,
+        regime_tributario: editForm.regime_tributario || undefined,
+        cidade: editForm.cidade || undefined,
+        estado: editForm.estado || undefined,
+        status: (editForm.status as Empresa["status"]) || undefined,
+      });
       setEmpresa(updated);
       setEditando(false);
     } finally {
@@ -257,33 +263,7 @@ export default function EmpresaDetalhe() {
         <div className="empresa-header-card">
           <div className="empresa-header-avatar">{initials}</div>
           <div className="empresa-header-info">
-            {editando ? (
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <input
-                  autoFocus
-                  onChange={(e) => setEditNome(e.target.value)}
-                  style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 8, color: "#fff", fontSize: 18, fontWeight: 700, padding: "6px 12px", minWidth: 260 }}
-                  value={editNome}
-                />
-                <button
-                  disabled={salvando}
-                  onClick={handleSalvarNome}
-                  style={{ background: "#10b981", border: "none", borderRadius: 8, color: "#fff", cursor: "pointer", fontWeight: 700, padding: "6px 14px" }}
-                  type="button"
-                >
-                  {salvando ? "..." : "Salvar"}
-                </button>
-                <button
-                  onClick={() => setEditando(false)}
-                  style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 8, color: "#fff", cursor: "pointer", padding: "6px 12px" }}
-                  type="button"
-                >
-                  Cancelar
-                </button>
-              </div>
-            ) : (
-              <h1 style={{ margin: 0, color: "#fff", fontSize: 22, fontWeight: 800 }}>{empresa.nome_legal}</h1>
-            )}
+            <h1 style={{ margin: 0, color: "#fff", fontSize: 22, fontWeight: 800 }}>{empresa.nome_legal}</h1>
             {empresa.nome_fantasia && (
               <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, marginTop: 2 }}>{empresa.nome_fantasia}</div>
             )}
@@ -297,7 +277,7 @@ export default function EmpresaDetalhe() {
           </div>
           <div className="empresa-header-actions">
             <button
-              onClick={() => setEditando(true)}
+              onClick={abrirEdicao}
               style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 10, color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 600, padding: "8px 16px" }}
               type="button"
             >
@@ -680,6 +660,67 @@ export default function EmpresaDetalhe() {
           </aside>
         </div>
       </div>
+      {/* ── Modal de edicao ── */}
+      {editando && (
+        <div onClick={() => setEditando(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", borderRadius: 14, width: "100%", maxWidth: 560, maxHeight: "85vh", overflow: "auto", padding: "2rem", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+              <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#07170d" }}>Editar empresa</h3>
+              <button onClick={() => setEditando(false)} style={{ background: "none", border: "none", fontSize: "1.5rem", color: "#9ca3af", cursor: "pointer" }} type="button">x</button>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
+              {([
+                { key: "nome_legal", label: "Razao social", placeholder: "Nome legal da empresa" },
+                { key: "nome_fantasia", label: "Nome fantasia", placeholder: "Nome fantasia" },
+                { key: "cnpj", label: "CNPJ", placeholder: "00.000.000/0001-00" },
+                { key: "cidade", label: "Cidade", placeholder: "Cidade" },
+                { key: "estado", label: "UF", placeholder: "SP" },
+              ] as { key: keyof typeof editForm; label: string; placeholder: string }[]).map(f => (
+                <div key={f.key}>
+                  <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>{f.label}</label>
+                  <input
+                    onChange={e => setEditForm(prev => ({ ...prev, [f.key]: e.target.value }))}
+                    placeholder={f.placeholder}
+                    style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }}
+                    value={editForm[f.key]}
+                  />
+                </div>
+              ))}
+
+              <div>
+                <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Regime tributario</label>
+                <select onChange={e => setEditForm(prev => ({ ...prev, regime_tributario: e.target.value }))} style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.85rem", background: "#fff", cursor: "pointer", boxSizing: "border-box" }} value={editForm.regime_tributario}>
+                  <option value="">Selecione...</option>
+                  <option value="mei">MEI</option>
+                  <option value="simples">Simples Nacional</option>
+                  <option value="presumido">Lucro Presumido</option>
+                  <option value="real">Lucro Real</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Status</label>
+                <select onChange={e => setEditForm(prev => ({ ...prev, status: e.target.value }))} style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.85rem", background: "#fff", cursor: "pointer", boxSizing: "border-box" }} value={editForm.status}>
+                  <option value="ativa">Ativa</option>
+                  <option value="suspensa">Suspensa</option>
+                  <option value="cancelada">Cancelada</option>
+                  <option value="encerrada">Encerrada</option>
+                </select>
+              </div>
+
+              <button
+                disabled={salvando || !editForm.nome_legal}
+                onClick={handleSalvar}
+                style={{ width: "100%", padding: "0.7rem", background: !editForm.nome_legal ? "#d1d5db" : "linear-gradient(135deg, #065f46, #10b981)", color: "#fff", border: "none", borderRadius: 8, fontSize: "0.875rem", fontWeight: 700, cursor: !editForm.nome_legal ? "not-allowed" : "pointer", opacity: salvando ? 0.7 : 1, marginTop: 8 }}
+                type="button"
+              >
+                {salvando ? "Salvando..." : "Salvar alteracoes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }
