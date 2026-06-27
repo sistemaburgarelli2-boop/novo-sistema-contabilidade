@@ -10,7 +10,6 @@ const navigation = [
   { href: "/empresas", icon: "building", label: "Empresas", section: "Operacional" },
   { href: "/contratos", icon: "contract", label: "Contratos", section: "Operacional" },
   { href: "/consultoria", icon: "consultoria", label: "Consultoria", section: "Operacional" },
-  { href: "/tarefas", icon: "tasks", label: "Tarefas", section: "Operacional" },
   { href: "/servicos", icon: "servicos", label: "Serviços Avulsos", section: "Ferramentas" },
   { href: "/admin", icon: "admin", label: "Administração", section: "Sistema" },
 ];
@@ -20,7 +19,6 @@ const pageTitles: Record<string, string> = {
   "/empresas": "Empresas",
   "/contratos": "Contratos",
   "/consultoria": "Consultoria",
-  "/tarefas": "Central de Tarefas",
   "/servicos": "Serviços Avulsos",
   "/admin": "Administração",
 };
