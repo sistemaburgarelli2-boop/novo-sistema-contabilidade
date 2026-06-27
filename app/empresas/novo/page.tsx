@@ -194,6 +194,33 @@ export default function NovaEmpresaPage() {
     setForm(prev => ({ ...prev, [k]: v }));
   }, []);
 
+  const buscarCep = useCallback(async (cep: string, tipo: "pessoal" | "empresa" = "pessoal") => {
+    const limpo = cep.replace(/\D/g, "");
+    if (limpo.length !== 8) return;
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${limpo}/json/`);
+      const data = await res.json();
+      if (data.erro) return;
+      if (tipo === "empresa") {
+        setForm(prev => ({
+          ...prev,
+          logradouro_empresa: data.logradouro || prev.logradouro_empresa,
+          bairro_empresa: data.bairro || prev.bairro_empresa,
+          cidade_empresa: data.localidade || prev.cidade_empresa,
+          uf_empresa: data.uf || prev.uf_empresa,
+        }));
+      } else {
+        setForm(prev => ({
+          ...prev,
+          logradouro: data.logradouro || prev.logradouro,
+          bairro: data.bairro || prev.bairro,
+          cidade: data.localidade || prev.cidade,
+          uf: data.uf || prev.uf,
+        }));
+      }
+    } catch { /* silently fail */ }
+  }, []);
+
   /* auto-save timestamp */
   useEffect(() => {
     const now = new Date();
@@ -423,7 +450,9 @@ export default function NovaEmpresaPage() {
       <div style={gridRow(3)}>
         <Field label="CEP">
           <input style={inputStyle} value={form.cep}
-            onChange={e => set("cep", e.target.value)} placeholder="00000-000" />
+            onChange={e => set("cep", e.target.value)}
+            onBlur={() => buscarCep(form.cep)}
+            placeholder="00000-000" />
         </Field>
         <Field label="Logradouro">
           <input style={inputStyle} value={form.logradouro}
@@ -603,7 +632,9 @@ export default function NovaEmpresaPage() {
       <div style={gridRow(3)}>
         <Field label="CEP">
           <input style={inputStyle} value={form.cep_empresa}
-            onChange={e => set("cep_empresa", e.target.value)} placeholder="00000-000" />
+            onChange={e => set("cep_empresa", e.target.value)}
+            onBlur={() => buscarCep(form.cep_empresa, "empresa")}
+            placeholder="00000-000" />
         </Field>
         <Field label="Logradouro">
           <input style={inputStyle} value={form.logradouro_empresa}

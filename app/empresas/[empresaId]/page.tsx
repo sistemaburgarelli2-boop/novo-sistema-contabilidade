@@ -41,6 +41,10 @@ const SETORES = [
   { cor: "#92400e", emoji: "🏛", label: "Societário", slug: "societario" },
 ];
 
+const LINKS_EXTRAS = [
+  { cor: "#4f46e5", emoji: "🧾", label: "Notas Fiscais", href: (id: string) => `/empresas/${id}/notas-fiscais` },
+];
+
 type Tab = "geral" | "cliente" | "operacao" | "documentos" | "portal" | "financeiro" | "historico";
 
 const TAB_LABELS: Record<Tab, string> = {
@@ -385,6 +389,14 @@ export default function EmpresaDetalhe() {
                     <div className="setor-nav-grid">
                       {SETORES.map((s) => (
                         <Link className="setor-nav-card" href={`/empresas/${empresaId}/setores/${s.slug}`} key={s.slug}>
+                          <div className="setor-nav-card-icon" style={{ background: `${s.cor}18` }}>
+                            <span style={{ fontSize: 20 }}>{s.emoji}</span>
+                          </div>
+                          <span style={{ color: s.cor, fontWeight: 700 }}>{s.label}</span>
+                        </Link>
+                      ))}
+                      {LINKS_EXTRAS.map((s) => (
+                        <Link className="setor-nav-card" href={s.href(empresaId)} key={s.label}>
                           <div className="setor-nav-card-icon" style={{ background: `${s.cor}18` }}>
                             <span style={{ fontSize: 20 }}>{s.emoji}</span>
                           </div>
