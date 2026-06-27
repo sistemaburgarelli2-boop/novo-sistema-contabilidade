@@ -184,6 +184,9 @@ export default function NovaEmpresaPage() {
     { key: "contrato_social", status: "recebido", fileName: "contrato_social_v2.pdf" },
   ]);
   const [savedAt, setSavedAt] = useState<string>("");
+  const [empresaCriadaId, setEmpresaCriadaId] = useState<string | null>(null);
+  const [salvando, setSalvando] = useState(false);
+  const [erroSalvar, setErroSalvar] = useState<string | null>(null);
   const [newSocio, setNewSocio] = useState<Socio>({
     nome_socio: "", cpf_socio: "", participacao: "",
     administrador: false, telefone_socio: "", email_socio: "",
@@ -264,7 +267,33 @@ export default function NovaEmpresaPage() {
   const completedSteps = STEPS.filter(s => s.num < step && isStepValid(s.num)).map(s => s.num);
   const progressPct = Math.round((completedSteps.length / (STEPS.length - 1)) * 100);
 
-  const goNext = () => { if (step < 9) setStep(step + 1); };
+  const goNext = async () => {
+    if (step === 8) {
+      setSalvando(true);
+      setErroSalvar(null);
+      try {
+        const res = await fetch("/api/companies", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nome_legal: form.razao_social,
+            nome_fantasia: form.nome_fantasia,
+            cnpj: undefined,
+            regime_tributario: form.regime_tributario || undefined,
+            cidade: form.cidade_empresa || form.cidade || undefined,
+            estado: form.uf_empresa || form.uf || undefined,
+          }),
+        });
+        const json = await res.json();
+        if (!res.ok) { setErroSalvar(json.error || "Erro ao criar empresa."); return; }
+        setEmpresaCriadaId(json.data?.id ?? null);
+        setStep(9);
+      } catch { setErroSalvar("Erro de conexao. Tente novamente."); }
+      finally { setSalvando(false); }
+    } else if (step < 9) {
+      setStep(step + 1);
+    }
+  };
   const goPrev = () => { if (step > 1) setStep(step - 1); };
 
   const genPassword = () => {
@@ -1160,7 +1189,7 @@ Senha: ${form.senha_portal || "{senha}"}`}
       )}
 
       <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
-        <a href="/empresas/novo-id" style={{
+        <a href={empresaCriadaId ? `/empresas/${empresaCriadaId}` : "/empresas"} style={{
           ...btnPrimary, textDecoration: "none", display: "inline-block",
         }}>Abrir empresa</a>
         <button style={btnSecondary}>Enviar acesso</button>
@@ -1327,7 +1356,7 @@ Senha: ${form.senha_portal || "{senha}"}`}
           {step < 9 && (
             <div style={{
               display: "flex", justifyContent: "space-between", alignItems: "center",
-              paddingTop: 24, marginTop: 32, borderTop: `1px solid ${V.border}`,
+              paddingTop: 24, marginTop: 32, borderTop: `1px solid ${V.border}`, position: "relative" as const,
             }}>
               <button style={step === 1 ? { ...btnSecondary, opacity: 0.4, cursor: "default" } : btnSecondary}
                 onClick={goPrev} disabled={step === 1}>Anterior</button>
@@ -1336,8 +1365,13 @@ Senha: ${form.senha_portal || "{senha}"}`}
                 Etapa {step} de {STEPS.length}
               </div>
 
+              {erroSalvar && step === 8 && (
+                <div style={{ position: "absolute", bottom: "100%", right: 0, marginBottom: 8, background: "#fef2f2", color: "#b91c1c", padding: "8px 14px", borderRadius: 8, fontSize: "0.8rem", fontWeight: 600, whiteSpace: "nowrap" }}>{erroSalvar}</div>
+              )}
               {step === 8 ? (
-                <button style={btnPrimary} onClick={goNext}>Concluir</button>
+                <button style={{ ...btnPrimary, opacity: salvando ? 0.7 : 1 }} onClick={goNext} disabled={salvando}>
+                  {salvando ? "Salvando..." : "Concluir"}
+                </button>
               ) : (
                 <button style={isStepValid(step) ? btnPrimary : btnMuted}
                   onClick={goNext}>
