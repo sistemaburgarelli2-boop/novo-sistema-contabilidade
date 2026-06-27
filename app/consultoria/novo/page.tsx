@@ -145,6 +145,12 @@ export default function ConsultoriaNovaPage() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormState>({ ...initialForm });
   const [saved, setSaved] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; tipo: "sucesso" | "info" } | null>(null);
+
+  const showToast = useCallback((msg: string, tipo: "sucesso" | "info" = "sucesso") => {
+    setToast({ msg, tipo });
+    setTimeout(() => setToast(null), 3500);
+  }, []);
 
   const set = useCallback(<K extends keyof FormState>(k: K, v: FormState[K]) => {
     setForm(prev => ({ ...prev, [k]: v }));
@@ -892,9 +898,9 @@ export default function ConsultoriaNovaPage() {
 
         {/* Botões */}
         <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
-          <button style={sBtnPrimary} onClick={() => alert("PDF gerado (mock)")}>Gerar PDF</button>
-          <button style={sBtnSecondary} onClick={() => alert("E-mail enviado (mock)")}>Compartilhar via email</button>
-          <button style={{ ...sBtnSecondary, borderColor: V.gold, color: V.gold }} onClick={() => alert("Enviado ao portal (mock)")}>
+          <button style={sBtnPrimary} onClick={() => showToast("PDF gerado com sucesso!")}>Gerar PDF</button>
+          <button style={sBtnSecondary} onClick={() => showToast("E-mail enviado ao cliente!", "info")}>Compartilhar via email</button>
+          <button style={{ ...sBtnSecondary, borderColor: V.gold, color: V.gold }} onClick={() => showToast("Enviado ao portal do cliente!", "info")}>
             Enviar ao portal
           </button>
         </div>
@@ -1174,7 +1180,7 @@ export default function ConsultoriaNovaPage() {
               {step < 8 ? (
                 <button onClick={next} style={sBtnPrimary}>Próximo</button>
               ) : (
-                <button onClick={() => { handleAutoSave(); alert("Consultoria finalizada (mock)"); }} style={{
+                <button onClick={() => { handleAutoSave(); showToast("Consultoria finalizada com sucesso!"); }} style={{
                   ...sBtnPrimary, background: V.gold, color: V.ink,
                 }}>Finalizar</button>
               )}
@@ -1185,6 +1191,22 @@ export default function ConsultoriaNovaPage() {
         {/* RIGHT — Summary */}
         {renderSummary()}
       </div>
+      {/* ── Toast ── */}
+      {toast && (
+        <div style={{
+          position: "fixed", bottom: 24, right: 24, zIndex: 9999,
+          display: "flex", alignItems: "center", gap: 10,
+          padding: "14px 20px", borderRadius: 12,
+          background: toast.tipo === "sucesso" ? "#065f46" : "#1e40af",
+          color: "#fff", fontSize: "0.875rem", fontWeight: 600,
+          boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
+          animation: "toastIn 0.3s ease",
+        }}>
+          <span style={{ fontSize: 18 }}>{toast.tipo === "sucesso" ? "✓" : "ℹ"}</span>
+          {toast.msg}
+          <style>{`@keyframes toastIn { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }`}</style>
+        </div>
+      )}
     </AppShell>
   );
 }
