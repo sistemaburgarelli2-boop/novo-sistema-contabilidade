@@ -34,7 +34,8 @@ export async function consultarNFSeEmitidas(
   }
 
   const data = await res.json();
-  const nfses: NFSeNacionalResposta[] = (data.nfse ?? data.items ?? data ?? []).map((nf: Record<string, unknown>) => ({
+  const nfses: NFSeNacionalResposta[] = (data.nfse ?? data.items ?? data ?? []).map(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(nf: any) => ({
     chaveAcesso: (nf.chaveAcesso ?? nf.chNFSe ?? "") as string,
     numero: String(nf.nNFSe ?? nf.numero ?? ""),
     dataEmissao: (nf.dhEmissao ?? nf.dataEmissao ?? "") as string,
@@ -81,7 +82,8 @@ export async function consultarNFSeRecebidas(
   }
 
   const data = await res.json();
-  const nfses: NFSeNacionalResposta[] = (data.nfse ?? data.items ?? data ?? []).map((nf: Record<string, unknown>) => ({
+  const nfses: NFSeNacionalResposta[] = (data.nfse ?? data.items ?? data ?? []).map(// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(nf: any) => ({
     chaveAcesso: (nf.chaveAcesso ?? nf.chNFSe ?? "") as string,
     numero: String(nf.nNFSe ?? nf.numero ?? ""),
     dataEmissao: (nf.dhEmissao ?? nf.dataEmissao ?? "") as string,
