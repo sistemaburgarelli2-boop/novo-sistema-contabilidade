@@ -22,6 +22,7 @@ export type CriarEmpresaInput = {
   subdominio?: string;
   cidade?: string;
   estado?: string;
+  metadata?: Record<string, unknown>;
 };
 
 export type AtualizarEmpresaInput = Partial<CriarEmpresaInput> & {

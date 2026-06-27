@@ -99,6 +99,7 @@ export async function criarEmpresaComBootstrap(
       subdominio: input.subdominio ?? null,
       cidade: input.cidade ?? null,
       estado: input.estado ?? null,
+      metadata: input.metadata ?? {},
     })
     .select("*")
     .single();

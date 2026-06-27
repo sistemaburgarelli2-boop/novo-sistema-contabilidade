@@ -272,16 +272,42 @@ export default function NovaEmpresaPage() {
       setSalvando(true);
       setErroSalvar(null);
       try {
-        const res = await fetch("/api/companies", {
+        const metadata = {
+          nome_completo: form.nome_completo, cpf: form.cpf, rg: form.rg,
+          data_nascimento: form.data_nascimento, sexo: form.sexo,
+          estado_civil: form.estado_civil, profissao: form.profissao,
+          telefone: form.telefone, whatsapp: form.whatsapp,
+          email_principal: form.email_principal, email_financeiro: form.email_financeiro,
+          email_fiscal: form.email_fiscal, observacoes: form.observacoes,
+          cep: form.cep, logradouro: form.logradouro, numero: form.numero,
+          complemento: form.complemento, bairro: form.bairro,
+          escolaridade: form.escolaridade, nacionalidade: form.nacionalidade,
+          naturalidade: form.naturalidade, renda_aproximada: form.renda_aproximada,
+          natureza_juridica: form.natureza_juridica, porte: form.porte,
+          data_abertura: form.data_abertura, capital_social: form.capital_social,
+          objeto_social: form.objeto_social, descricao_atividade: form.descricao_atividade,
+          cnae_principal: form.cnae_principal, cnaes_secundarios: form.cnaes_secundarios,
+          telefone_empresa: form.telefone_empresa, email_empresa: form.email_empresa,
+          site: form.site, cep_empresa: form.cep_empresa,
+          logradouro_empresa: form.logradouro_empresa, numero_empresa: form.numero_empresa,
+          bairro_empresa: form.bairro_empresa, cidade_empresa: form.cidade_empresa,
+          uf_empresa: form.uf_empresa, funcionarios_previstos: form.funcionarios_previstos,
+          faturamento_estimado: form.faturamento_estimado,
+          inscricao_estadual: form.inscricao_estadual,
+          inscricao_municipal: form.inscricao_municipal,
+          email_portal: form.email_portal, nome_portal: form.nome_portal,
+          telefone_portal: form.telefone_portal,
+        };
+        const res = await fetch("/api/empresas", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             nome_legal: form.razao_social,
             nome_fantasia: form.nome_fantasia,
-            cnpj: undefined,
             regime_tributario: form.regime_tributario || undefined,
             cidade: form.cidade_empresa || form.cidade || undefined,
             estado: form.uf_empresa || form.uf || undefined,
+            metadata,
           }),
         });
         const json = await res.json();

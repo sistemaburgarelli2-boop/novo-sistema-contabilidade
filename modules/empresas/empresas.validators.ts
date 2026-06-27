@@ -23,6 +23,8 @@ export function validarCriarEmpresa(payload: unknown): CriarEmpresaInput {
     throw new Error("Subdominio invalido.");
   }
 
+  const metadata = data.metadata && typeof data.metadata === "object" ? data.metadata as Record<string, unknown> : undefined;
+
   return {
     nome_legal: nomeLegal,
     nome_fantasia: cleanString(data.nome_fantasia),
@@ -31,6 +33,7 @@ export function validarCriarEmpresa(payload: unknown): CriarEmpresaInput {
     subdominio,
     cidade: cleanString(data.cidade),
     estado: cleanString(data.estado)?.toUpperCase(),
+    metadata,
   };
 }
 
