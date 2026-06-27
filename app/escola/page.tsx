@@ -117,8 +117,8 @@ export default function EscolaPage() {
       <div className="page-stack">
         {/* ── Header ── */}
         <div style={{ borderRadius: 14, overflow: "hidden", background: "linear-gradient(110deg, #0f172a 0%, #1e3a5f 50%, #1e40af 100%)", boxShadow: "0 4px 24px rgba(6,23,13,0.18)", padding: "1.5rem 2rem", color: "#fff", position: "relative" }}>
-          <div style={{ position: "absolute", top: 0, right: 0, width: 200, height: "100%", background: "radial-gradient(circle at 80% 50%, rgba(99,102,241,0.15) 0%, transparent 70%)" }} />
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ position: "absolute", top: 0, right: 0, width: 200, height: "100%", background: "radial-gradient(circle at 80% 50%, rgba(99,102,241,0.15) 0%, transparent 70%)", pointerEvents: "none" }} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", position: "relative", zIndex: 1 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
               <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26 }}>🎓</div>
               <div>
