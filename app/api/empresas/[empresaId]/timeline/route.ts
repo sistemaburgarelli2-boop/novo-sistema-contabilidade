@@ -16,10 +16,7 @@ type RouteContext = {
 
 export async function GET(_request: Request, context: RouteContext) {
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) return fail("Nao autenticado.", 401);
 
   const { empresaId } = await context.params;
@@ -30,69 +27,72 @@ export async function GET(_request: Request, context: RouteContext) {
     .eq("id", empresaId)
     .single();
 
-  if (error || !empresa) return fail("Empresa não encontrada.", 404);
+  if (error || !empresa) return fail("Empresa nao encontrada.", 404);
 
-  const now = new Date();
+  const events: TimelineEvent[] = [];
 
-  const ago = (months: number) => {
-    const d = new Date(now);
-    d.setMonth(d.getMonth() - months);
-    return d.toISOString().slice(0, 10);
-  };
+  const [auditRes, obrigacoesRes, guiasRes] = await Promise.all([
+    supabase.from("audit_logs").select("id, created_at, action, resource_type").eq("empresa_id", empresaId).order("created_at", { ascending: false }).limit(20),
+    supabase.from("obrigacoes_fiscais").select("id, nome, competencia, status, created_at").eq("empresa_id", empresaId).order("created_at", { ascending: false }).limit(10),
+    supabase.from("guias").select("id, nome, competencia, status, created_at").eq("empresa_id", empresaId).order("created_at", { ascending: false }).limit(10),
+  ]);
 
-  const mesAtual = now.toLocaleString("pt-BR", { month: "long", year: "numeric" });
-  const mesAnterior = new Date(now.getFullYear(), now.getMonth() - 1).toLocaleString("pt-BR", { month: "long", year: "numeric" });
+  if (auditRes.data) {
+    for (const log of auditRes.data) {
+      const actionLabels: Record<string, { titulo: string; tipo: TimelineEvent["tipo"]; responsavel: string }> = {
+        "empresa.created": { titulo: "Empresa cadastrada no sistema", tipo: "sistema", responsavel: "Sistema" },
+        "empresa.updated": { titulo: "Dados da empresa atualizados", tipo: "sistema", responsavel: "Sistema" },
+      };
+      const cfg = actionLabels[log.action];
+      if (cfg) {
+        events.push({
+          id: `audit-${log.id}`,
+          data: log.created_at.slice(0, 10),
+          ...cfg,
+          descricao: `Acao: ${log.action}`,
+        });
+      }
+    }
+  }
 
-  const events: TimelineEvent[] = [
-    {
-      id: "6",
-      data: ago(0),
-      tipo: "guia",
-      titulo: "Guia DAS emitida",
-      descricao: `Simples Nacional — competência ${mesAtual}`,
-      responsavel: "Setor Fiscal",
-    },
-    {
-      id: "5",
-      data: ago(0),
-      tipo: "obrigacao",
-      titulo: "DCTF transmitida",
-      descricao: "Declaração de Débitos e Créditos enviada via ReceitaNet",
-      responsavel: "Setor Contábil",
-    },
-    {
-      id: "4",
-      data: ago(0),
-      tipo: "folha",
-      titulo: "Folha de pagamento fechada",
-      descricao: `Processamento concluído — ${mesAtual}. eSocial atualizado.`,
-      responsavel: "Setor DP",
-    },
-    {
-      id: "3",
-      data: ago(1),
-      tipo: "guia",
-      titulo: "Guia DAS emitida",
-      descricao: `Simples Nacional — competência ${mesAnterior}`,
-      responsavel: "Setor Fiscal",
-    },
-    {
-      id: "2",
-      data: ago(1),
-      tipo: "documento",
-      titulo: "Contrato social arquivado",
-      descricao: "Contrato protocolado e arquivado digitalmente no sistema",
-      responsavel: "Setor Societário",
-    },
-    {
-      id: "1",
-      data: ago(2),
-      tipo: "sistema",
-      titulo: "Empresa cadastrada no sistema",
-      descricao: "Cadastro inicial concluído com dados fiscais e tributários",
-      responsavel: "Sistema",
-    },
-  ];
+  if (obrigacoesRes.data) {
+    for (const ob of obrigacoesRes.data) {
+      events.push({
+        id: `obrig-${ob.id}`,
+        data: ob.created_at.slice(0, 10),
+        tipo: "obrigacao",
+        titulo: ob.nome,
+        descricao: `Competencia: ${ob.competencia} — Status: ${ob.status}`,
+        responsavel: "Setor Fiscal",
+      });
+    }
+  }
 
-  return ok(events);
+  if (guiasRes.data) {
+    for (const guia of guiasRes.data) {
+      events.push({
+        id: `guia-${guia.id}`,
+        data: guia.created_at.slice(0, 10),
+        tipo: "guia",
+        titulo: guia.nome,
+        descricao: `Competencia: ${guia.competencia} — Status: ${guia.status}`,
+        responsavel: "Setor Fiscal",
+      });
+    }
+  }
+
+  events.push({
+    id: `criacao-${empresa.id}`,
+    data: empresa.created_at.slice(0, 10),
+    tipo: "sistema",
+    titulo: "Empresa cadastrada no sistema",
+    descricao: "Cadastro inicial concluido",
+    responsavel: "Sistema",
+  });
+
+  events.sort((a, b) => b.data.localeCompare(a.data));
+
+  const unique = events.filter((e, i, arr) => arr.findIndex(x => x.id === e.id) === i);
+
+  return ok(unique);
 }

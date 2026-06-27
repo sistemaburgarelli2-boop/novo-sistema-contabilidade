@@ -66,12 +66,12 @@ const today = () => { const d = new Date(); return d.toISOString().slice(0, 10);
 const addDays = (days: number) => { const d = new Date(); d.setDate(d.getDate() + days); return d.toISOString().slice(0, 10); };
 
 const defaultRoadmap: RoadmapItem[] = [
-  { titulo: "Definir atividade e CNAE", descricao: "Análise de atividades e enquadramento CNAE", responsavel: "Ana Lima", prazo: addDays(7), status: "Pendente" },
-  { titulo: "Escolher regime tributário", descricao: "Simulação e definição do melhor regime", responsavel: "Ana Lima", prazo: addDays(14), status: "Pendente" },
-  { titulo: "Documentação e contrato social", descricao: "Elaboração de contrato social e documentos", responsavel: "Carlos Silva", prazo: addDays(21), status: "Pendente" },
-  { titulo: "Abrir empresa no órgão competente", descricao: "Registro na Junta Comercial / Cartório", responsavel: "Carlos Silva", prazo: addDays(28), status: "Pendente" },
-  { titulo: "Conta bancária e certificado digital", descricao: "Abertura de conta PJ e emissão de certificado", responsavel: "Marcos Souza", prazo: addDays(35), status: "Pendente" },
-  { titulo: "Primeira emissão de nota fiscal", descricao: "Configuração e teste de emissão de NF", responsavel: "Ana Lima", prazo: addDays(42), status: "Pendente" },
+  { titulo: "Definir atividade e CNAE", descricao: "Análise de atividades e enquadramento CNAE", responsavel: "", prazo: addDays(7), status: "Pendente" },
+  { titulo: "Escolher regime tributário", descricao: "Simulação e definição do melhor regime", responsavel: "", prazo: addDays(14), status: "Pendente" },
+  { titulo: "Documentação e contrato social", descricao: "Elaboração de contrato social e documentos", responsavel: "", prazo: addDays(21), status: "Pendente" },
+  { titulo: "Abrir empresa no órgão competente", descricao: "Registro na Junta Comercial / Cartório", responsavel: "", prazo: addDays(28), status: "Pendente" },
+  { titulo: "Conta bancária e certificado digital", descricao: "Abertura de conta PJ e emissão de certificado", responsavel: "", prazo: addDays(35), status: "Pendente" },
+  { titulo: "Primeira emissão de nota fiscal", descricao: "Configuração e teste de emissão de NF", responsavel: "", prazo: addDays(42), status: "Pendente" },
 ];
 
 const initialForm: FormState = {

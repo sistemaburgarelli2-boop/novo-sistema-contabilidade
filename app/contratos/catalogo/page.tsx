@@ -390,7 +390,7 @@ export default function CatalogoContratosPage() {
         </div>
 
         <div style={footerBottom}>
-          &copy; 2026 Burgarelli C.O &mdash; Todos os direitos reservados. CNPJ: 00.000.000/0001-00
+          &copy; 2026 Burgarelli C.O &mdash; Todos os direitos reservados.
         </div>
       </footer>
     </div>

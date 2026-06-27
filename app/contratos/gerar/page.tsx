@@ -178,9 +178,8 @@ export default function GerarContratoPage() {
   const prev = () => { if (step > 1) setStep(step - 1); };
   const goStep = (n: number) => { if (n <= step) setStep(n); };
 
-  /* ── Contract number mock ──────────────────────────────── */
-  const contratoNum = "CTR-2026-000149";
-  const contratoHash = "a7c3e91f2b...d84f";
+  const contratoNum = `CTR-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
+  const contratoHash = crypto.randomUUID().slice(0, 16);
 
   /* ── Specific fields config ────────────────────────────── */
   type FieldDef = { key: string; label: string; type: "text" | "textarea" | "currency" | "dropdown"; options?: string[] };
