@@ -135,8 +135,40 @@ export default function EscolaPage() {
           </div>
         </div>
 
-        {/* ── Leitura de anotacao ── */}
-        {lendo && !editando ? (
+        {/* ── Criar nova anotacao (inline) ── */}
+        {showNova ? (
+          <div>
+            <button onClick={() => setShowNova(false)} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "#6f8f7c", cursor: "pointer", fontSize: "0.82rem", fontWeight: 600, marginBottom: 12, padding: 0 }} type="button">
+              <svg fill="none" height={14} viewBox="0 0 24 24" width={14}><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}/></svg>
+              Voltar
+            </button>
+            <div style={{ background: "#fff", border: "1.5px solid #dfece5", borderRadius: 14, padding: "1.5rem", maxWidth: 800 }}>
+              <h3 style={{ margin: "0 0 16px", fontSize: "1rem", fontWeight: 700, color: "#07170d" }}>Nova anotacao</h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ display: "flex", gap: 12 }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={labelStyle}>Titulo</label>
+                    <input style={inputStyle} value={novoTitulo} onChange={e => setNovoTitulo(e.target.value)} placeholder="Ex: Regras de ICMS interestadual" />
+                  </div>
+                  <div style={{ minWidth: 180 }}>
+                    <label style={labelStyle}>Setor</label>
+                    <select style={{ ...inputStyle, background: "#fff", cursor: "pointer" }} value={novoSetor} onChange={e => setNovoSetor(e.target.value as Setor)}>
+                      {SETORES.map(s => <option key={s.key} value={s.key}>{s.emoji} {s.label}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label style={labelStyle}>Conteudo</label>
+                  <textarea style={{ ...inputStyle, minHeight: 250, resize: "vertical", lineHeight: 1.7 }} value={novoConteudo} onChange={e => setNovoConteudo(e.target.value)} placeholder="Escreva suas anotacoes aqui..." />
+                </div>
+                <button disabled={!novoTitulo.trim()} onClick={criarAnotacao} style={{ padding: "0.65rem 2rem", background: !novoTitulo.trim() ? "#d1d5db" : "linear-gradient(135deg, #4f46e5, #6366f1)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.875rem", cursor: !novoTitulo.trim() ? "not-allowed" : "pointer", alignSelf: "flex-start" }} type="button">
+                  Criar anotacao
+                </button>
+              </div>
+            </div>
+          </div>
+
+        ) : lendo && !editando ? (
           <div>
             <button onClick={() => setLendo(null)} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "#6f8f7c", cursor: "pointer", fontSize: "0.82rem", fontWeight: 600, marginBottom: 12, padding: 0 }} type="button">
               <svg fill="none" height={14} viewBox="0 0 24 24" width={14}><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}/></svg>
@@ -252,40 +284,6 @@ export default function EscolaPage() {
           </>
         )}
       </div>
-
-      {/* ── Modal nova anotacao ── */}
-      {showNova && (
-        <div onClick={() => setShowNova(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999 }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: 14, width: "100%", maxWidth: 560, padding: "2rem", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
-              <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#07170d", fontWeight: 800 }}>Nova anotacao</h3>
-              <button onClick={() => setShowNova(false)} style={{ background: "none", border: "none", fontSize: "1.5rem", color: "#9ca3af", cursor: "pointer" }} type="button">x</button>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ display: "flex", gap: 12 }}>
-                <div style={{ flex: 1 }}>
-                  <label style={labelStyle}>Titulo</label>
-                  <input style={inputStyle} value={novoTitulo} onChange={e => setNovoTitulo(e.target.value)} placeholder="Ex: Regras de ICMS interestadual" />
-                </div>
-                <div style={{ minWidth: 180 }}>
-                  <label style={labelStyle}>Setor</label>
-                  <select style={{ ...inputStyle, background: "#fff", cursor: "pointer" }} value={novoSetor} onChange={e => setNovoSetor(e.target.value as Setor)}>
-                    {SETORES.map(s => <option key={s.key} value={s.key}>{s.emoji} {s.label}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label style={labelStyle}>Conteudo</label>
-                <textarea style={{ ...inputStyle, minHeight: 200, resize: "vertical", lineHeight: 1.7 }} value={novoConteudo} onChange={e => setNovoConteudo(e.target.value)} placeholder="Escreva suas anotacoes aqui..." />
-              </div>
-              <button disabled={!novoTitulo.trim()} onClick={criarAnotacao} style={{ width: "100%", padding: "0.7rem", background: !novoTitulo.trim() ? "#d1d5db" : "linear-gradient(135deg, #4f46e5, #6366f1)", color: "#fff", border: "none", borderRadius: 8, fontSize: "0.875rem", fontWeight: 700, cursor: !novoTitulo.trim() ? "not-allowed" : "pointer" }} type="button">
-                Criar anotacao
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── Toast ── */}
       {toast && (
