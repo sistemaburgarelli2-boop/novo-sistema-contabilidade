@@ -113,6 +113,33 @@ const sBtnSecondary: React.CSSProperties = {
   ...sBtnPrimary, background: "transparent", color: V.green700, border: `1px solid ${V.green700}`,
 };
 
+/* ─── Componentes auxiliares (fora do componente para evitar perda de foco) ── */
+function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+  return (
+    <div style={sField}>
+      <label style={sLabel}>{label}{required && <span style={{ color: V.danger }}> *</span>}</label>
+      {children}
+    </div>
+  );
+}
+
+function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, cursor: "pointer" }} onClick={() => onChange(!checked)}>
+      <div style={{
+        width: 40, height: 22, borderRadius: 11, background: checked ? V.green500 : V.border,
+        position: "relative", transition: "background .2s",
+      }}>
+        <div style={{
+          width: 18, height: 18, borderRadius: 9, background: "#fff", position: "absolute",
+          top: 2, left: checked ? 20 : 2, transition: "left .2s", boxShadow: "0 1px 3px rgba(0,0,0,.2)",
+        }} />
+      </div>
+      <span style={{ fontSize: 13, color: V.ink }}>{label}</span>
+    </div>
+  );
+}
+
 /* ─── COMPONENT ─────────────────────────────────────────────── */
 export default function ConsultoriaNovaPage() {
   const [step, setStep] = useState(1);
@@ -223,28 +250,6 @@ export default function ConsultoriaNovaPage() {
   const prev = () => { if (step > 1) setStep(step - 1); };
 
   /* ─── Render helpers ──────────────────────────────────────── */
-  const Field = ({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) => (
-    <div style={sField}>
-      <label style={sLabel}>{label}{required && <span style={{ color: V.danger }}> *</span>}</label>
-      {children}
-    </div>
-  );
-
-  const Toggle = ({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) => (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, cursor: "pointer" }} onClick={() => onChange(!checked)}>
-      <div style={{
-        width: 40, height: 22, borderRadius: 11, background: checked ? V.green500 : V.border,
-        position: "relative", transition: "background .2s",
-      }}>
-        <div style={{
-          width: 18, height: 18, borderRadius: 9, background: "#fff", position: "absolute",
-          top: 2, left: checked ? 20 : 2, transition: "left .2s", boxShadow: "0 1px 3px rgba(0,0,0,.2)",
-        }} />
-      </div>
-      <span style={{ fontSize: 13, color: V.ink }}>{label}</span>
-    </div>
-  );
-
   const ProgressBar = ({ value, max, color, label }: { value: number; max: number; color: string; label: string }) => (
     <div style={{ marginBottom: 12 }}>
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
