@@ -42,6 +42,8 @@ export function validarAtualizarEmpresa(payload: unknown): AtualizarEmpresaInput
   const raw = payload as Record<string, unknown>;
   const status = cleanString(raw.status);
 
+  const metadata = raw.metadata && typeof raw.metadata === "object" ? raw.metadata as Record<string, unknown> : undefined;
+
   return {
     ...data,
     nome_legal: cleanString(raw.nome_legal),
@@ -49,5 +51,6 @@ export function validarAtualizarEmpresa(payload: unknown): AtualizarEmpresaInput
       status === "ativa" || status === "suspensa" || status === "cancelada" || status === "encerrada"
         ? status
         : undefined,
+    metadata,
   };
 }

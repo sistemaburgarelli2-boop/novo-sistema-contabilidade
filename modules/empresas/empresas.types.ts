@@ -26,4 +26,5 @@ export type CriarEmpresaInput = {
 
 export type AtualizarEmpresaInput = Partial<CriarEmpresaInput> & {
   status?: Empresa["status"];
+  metadata?: Record<string, unknown>;
 };
