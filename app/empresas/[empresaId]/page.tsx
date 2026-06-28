@@ -159,6 +159,14 @@ export default function EmpresaDetalhe() {
   const [tarefas, setTarefas] = useState<Tarefa[]>([]);
   const [mensalidades, setMensalidades] = useState<Mensalidade[]>([]);
   const [observacoes, setObservacoes] = useState("");
+  const [documentos, setDocumentos] = useState<Array<{
+    id: string; nome: string; categoria: string; setor: string; competencia: string | null;
+    status: string; arquivo_url: string | null; arquivo_nome: string | null;
+    arquivo_tipo: string | null; arquivo_tam: number | null; created_at: string;
+  }>>([]);
+  const [docsLoading, setDocsLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
 
   // Load empresa
   useEffect(() => {
@@ -195,6 +203,52 @@ export default function EmpresaDetalhe() {
       })
       .catch(() => setMensalidades([]));
   }, [tab, empresaId]);
+
+  // Load documentos when Documentos tab is active
+  useEffect(() => {
+    if (tab !== "documentos") return;
+    setDocsLoading(true);
+    fetch(`/api/documentos/${empresaId}`)
+      .then((r) => r.json())
+      .then((json) => setDocumentos(json.data ?? []))
+      .catch(() => setDocumentos([]))
+      .finally(() => setDocsLoading(false));
+  }, [tab, empresaId]);
+
+  async function uploadDocumento(file: File) {
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("arquivo", file);
+      form.append("categoria", "outros");
+      form.append("setor", "geral");
+      const res = await fetch(`/api/documentos/${empresaId}`, { method: "POST", body: form });
+      const json = await res.json();
+      if (json.data) setDocumentos((prev) => [json.data, ...prev]);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function handleFileDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(false);
+    const files = Array.from(e.dataTransfer.files);
+    files.forEach(uploadDocumento);
+  }
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    files.forEach(uploadDocumento);
+    e.target.value = "";
+  }
+
+  function formatFileSize(bytes: number | null) {
+    if (!bytes) return "—";
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
 
   function abrirEdicao() {
     if (!empresa) return;
@@ -430,18 +484,98 @@ export default function EmpresaDetalhe() {
               )}
 
               {/* ── Tab 2: Cliente ─────────────────────────────── */}
-              {tab === "cliente" && (
-                <div style={{ display: "grid", gap: 20 }}>
-                  <div>
-                    <h3 style={sectionTitle}>Dados do cliente / proprietário</h3>
-                    <p style={sectionSubtitle}>Informações do responsável legal da empresa</p>
+              {tab === "cliente" && (() => {
+                const m = (empresa?.metadata ?? {}) as Record<string, string>;
+                const temDados = !!(m.nome_completo || m.cpf || m.telefone || m.email_principal);
+                const campos = [
+                  { label: "Nome completo", value: m.nome_completo },
+                  { label: "CPF", value: m.cpf },
+                  { label: "RG", value: m.rg },
+                  { label: "Data de nascimento", value: m.data_nascimento ? new Date(m.data_nascimento + "T12:00:00").toLocaleDateString("pt-BR") : "" },
+                  { label: "Sexo", value: m.sexo === "M" ? "Masculino" : m.sexo === "F" ? "Feminino" : m.sexo },
+                  { label: "Estado civil", value: m.estado_civil },
+                  { label: "Profissão", value: m.profissao },
+                ];
+                const contatos = [
+                  { label: "Telefone", value: m.telefone },
+                  { label: "WhatsApp", value: m.whatsapp },
+                  { label: "E-mail principal", value: m.email_principal },
+                  { label: "E-mail financeiro", value: m.email_financeiro },
+                  { label: "E-mail fiscal", value: m.email_fiscal },
+                ];
+                const endereco = [
+                  { label: "CEP", value: m.cep },
+                  { label: "Logradouro", value: m.logradouro },
+                  { label: "Número", value: m.numero },
+                  { label: "Complemento", value: m.complemento },
+                  { label: "Bairro", value: m.bairro },
+                ];
+                return (
+                  <div style={{ display: "grid", gap: 20 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+                      <div>
+                        <h3 style={sectionTitle}>Dados do cliente / proprietário</h3>
+                        <p style={sectionSubtitle}>Informações do responsável legal da empresa</p>
+                      </div>
+                      <button className="small-action" type="button" onClick={abrirEdicao}>Editar dados</button>
+                    </div>
+
+                    {!temDados ? (
+                      <EmptyState
+                        titulo="Nenhum dado de cliente cadastrado"
+                        descricao="Clique em 'Editar dados' para preencher as informações do proprietário"
+                      />
+                    ) : (
+                      <>
+                        <div>
+                          <div style={{ ...infoLabel, marginBottom: 10 }}>Dados pessoais</div>
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 }}>
+                            {campos.filter((c) => c.value).map((c) => (
+                              <div key={c.label} style={infoCard}>
+                                <div style={infoLabel}>{c.label}</div>
+                                <div style={infoValue}>{c.value}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <div style={{ ...infoLabel, marginBottom: 10 }}>Contato</div>
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 }}>
+                            {contatos.filter((c) => c.value).map((c) => (
+                              <div key={c.label} style={infoCard}>
+                                <div style={infoLabel}>{c.label}</div>
+                                <div style={infoValue}>{c.value}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {endereco.some((c) => c.value) && (
+                          <div>
+                            <div style={{ ...infoLabel, marginBottom: 10 }}>Endereço</div>
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 }}>
+                              {endereco.filter((c) => c.value).map((c) => (
+                                <div key={c.label} style={infoCard}>
+                                  <div style={infoLabel}>{c.label}</div>
+                                  <div style={infoValue}>{c.value}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {m.observacoes && (
+                          <div>
+                            <div style={{ ...infoLabel, marginBottom: 10 }}>Observações</div>
+                            <div style={{ ...infoCard, whiteSpace: "pre-wrap" as const, fontSize: 14 }}>{m.observacoes}</div>
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
-                  <EmptyState
-                    titulo="Nenhum dado de cliente cadastrado"
-                    descricao="Os dados do proprietário serão preenchidos no onboarding"
-                  />
-                </div>
-              )}
+                );
+              })()}
 
               {/* ── Tab 3: Operação ────────────────────────────── */}
               {tab === "operacao" && (
@@ -521,33 +655,114 @@ export default function EmpresaDetalhe() {
               {/* ── Tab 4: Documentos ──────────────────────────── */}
               {tab === "documentos" && (
                 <div style={{ display: "grid", gap: 20 }}>
-                  {/* Header + action */}
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
                     <div>
                       <h3 style={sectionTitle}>Documentos da empresa</h3>
                       <p style={sectionSubtitle}>Organizados por competência e setor</p>
                     </div>
-                    <button className="small-action" type="button">+ Receber documento</button>
+                    <label style={{
+                      display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer",
+                      border: "1.5px solid var(--green-500)", borderRadius: 8, padding: "8px 16px",
+                      fontSize: 13, fontWeight: 700, color: "var(--green-700)", background: "var(--panel)",
+                    }}>
+                      + Enviar documento
+                      <input type="file" multiple accept=".pdf,.xml,.jpg,.jpeg,.png,.zip,.xlsx,.xls,.csv"
+                        style={{ display: "none" }} onChange={handleFileSelect} />
+                    </label>
                   </div>
 
-                  {/* Upload area */}
-                  <div style={{
-                    border: "2px dashed var(--border)", borderRadius: 12, padding: "28px 20px",
-                    textAlign: "center" as const, background: "var(--bg)", cursor: "pointer",
-                  }}>
-                    <div style={{ fontSize: 28, marginBottom: 6 }}>+</div>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: "var(--ink)", marginBottom: 4 }}>
-                      Arraste arquivos aqui ou clique para selecionar
-                    </div>
-                    <div style={{ fontSize: 12, color: "var(--muted)" }}>
-                      PDF, XML, imagens — até 10 MB por arquivo
-                    </div>
+                  {/* Upload area - drag and drop */}
+                  <div
+                    onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                    onDragLeave={() => setDragOver(false)}
+                    onDrop={handleFileDrop}
+                    onClick={() => {
+                      const inp = document.createElement("input");
+                      inp.type = "file"; inp.multiple = true;
+                      inp.accept = ".pdf,.xml,.jpg,.jpeg,.png,.zip,.xlsx,.xls,.csv";
+                      inp.onchange = (e) => {
+                        const files = Array.from((e.target as HTMLInputElement).files ?? []);
+                        files.forEach(uploadDocumento);
+                      };
+                      inp.click();
+                    }}
+                    style={{
+                      border: `2px dashed ${dragOver ? "var(--green-500)" : "var(--border)"}`,
+                      borderRadius: 12, padding: "28px 20px", textAlign: "center" as const,
+                      background: dragOver ? "#ecfdf5" : "var(--bg)", cursor: "pointer",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    {uploading ? (
+                      <div style={{ fontSize: 14, fontWeight: 600, color: "var(--green-700)" }}>Enviando...</div>
+                    ) : (
+                      <>
+                        <div style={{ fontSize: 28, marginBottom: 6 }}>+</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--ink)", marginBottom: 4 }}>
+                          Arraste arquivos aqui ou clique para selecionar
+                        </div>
+                        <div style={{ fontSize: 12, color: "var(--muted)" }}>
+                          PDF, XML, imagens, Excel, ZIP — até 10 MB por arquivo
+                        </div>
+                      </>
+                    )}
                   </div>
 
-                  <EmptyState
-                    titulo="Nenhum documento cadastrado"
-                    descricao="Os documentos serão organizados conforme recebidos"
-                  />
+                  {/* Document list */}
+                  {docsLoading ? (
+                    <div style={{ textAlign: "center" as const, padding: 32, color: "var(--muted)" }}>Carregando...</div>
+                  ) : documentos.length === 0 ? (
+                    <EmptyState
+                      titulo="Nenhum documento cadastrado"
+                      descricao="Envie arquivos arrastando ou clicando na área acima"
+                    />
+                  ) : (
+                    <div style={{ overflowX: "auto" }}>
+                      <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, fontSize: 13 }}>
+                        <thead>
+                          <tr>
+                            {["Documento", "Categoria", "Setor", "Tamanho", "Status", "Data"].map((h) => (
+                              <th key={h} style={thStyle}>{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {documentos.map((doc) => {
+                            const statusColors: Record<string, { color: string; bg: string }> = {
+                              recebido: { color: "#0e7490", bg: "#ecfeff" },
+                              conferido: { color: "#065f46", bg: "#f0fdf4" },
+                              processado: { color: "#6b21a8", bg: "#faf5ff" },
+                              pendente: { color: "#92400e", bg: "#fffbeb" },
+                              rejeitado: { color: "#dc2626", bg: "#fef2f2" },
+                              arquivado: { color: "#6b7280", bg: "#f3f4f6" },
+                            };
+                            const sc = statusColors[doc.status] ?? { color: "#6b7280", bg: "#f3f4f6" };
+                            return (
+                              <tr key={doc.id} style={{ borderBottom: "1px solid var(--border)" }}>
+                                <td style={{ ...tdStyle, fontWeight: 600 }}>
+                                  {doc.arquivo_url ? (
+                                    <a href={doc.arquivo_url} target="_blank" rel="noopener noreferrer"
+                                      style={{ color: "var(--green-700)", textDecoration: "underline" }}>
+                                      {doc.nome}
+                                    </a>
+                                  ) : doc.nome}
+                                </td>
+                                <td style={tdStyle}>{doc.categoria}</td>
+                                <td style={tdStyle}>{doc.setor}</td>
+                                <td style={tdStyle}>{formatFileSize(doc.arquivo_tam)}</td>
+                                <td style={tdStyle}>
+                                  <StatusBadge label={doc.status} color={sc.color} bg={sc.bg} />
+                                </td>
+                                <td style={tdStyle}>
+                                  {new Date(doc.created_at).toLocaleDateString("pt-BR")}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               )}
 
