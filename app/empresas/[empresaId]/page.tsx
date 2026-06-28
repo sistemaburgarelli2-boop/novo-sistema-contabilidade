@@ -365,13 +365,12 @@ export default function EmpresaDetalhe() {
             </div>
           </div>
           <div className="empresa-header-actions">
-            <button
-              onClick={abrirEdicao}
-              style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 10, color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 600, padding: "8px 16px" }}
-              type="button"
+            <Link
+              href={`/empresas/${empresaId}/editar`}
+              style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 10, color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 600, padding: "8px 16px", display: "inline-block", textDecoration: "none" }}
             >
               Editar
-            </button>
+            </Link>
             <Link
               href={`/portal/${empresaId}`}
               style={{ background: "linear-gradient(135deg,#10b981,#059669)", border: "none", borderRadius: 10, color: "#fff", cursor: "pointer", display: "inline-block", fontSize: 13, fontWeight: 700, padding: "8px 16px", textDecoration: "none" }}
@@ -524,7 +523,7 @@ export default function EmpresaDetalhe() {
                         <h3 style={sectionTitle}>Dados do cliente / proprietário</h3>
                         <p style={sectionSubtitle}>Informações do responsável legal da empresa</p>
                       </div>
-                      <button className="small-action" type="button" onClick={abrirEdicao}>Editar dados</button>
+                      <Link href={`/empresas/${empresaId}/editar`} className="small-action" style={{ textDecoration: "none" }}>Editar dados</Link>
                     </div>
 
                     {!temDados ? (
