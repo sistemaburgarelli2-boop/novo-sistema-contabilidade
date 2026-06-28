@@ -10,8 +10,7 @@ const navigation = [
   { href: "/empresas", icon: "building", label: "Empresas", section: "Operacional" },
   { href: "/contratos", icon: "contract", label: "Contratos", section: "Operacional" },
   { href: "/consultoria", icon: "consultoria", label: "Consultoria", section: "Operacional" },
-  { href: "/ponto", icon: "ponto", label: "Ponto Eletrônico", section: "Ferramentas" },
-  { href: "/servicos", icon: "servicos", label: "Serviços Avulsos", section: "Ferramentas" },
+{ href: "/servicos", icon: "servicos", label: "Serviços Avulsos", section: "Ferramentas" },
   { href: "/escola", icon: "escola", label: "Escola Contábil", section: "Ferramentas" },
   { href: "/admin", icon: "admin", label: "Administração", section: "Sistema" },
 ];
@@ -21,8 +20,7 @@ const pageTitles: Record<string, string> = {
   "/empresas": "Empresas",
   "/contratos": "Contratos",
   "/consultoria": "Consultoria",
-  "/ponto": "Ponto Eletrônico",
-  "/servicos": "Serviços Avulsos",
+"/servicos": "Serviços Avulsos",
   "/escola": "Escola Contábil",
   "/admin": "Administração",
 };
@@ -93,15 +91,6 @@ function NavIcon({ name }: { name: string }) {
       <svg {...common}>
         <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
         <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-      </svg>
-    );
-  }
-
-  if (name === "ponto") {
-    return (
-      <svg {...common}>
-        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-        <path d="M12 6v6l4 2" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
       </svg>
     );
   }
