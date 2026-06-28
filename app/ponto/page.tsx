@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { AppShell } from "@/components/layout/AppShell";
-import { useAuth } from "@/lib/auth-context";
 
 type RegistroPonto = {
   id: string;
@@ -42,8 +41,10 @@ function getHoraAtual() {
   return new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 }
 
+const CURRENT_USER = { id: "usr-admin-001", nome: "Administrador" };
+
 export default function PontoEletronico() {
-  const { user } = useAuth();
+  const user = CURRENT_USER;
   const [registros, setRegistros] = useState<RegistroPonto[]>([]);
   const [loading, setLoading] = useState(true);
   const [registrando, setRegistrando] = useState(false);
