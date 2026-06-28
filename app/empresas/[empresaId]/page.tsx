@@ -495,6 +495,10 @@ export default function EmpresaDetalhe() {
                   { label: "Sexo", value: m.sexo === "M" ? "Masculino" : m.sexo === "F" ? "Feminino" : m.sexo },
                   { label: "Estado civil", value: m.estado_civil },
                   { label: "Profissão", value: m.profissao },
+                  { label: "Escolaridade", value: m.escolaridade },
+                  { label: "Nacionalidade", value: m.nacionalidade },
+                  { label: "Naturalidade", value: m.naturalidade },
+                  { label: "Renda aproximada", value: m.renda_aproximada },
                 ];
                 const contatos = [
                   { label: "Telefone", value: m.telefone },
@@ -502,6 +506,7 @@ export default function EmpresaDetalhe() {
                   { label: "E-mail principal", value: m.email_principal },
                   { label: "E-mail financeiro", value: m.email_financeiro },
                   { label: "E-mail fiscal", value: m.email_fiscal },
+                  { label: "Contato de emergência", value: m.contato_emergencia },
                 ];
                 const endereco = [
                   { label: "CEP", value: m.cep },
@@ -509,6 +514,8 @@ export default function EmpresaDetalhe() {
                   { label: "Número", value: m.numero },
                   { label: "Complemento", value: m.complemento },
                   { label: "Bairro", value: m.bairro },
+                  { label: "Cidade", value: empresa?.cidade },
+                  { label: "UF", value: empresa?.estado },
                 ];
                 return (
                   <div style={{ display: "grid", gap: 20 }}>
