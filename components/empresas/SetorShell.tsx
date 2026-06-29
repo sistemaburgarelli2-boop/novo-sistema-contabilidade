@@ -71,8 +71,8 @@ export function SetorShell({
                 <p style={{ margin: "0.3rem 0 0", color: "#7fb89a", fontSize: "0.83rem" }}>{setorResumo}</p>
               </div>
             </div>
-            <Link href="/empresas" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "#d1fae5", borderRadius: 8, padding: "0.45rem 1rem", fontSize: "0.78rem", fontWeight: 600, textDecoration: "none" }}>
-              ← Voltar
+            <Link href={`/empresas/${empresaId}`} style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "#d1fae5", borderRadius: 8, padding: "0.45rem 1rem", fontSize: "0.78rem", fontWeight: 600, textDecoration: "none" }}>
+              ← Voltar para empresa
             </Link>
           </div>
 

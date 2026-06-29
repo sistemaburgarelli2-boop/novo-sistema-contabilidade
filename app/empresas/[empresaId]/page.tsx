@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
+import { BotaoVoltar } from "@/components/ui/BotaoVoltar";
 import { EmpresaTimeline } from "@/components/empresas/EmpresaTimeline";
 import {
   atualizarEmpresaTenant,
@@ -339,6 +340,7 @@ export default function EmpresaDetalhe() {
 
   return (
     <AppShell>
+      <BotaoVoltar href="/empresas" label="Voltar para Empresas" />
       <div className="page-stack">
 
         {/* Breadcrumb */}

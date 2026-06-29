@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { AppShell } from "@/components/layout/AppShell";
+import { BotaoVoltar } from "@/components/ui/BotaoVoltar";
 
 /* ─── CSS Variables ──────────────────────────────────────────── */
 const V = {
@@ -1005,6 +1006,7 @@ export default function GerarContratoPage() {
      ============================================================= */
   return (
     <AppShell>
+      <BotaoVoltar href="/contratos" label="Voltar para Contratos" />
       <div style={{
         display: "flex", height: "calc(100vh - 64px)",
         background: V.bg, fontFamily: "'Inter', -apple-system, sans-serif",

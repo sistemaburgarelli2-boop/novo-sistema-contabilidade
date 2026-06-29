@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { AppShell } from "@/components/layout/AppShell";
+import { BotaoVoltar } from "@/components/ui/BotaoVoltar";
 
 /* ─── CSS Variables ──────────────────────────────────────────── */
 const V = {
@@ -1422,6 +1423,7 @@ Senha: ${form.senha_portal || "{senha}"}`}
   /* ── Main Render ──────────────────────────────────────────── */
   return (
     <AppShell>
+      <BotaoVoltar href="/empresas" label="Voltar para Empresas" />
       <div style={wrapperStyle}>
         {/* LEFT - Stepper */}
         <div style={leftStyle}>

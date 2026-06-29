@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { AppShell } from "@/components/layout/AppShell";
+import { BotaoVoltar } from "@/components/ui/BotaoVoltar";
 
 /* ─── Cores ─────────────────────────────────────────────────── */
 const V = {
@@ -1163,6 +1164,7 @@ export default function ConsultoriaNovaPage() {
 
   return (
     <AppShell>
+      <BotaoVoltar href="/consultoria" label="Voltar para Consultoria" />
       <div style={{ display: "flex", height: "calc(100vh - 64px)", background: V.bg, overflow: "hidden" }}>
         {/* LEFT — Stepper */}
         {renderStepper()}

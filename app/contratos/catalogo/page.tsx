@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { BotaoVoltar } from "@/components/ui/BotaoVoltar";
 
 /* ═══════════════════════════════════════════════════════════════════
    MOCK DATA
@@ -223,6 +224,7 @@ export default function CatalogoContratosPage() {
 
   return (
     <div style={pageWrap}>
+      <div style={{ padding: "16px 24px 0" }}><BotaoVoltar href="/contratos" label="Voltar para Contratos" /></div>
       {/* ── Top Bar ── */}
       <div style={topBar}>
         <div style={logoStyle}>
