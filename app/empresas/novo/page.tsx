@@ -1082,7 +1082,7 @@ export default function NovaEmpresaPage() {
     return (
       <div>
         <h2 style={{ margin: "0 0 8px", color: V.ink, fontSize: 22 }}>Criação do Portal</h2>
-        <p style={{ color: V.muted, fontSize: 14, marginBottom: 24 }}>Configure o acesso do cliente ao portal Burgarelli C.O.</p>
+        <p style={{ color: V.muted, fontSize: 14, marginBottom: 24 }}>Configure o acesso do cliente ao portal Fatturati Burgarelli.</p>
 
         <div style={gridRow(3)}>
           <Field label="Nome no portal">
@@ -1144,8 +1144,8 @@ export default function NovaEmpresaPage() {
               Pré-visualização da mensagem de boas-vindas
             </div>
 {`Olá ${form.nome_portal || "{nome}"},
-Seu acesso ao portal Burgarelli C.O foi criado.
-Link: portal.burgarelli.com.br
+Seu acesso ao portal Fatturati Burgarelli foi criado.
+Link: portal.fatturati.com.br
 Login: ${form.email_portal || "{email}"}
 Senha: ${form.senha_portal || "{senha}"}`}
           </div>

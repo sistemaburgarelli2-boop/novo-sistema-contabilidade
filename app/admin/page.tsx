@@ -89,7 +89,7 @@ type ConfigEscritorio = {
 };
 
 const CONFIG_PADRAO: ConfigEscritorio = {
-  nome: "Burgarelli C.O", cnpj: "", telefone: "", email: "",
+  nome: "Fatturati Burgarelli", cnpj: "", telefone: "", email: "",
   endereco: "", cidade: "", uf: "", crc: "", responsavel: "", logo_url: "",
 };
 

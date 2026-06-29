@@ -843,7 +843,7 @@ export default function EmpresaDetalhe() {
                         <div style={infoCard}>
                           <div style={infoLabel}>Link do portal</div>
                           <div style={{ ...infoValue, fontFamily: "monospace", fontSize: 13 }}>
-                            portal.burgarelli.com.br/{empresa?.subdominio || empresaId}
+                            portal.fatturati.com.br/{empresa?.subdominio || empresaId}
                           </div>
                         </div>
                       </>

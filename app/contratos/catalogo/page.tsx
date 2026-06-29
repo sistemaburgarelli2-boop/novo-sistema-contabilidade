@@ -229,7 +229,7 @@ export default function CatalogoContratosPage() {
       <div style={topBar}>
         <div style={logoStyle}>
           <div style={logoIcon}>B</div>
-          <span style={logoText}>Burgarelli C.O</span>
+          <span style={logoText}>Fatturati Burgarelli</span>
         </div>
         <Link href="/login" style={{ textDecoration: "none" }}>
           <button style={loginBtn}>Login</button>
@@ -353,7 +353,7 @@ export default function CatalogoContratosPage() {
       <footer style={footerStyle}>
         <div style={footerInner}>
           <div>
-            <div style={footerBrand}>Burgarelli C.O</div>
+            <div style={footerBrand}>Fatturati Burgarelli</div>
             <p style={{ margin: 0, lineHeight: 1.6 }}>
               Soluções contábeis e jurídicas inteligentes para empresas de todos os portes.
               Contratos profissionais gerados com tecnologia e validação especializada.
@@ -392,7 +392,7 @@ export default function CatalogoContratosPage() {
         </div>
 
         <div style={footerBottom}>
-          &copy; 2026 Burgarelli C.O &mdash; Todos os direitos reservados.
+          &copy; 2026 Fatturati Burgarelli &mdash; Todos os direitos reservados.
         </div>
       </footer>
     </div>

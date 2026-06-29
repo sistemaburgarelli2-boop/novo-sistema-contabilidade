@@ -60,7 +60,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ emp
 
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
           <p style="font-size: 12px; color: #9ca3af; margin: 0;">
-            Este e-mail foi enviado automaticamente pelo sistema Burgarelli C.O.<br />
+            Este e-mail foi enviado automaticamente pelo sistema Fatturati Burgarelli.<br />
             Em caso de dúvidas, entre em contato com ${nomeEmpresa}.
           </p>
         </div>

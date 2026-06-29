@@ -138,7 +138,7 @@ export default function Dashboard() {
           </div>
           <div style={{ textAlign: "center", padding: "80px 20px" }}>
             <h2 style={{ fontSize: "24px", color: "#065f46", marginBottom: "8px" }}>
-              Bem-vindo ao Burgarelli C.O
+              Bem-vindo ao Fatturati Burgarelli
             </h2>
             <p style={{ fontSize: "15px", color: "#6b7280", marginBottom: "24px" }}>
               Cadastre sua primeira empresa para comecar

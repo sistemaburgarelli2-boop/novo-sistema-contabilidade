@@ -132,7 +132,7 @@ function groupedNavigation() {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const pageTitle = pageTitles[pathname] ?? "Burgarelli C.O";
+  const pageTitle = pageTitles[pathname] ?? "Fatturati Burgarelli";
   const navGroups = groupedNavigation();
 
   return (
@@ -144,7 +144,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
           <div>
             <strong>
-              Burgarelli <span>C.O</span>
+              Fatturati <span>Burgarelli</span>
             </strong>
             <small>Gestão contábil</small>
           </div>
@@ -189,7 +189,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <h1>{pageTitle}</h1>
             <div className="page-kicker">
               <span className="status-dot" />
-              Olá, Administrador · Sistema de gestão contábil
+              Olá, Administrador · Fatturati Burgarelli
             </div>
           </div>
           <div className="topbar-actions">

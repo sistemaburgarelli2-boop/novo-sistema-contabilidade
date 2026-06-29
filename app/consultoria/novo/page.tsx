@@ -878,7 +878,7 @@ export default function ConsultoriaNovaPage() {
           background: `linear-gradient(135deg, ${V.green700} 0%, #0a3d2a 100%)`, color: "#fff", borderRadius: 16,
         }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: V.gold, marginBottom: 8, letterSpacing: 2, textTransform: "uppercase" }}>
-            Burgarelli C.O
+            Fatturati Burgarelli
           </div>
           <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>Estudo de Consultoria</div>
           <div style={{ fontSize: 16, opacity: 0.9 }}>{form.nome_completo || "Nome do Cliente"}</div>

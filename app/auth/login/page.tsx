@@ -133,7 +133,7 @@ export default function Login() {
             </div>
             <div>
               <strong>
-                Burgarelli <span>C.O</span>
+                Fatturati <span>Burgarelli</span>
               </strong>
               <small>Gestão contábil</small>
             </div>
@@ -225,7 +225,7 @@ export default function Login() {
             <ArrowIcon />
           </button>
 
-          <p className="copyright">Burgarelli C.O © 2026 · Todos os direitos reservados</p>
+          <p className="copyright">Fatturati Burgarelli © 2026 · Todos os direitos reservados</p>
         </form>
       </section>
 

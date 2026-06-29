@@ -10,8 +10,8 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "Burgarelli C.O",
-  description: "Sistema de gestao contabil Burgarelli C.O",
+  title: "Fatturati Burgarelli",
+  description: "Sistema de gestão contábil Fatturati Burgarelli",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
