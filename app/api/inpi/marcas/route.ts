@@ -1,73 +1,122 @@
 import { ok, fail } from "@/lib/apiResponse";
 
-// Proxy para a API pública de busca de marcas do INPI
-// Documentação: https://buscaapi.inpi.gov.br/swagger-ui/index.html
+// API pública do INPI — Busca de Marcas
+// Swagger: https://buscaapi.inpi.gov.br/swagger-ui/index.html
 const INPI_BASE = "https://buscaapi.inpi.gov.br";
+
+function normalizar(m: Record<string, unknown>) {
+  const titulares = Array.isArray(m.titulares)
+    ? (m.titulares as Array<Record<string, unknown>>).map((t) => t.nome ?? t.razaoSocial ?? "").join(", ")
+    : String(m.titular ?? m.titularNome ?? "—");
+
+  const classes = Array.isArray(m.classes)
+    ? (m.classes as Array<Record<string, unknown>>).map((c) => String(c.codigoClasse ?? c.codigo ?? c.classe ?? "")).join(", ")
+    : String(m.classeNice ?? m.classeNCL ?? m.codigoClasse ?? "—");
+
+  const despachos = Array.isArray(m.despachos) ? (m.despachos as Array<Record<string, unknown>>) : [];
+  const ultimoDespacho = despachos[0];
+
+  return {
+    numero_pedido: String(m.numeroPedido ?? m.numeroPedidoFormatado ?? m.pedido ?? "—"),
+    numero_registro: String(m.numeroRegistro ?? "—"),
+    nome_marca: String(m.marcaNome ?? m.nome ?? m.nomeMarca ?? "—"),
+    titular: titulares || "—",
+    natureza: String(m.naturezaMarca ?? m.natureza ?? "—"),
+    classe_ncl: classes || "—",
+    situacao: String(m.situacaoDescricao ?? m.situacao ?? m.status ?? "—"),
+    data_deposito: String(m.dataDeposito ?? m.dataProtocolo ?? "—"),
+    data_concessao: String(m.dataConcessao ?? "—"),
+    data_vencimento: String(m.dataVencimento ?? m.dataExpiracao ?? "—"),
+    ultimo_despacho: ultimoDespacho
+      ? `${ultimoDespacho.codigoDespacho ?? ""} — ${ultimoDespacho.descricaoDespacho ?? ultimoDespacho.descricao ?? ""}`.replace(/^— /, "").trim()
+      : "—",
+    data_ultimo_despacho: ultimoDespacho ? String(ultimoDespacho.dataDespacho ?? "—") : "—",
+  };
+}
+
+async function tentarEndpoints(urls: string[]): Promise<{ ok: boolean; data: unknown; status: number }> {
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, {
+        headers: {
+          Accept: "application/json",
+          "User-Agent": "FattturatiBurgarelli/1.0",
+        },
+        signal: AbortSignal.timeout(12000),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return { ok: true, data, status: res.status };
+      }
+    } catch {
+      // tenta próximo endpoint
+    }
+  }
+  return { ok: false, data: null, status: 0 };
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const pedido = searchParams.get("pedido")?.replace(/\D/g, "");
+  const pedidoRaw = searchParams.get("pedido");
   const termo = searchParams.get("termo");
 
-  if (!pedido && !termo) return fail("Informe o número do pedido ou termo de busca.", 400);
+  if (!pedidoRaw && !termo) {
+    return fail("Informe o número do pedido ou termo de busca.", 400);
+  }
 
   try {
-    let url: string;
+    let resultado: { ok: boolean; data: unknown; status: number };
 
-    if (pedido) {
-      // Busca por número de pedido específico
-      url = `${INPI_BASE}/api/v1/marcas/pesquisa?numeroPedido=${pedido}&pagina=1&quantidade=1`;
+    if (pedidoRaw) {
+      const pedido = pedidoRaw.replace(/\D/g, "");
+      // Tenta diferentes variações do endpoint do INPI
+      resultado = await tentarEndpoints([
+        `${INPI_BASE}/api/v2/marcas/pesquisa?numeroPedido=${pedido}&pagina=1&quantidade=1`,
+        `${INPI_BASE}/api/v1/marcas/pesquisa?numeroPedido=${pedido}&pagina=1&quantidade=1`,
+        `${INPI_BASE}/api/v2/marcas/${pedido}`,
+        `${INPI_BASE}/api/v1/marcas/${pedido}`,
+      ]);
     } else {
-      // Busca por nome de marca
-      url = `${INPI_BASE}/api/v1/marcas/pesquisa?termo=${encodeURIComponent(termo!)}&pagina=1&quantidade=10`;
+      const termoEnc = encodeURIComponent(termo!.trim());
+      resultado = await tentarEndpoints([
+        `${INPI_BASE}/api/v2/marcas/pesquisa?termo=${termoEnc}&pagina=1&quantidade=10`,
+        `${INPI_BASE}/api/v1/marcas/pesquisa?termo=${termoEnc}&pagina=1&quantidade=10`,
+        `${INPI_BASE}/api/v2/marcas/pesquisa?nomeMarca=${termoEnc}&pagina=1&quantidade=10`,
+        `${INPI_BASE}/api/v1/marcas/pesquisa?nomeMarca=${termoEnc}&pagina=1&quantidade=10`,
+      ]);
     }
 
-    const res = await fetch(url, {
-      headers: {
-        Accept: "application/json",
-        "User-Agent": "FattturatiBurgarelli/1.0",
-      },
-      signal: AbortSignal.timeout(10000),
-    });
-
-    if (!res.ok) {
-      return fail(`INPI retornou erro ${res.status}. Verifique o número do pedido.`, 502);
+    if (!resultado.ok || !resultado.data) {
+      return fail(
+        "Não foi possível obter resposta da API do INPI. O serviço pode estar temporariamente indisponível. Tente novamente em alguns minutos.",
+        502
+      );
     }
 
-    const data = await res.json();
+    const data = resultado.data as Record<string, unknown>;
 
-    // Normaliza a resposta do INPI para o nosso formato
-    const marcas = (data?.marcas ?? data?.content ?? []).map((m: Record<string, unknown>) => ({
-      numero_pedido: m.numeroPedido ?? m.numeroPedidoFormatado ?? "—",
-      numero_registro: m.numeroRegistro ?? "—",
-      nome_marca: m.marcaNome ?? m.nome ?? "—",
-      titular: Array.isArray(m.titulares)
-        ? (m.titulares as Array<Record<string, unknown>>).map((t) => t.nome ?? t.razaoSocial).join(", ")
-        : (m.titular ?? "—"),
-      natureza: m.naturezaMarca ?? m.natureza ?? "—",
-      classe_ncl: Array.isArray(m.classes)
-        ? (m.classes as Array<Record<string, unknown>>).map((c) => c.codigoClasse ?? c.classe).join(", ")
-        : (m.classeNice ?? "—"),
-      situacao: m.situacaoDescricao ?? m.situacao ?? m.status ?? "—",
-      data_deposito: m.dataDeposito ?? m.dataProtocolo ?? "—",
-      data_concessao: m.dataConcessao ?? "—",
-      data_vencimento: m.dataVencimento ?? m.dataExpiracao ?? "—",
-      ultimo_despacho: Array.isArray(m.despachos) && (m.despachos as unknown[]).length > 0
-        ? (() => {
-            const d = (m.despachos as Array<Record<string, unknown>>)[0];
-            return `${d.codigoDespacho ?? ""} — ${d.descricaoDespacho ?? d.descricao ?? ""}`.trim();
-          })()
-        : "—",
-      data_ultimo_despacho: Array.isArray(m.despachos) && (m.despachos as unknown[]).length > 0
-        ? ((m.despachos as Array<Record<string, unknown>>)[0].dataDespacho ?? "—")
-        : "—",
-    }));
+    // A resposta pode ser um objeto único (busca por pedido) ou uma lista
+    let lista: Record<string, unknown>[] = [];
+    if (Array.isArray(data)) {
+      lista = data;
+    } else if (Array.isArray(data.marcas)) {
+      lista = data.marcas as Record<string, unknown>[];
+    } else if (Array.isArray(data.content)) {
+      lista = data.content as Record<string, unknown>[];
+    } else if (data.numeroPedido || data.nome || data.marcaNome) {
+      // resposta de objeto único
+      lista = [data];
+    }
 
-    return ok({ total: data?.totalElements ?? data?.total ?? marcas.length, marcas });
+    const marcas = lista.map(normalizar);
+    const total = Number(data.totalElements ?? data.total ?? marcas.length);
+
+    return ok({ total, marcas });
   } catch (e) {
-    if (e instanceof Error && e.name === "TimeoutError") {
+    const msg = e instanceof Error ? e.message : "Erro desconhecido";
+    if (msg.includes("TimeoutError") || msg.includes("timeout")) {
       return fail("A API do INPI demorou para responder. Tente novamente.", 504);
     }
-    return fail(e instanceof Error ? e.message : "Erro ao consultar INPI.", 500);
+    return fail(`Erro ao consultar INPI: ${msg}`, 500);
   }
 }
