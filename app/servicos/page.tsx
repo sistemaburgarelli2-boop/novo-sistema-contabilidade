@@ -669,15 +669,6 @@ type MarcaINPI = {
   id: string; nome: string; numero_pedido: string; natureza: NaturezaMarca;
   classe_ncl: string; descricao_servicos: string; data_deposito: string;
   titular: string; procurador: string; obs: string; status: StatusMarca;
-  inpi_situacao?: string; inpi_ultimo_despacho?: string; inpi_data_despacho?: string;
-  inpi_data_concessao?: string; inpi_data_vencimento?: string; inpi_synced_at?: string;
-};
-
-type ResultadoBuscaINPI = {
-  numero_pedido: string; nome_marca: string; titular: string; natureza: string;
-  classe_ncl: string; situacao: string; data_deposito: string;
-  data_concessao: string; data_vencimento: string;
-  ultimo_despacho: string; data_ultimo_despacho: string;
 };
 
 const S_MARCA: Record<StatusMarca, { bg: string; color: string; label: string }> = {
@@ -715,12 +706,8 @@ function MarcasINPI() {
   const [obs, setObs] = useState("");
   const [filtroStatus, setFiltroStatus] = useState<StatusMarca | "">("");
 
-  // Busca INPI
+  // Consulta no pePI (sistema oficial do INPI)
   const [buscaTermo, setBuscaTermo] = useState("");
-  const [buscando, setBuscando] = useState(false);
-  const [resultadosBusca, setResultadosBusca] = useState<ResultadoBuscaINPI[]>([]);
-  const [erroBusca, setErroBusca] = useState("");
-  const [sincronizando, setSincronizando] = useState<string | null>(null);
   const [detalheAberto, setDetalheAberto] = useState<string | null>(null);
 
   function salvar() {
@@ -751,79 +738,32 @@ function MarcasINPI() {
     if (confirm(`Remover a marca "${nomeMarca}"?`)) setMarcas(prev => prev.filter(m => m.id !== id));
   }
 
-  async function buscarINPI() {
+  // pePI não tem API: abrimos a tela de busca oficial já com o termo preenchido
+  function abrirPePIporNumero(numeroPedido: string) {
+    const num = numeroPedido.replace(/\D/g, "");
+    if (!num) return;
+    window.open(
+      `https://busca.inpi.gov.br/pePI/servlet/MarcasServletController?Action=searchMarca&tipoPesquisa=BY_NUM_PROC&NumPedido=${num}`,
+      "_blank"
+    );
+  }
+
+  function abrirPePIporNome(nomeMarca: string) {
+    const termo = nomeMarca.trim();
+    if (!termo) return;
+    window.open(
+      `https://busca.inpi.gov.br/pePI/jsp/marcas/Pesquisa_classe_basica.jsp`,
+      "_blank"
+    );
+    navigator.clipboard?.writeText(termo).catch(() => {});
+  }
+
+  function consultarBusca() {
     const termo = buscaTermo.trim();
     if (!termo) return;
-    setBuscando(true); setErroBusca(""); setResultadosBusca([]);
-    try {
-      const isNumero = /^\d+$/.test(termo);
-      const qs = isNumero ? `pedido=${termo}` : `termo=${encodeURIComponent(termo)}`;
-      const res = await fetch(`/api/inpi/marcas?${qs}`);
-      const json = await res.json();
-      if (!res.ok) { setErroBusca(json.error ?? "Erro ao consultar INPI."); return; }
-      setResultadosBusca(json.data?.marcas ?? []);
-      if ((json.data?.marcas ?? []).length === 0) setErroBusca("Nenhuma marca encontrada no INPI para essa busca.");
-    } catch {
-      setErroBusca("Não foi possível conectar à API do INPI. Tente novamente.");
-    } finally {
-      setBuscando(false);
-    }
-  }
-
-  function importarDaINPI(r: ResultadoBuscaINPI) {
-    const nova: MarcaINPI = {
-      id: crypto.randomUUID(),
-      nome: r.nome_marca,
-      numero_pedido: r.numero_pedido,
-      natureza: "nominativa",
-      classe_ncl: r.classe_ncl,
-      descricao_servicos: "",
-      data_deposito: r.data_deposito,
-      titular: r.titular,
-      procurador: "",
-      obs: "",
-      status: "depositada",
-      inpi_situacao: r.situacao,
-      inpi_ultimo_despacho: r.ultimo_despacho,
-      inpi_data_despacho: r.data_ultimo_despacho,
-      inpi_data_concessao: r.data_concessao,
-      inpi_data_vencimento: r.data_vencimento,
-      inpi_synced_at: new Date().toISOString(),
-    };
-    setMarcas(prev => [nova, ...prev]);
-    setResultadosBusca([]);
-    setBuscaTermo("");
-  }
-
-  async function sincronizar(id: string) {
-    const marca = marcas.find(m => m.id === id);
-    if (!marca || marca.numero_pedido === "—") return alert("Esta marca não tem número de pedido INPI cadastrado.");
-    setSincronizando(id);
-    try {
-      const res = await fetch(`/api/inpi/marcas?pedido=${marca.numero_pedido.replace(/\D/g, "")}`);
-      const json = await res.json();
-      if (!res.ok) { alert(json.error ?? "Erro ao consultar INPI."); return; }
-      const r: ResultadoBuscaINPI = json.data?.marcas?.[0];
-      if (!r) { alert("Pedido não encontrado no INPI. Verifique o número."); return; }
-      setMarcas(prev => prev.map(m => m.id !== id ? m : {
-        ...m,
-        inpi_situacao: r.situacao,
-        inpi_ultimo_despacho: r.ultimo_despacho,
-        inpi_data_despacho: r.data_ultimo_despacho,
-        inpi_data_concessao: r.data_concessao,
-        inpi_data_vencimento: r.data_vencimento,
-        inpi_synced_at: new Date().toISOString(),
-      }));
-    } catch {
-      alert("Erro de conexão com o INPI.");
-    } finally {
-      setSincronizando(null);
-    }
-  }
-
-  async function sincronizarTodas() {
-    const comPedido = marcas.filter(m => m.numero_pedido !== "—");
-    for (const m of comPedido) await sincronizar(m.id);
+    const isNumero = /^\d+$/.test(termo.replace(/\D/g, "")) && termo.replace(/\D/g, "").length >= 6;
+    if (isNumero) abrirPePIporNumero(termo);
+    else abrirPePIporNome(termo);
   }
 
   const marcasFiltradas = filtroStatus ? marcas.filter(m => m.status === filtroStatus) : marcas;
@@ -831,7 +771,7 @@ function MarcasINPI() {
   return (
     <div>
       <h3 style={{ margin: "0 0 4px", fontSize: "1.05rem", color: "#07170d" }}>Registro de Marcas INPI</h3>
-      <p style={{ color: "#6f8f7c", fontSize: "0.82rem", marginBottom: 20 }}>Gerencie pedidos e consulte o andamento em tempo real diretamente na base do INPI.</p>
+      <p style={{ color: "#6f8f7c", fontSize: "0.82rem", marginBottom: 20 }}>Gerencie pedidos de marca e acesse rapidamente a consulta oficial do INPI (pePI).</p>
 
       {/* KPIs */}
       <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: 20 }}>
@@ -839,7 +779,6 @@ function MarcasINPI() {
           { label: "Total", value: marcas.length, color: "#374151", bg: "#f9fafb" },
           { label: "Registradas", value: marcas.filter(m => m.status === "registrada").length, color: "#065f46", bg: "#f0fdf4" },
           { label: "Em andamento", value: marcas.filter(m => ["depositada","em_exame","deferida"].includes(m.status)).length, color: "#1d4ed8", bg: "#eff6ff" },
-          { label: "Sincronizadas", value: marcas.filter(m => !!m.inpi_synced_at).length, color: "#0e7490", bg: "#ecfeff" },
           { label: "Atenção", value: marcas.filter(m => ["oposicao","indeferida"].includes(m.status)).length, color: "#b91c1c", bg: "#fef2f2" },
         ].map(k => (
           <div key={k.label} style={{ background: k.bg, border: `1px solid ${k.color}22`, borderRadius: 10, padding: "0.75rem 1.1rem", minWidth: 110 }}>
@@ -849,81 +788,31 @@ function MarcasINPI() {
         ))}
       </div>
 
-      {/* Busca no INPI */}
+      {/* Consulta oficial no pePI */}
       <div style={{ background: "#f0f9ff", border: "1.5px solid #bae6fd", borderRadius: 12, padding: "1.1rem 1.25rem", marginBottom: 20 }}>
         <div style={{ fontWeight: 800, fontSize: "0.88rem", color: "#0369a1", marginBottom: "0.6rem" }}>
-          🔍 Consultar base do INPI
+          🔍 Consultar no sistema oficial do INPI (pePI)
         </div>
         <p style={{ margin: "0 0 0.75rem", fontSize: "0.78rem", color: "#0369a1" }}>
-          Digite o <strong>nome da marca</strong> para verificar conflitos, ou o <strong>número do pedido</strong> para consultar o andamento oficial.
+          O INPI não possui API pública gratuita. Digite o <strong>número do pedido</strong> (abre direto o processo) ou o <strong>nome da marca</strong> (copia o nome e abre a tela de busca para colar) no pePI, o sistema oficial de pesquisa.
         </p>
         <div style={{ display: "flex", gap: "0.5rem" }}>
           <input
             value={buscaTermo}
             onChange={e => setBuscaTermo(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && buscarINPI()}
+            onKeyDown={e => e.key === "Enter" && consultarBusca()}
             placeholder="Ex: FATTURATI ou 921234567"
             style={{ flex: 1, padding: "0.55rem 0.875rem", border: "1.5px solid #bae6fd", borderRadius: 8, fontSize: "0.875rem", outline: "none", background: "#fff" }}
           />
           <button
-            onClick={buscarINPI}
-            disabled={buscando || !buscaTermo.trim()}
-            style={{ padding: "0.55rem 1.25rem", background: buscando ? "#94a3b8" : "linear-gradient(135deg, #0369a1, #0891b2)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: buscando ? "not-allowed" : "pointer", whiteSpace: "nowrap" }}
+            onClick={consultarBusca}
+            disabled={!buscaTermo.trim()}
+            style={{ padding: "0.55rem 1.25rem", background: "linear-gradient(135deg, #0369a1, #0891b2)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", whiteSpace: "nowrap" }}
             type="button"
           >
-            {buscando ? "Consultando..." : "Consultar INPI"}
+            Abrir no pePI ↗
           </button>
-          {marcas.some(m => m.numero_pedido !== "—") && (
-            <button
-              onClick={sincronizarTodas}
-              disabled={!!sincronizando}
-              style={{ padding: "0.55rem 1rem", background: "#fff", color: "#0369a1", border: "1.5px solid #bae6fd", borderRadius: 8, fontWeight: 700, fontSize: "0.82rem", cursor: "pointer", whiteSpace: "nowrap" }}
-              title="Atualiza o status de todas as marcas com número de pedido"
-              type="button"
-            >
-              ↻ Atualizar todas
-            </button>
-          )}
         </div>
-
-        {erroBusca && (
-          <div style={{ marginTop: "0.75rem", padding: "0.6rem 0.875rem", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, fontSize: "0.8rem", color: "#b91c1c" }}>
-            {erroBusca}
-          </div>
-        )}
-
-        {resultadosBusca.length > 0 && (
-          <div style={{ marginTop: "0.875rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0369a1", textTransform: "uppercase" }}>{resultadosBusca.length} resultado(s) encontrado(s) no INPI</div>
-            {resultadosBusca.map((r, i) => (
-              <div key={i} style={{ background: "#fff", border: "1.5px solid #bae6fd", borderRadius: 10, padding: "0.875rem 1rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "0.5rem" }}>
-                  <div>
-                    <div style={{ fontWeight: 800, fontSize: "0.9rem", color: "#07170d" }}>{r.nome_marca}</div>
-                    <div style={{ fontSize: "0.75rem", color: "#6b7280", marginTop: 2 }}>
-                      Pedido: <strong>{r.numero_pedido}</strong> · Titular: {r.titular} · Classe: {r.classe_ncl}
-                    </div>
-                    <div style={{ fontSize: "0.75rem", color: "#0369a1", marginTop: 4, fontWeight: 600 }}>
-                      Situação INPI: {r.situacao}
-                    </div>
-                    {r.ultimo_despacho !== "—" && (
-                      <div style={{ fontSize: "0.72rem", color: "#6b7280", marginTop: 2 }}>
-                        Último despacho: {r.ultimo_despacho} {r.data_ultimo_despacho !== "—" ? `(${r.data_ultimo_despacho})` : ""}
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => importarDaINPI(r)}
-                    style={{ padding: "0.4rem 0.875rem", background: "linear-gradient(135deg, #065f46, #10b981)", color: "#fff", border: "none", borderRadius: 7, fontWeight: 700, fontSize: "0.78rem", cursor: "pointer", whiteSpace: "nowrap" }}
-                    type="button"
-                  >
-                    + Importar para minha lista
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Ações */}
@@ -1015,19 +904,6 @@ function MarcasINPI() {
                   {m.titular && <div style={{ fontSize: "0.73rem", color: "#9ca3af", marginTop: 1 }}>Titular: {m.titular}</div>}
                 </div>
 
-                {/* Status INPI ao vivo */}
-                {m.inpi_situacao && (
-                  <div style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 8, padding: "0.4rem 0.75rem", fontSize: "0.73rem" }}>
-                    <div style={{ color: "#0369a1", fontWeight: 700, fontSize: "0.65rem", textTransform: "uppercase" }}>INPI ao vivo</div>
-                    <div style={{ color: "#0c4a6e", fontWeight: 600, marginTop: 1 }}>{m.inpi_situacao}</div>
-                    {m.inpi_synced_at && (
-                      <div style={{ color: "#94a3b8", fontSize: "0.62rem", marginTop: 1 }}>
-                        Atualizado: {new Date(m.inpi_synced_at).toLocaleString("pt-BR")}
-                      </div>
-                    )}
-                  </div>
-                )}
-
                 <span style={{ display: "inline-block", background: S_MARCA[m.status].bg, color: S_MARCA[m.status].color, borderRadius: 999, padding: "4px 12px", fontSize: "0.72rem", fontWeight: 700, whiteSpace: "nowrap" }}>
                   {S_MARCA[m.status].label}
                 </span>
@@ -1036,13 +912,12 @@ function MarcasINPI() {
                 <div style={{ display: "flex", gap: "0.4rem", flexShrink: 0 }}>
                   {m.numero_pedido !== "—" && (
                     <button
-                      onClick={() => sincronizar(m.id)}
-                      disabled={sincronizando === m.id}
+                      onClick={() => abrirPePIporNumero(m.numero_pedido)}
                       style={{ background: "#f0f9ff", color: "#0369a1", border: "1px solid #bae6fd", borderRadius: 6, padding: "4px 10px", fontSize: "0.73rem", fontWeight: 700, cursor: "pointer" }}
-                      title="Consultar status atualizado no INPI"
+                      title="Abrir este pedido no pePI (INPI)"
                       type="button"
                     >
-                      {sincronizando === m.id ? "..." : "↻ INPI"}
+                      pePI ↗
                     </button>
                   )}
                   <button
@@ -1065,10 +940,6 @@ function MarcasINPI() {
                   {[
                     { label: "Nº Pedido", value: m.numero_pedido },
                     { label: "Depósito", value: m.data_deposito && m.data_deposito !== "—" ? new Date(m.data_deposito + "T00:00:00").toLocaleDateString("pt-BR") : "—" },
-                    { label: "Concessão INPI", value: m.inpi_data_concessao ?? "—" },
-                    { label: "Vencimento INPI", value: m.inpi_data_vencimento ?? "—" },
-                    { label: "Último despacho", value: m.inpi_ultimo_despacho ?? "—" },
-                    { label: "Data do despacho", value: m.inpi_data_despacho ?? "—" },
                     { label: "Procurador", value: m.procurador || "—" },
                     { label: "Observações", value: m.obs || "—" },
                   ].map(f => (
@@ -1092,10 +963,10 @@ function MarcasINPI() {
 
       {/* Informativo */}
       <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 10, padding: "0.875rem 1.1rem", marginTop: 20 }}>
-        <div style={{ fontWeight: 700, fontSize: "0.82rem", color: "#1d4ed8", marginBottom: "0.35rem" }}>ℹ️ Sobre a integração com o INPI</div>
+        <div style={{ fontWeight: 700, fontSize: "0.82rem", color: "#1d4ed8", marginBottom: "0.35rem" }}>ℹ️ Sobre o registro de marcas no Brasil</div>
         <div style={{ fontSize: "0.77rem", color: "#1e40af", lineHeight: 1.65 }}>
-          A consulta usa a <strong>API pública de busca do INPI</strong> (buscaapi.inpi.gov.br) — sem login, sem custo. O depósito de novos pedidos deve ser feito diretamente no portal <strong>e-INPI</strong> com certificado digital.
-          Prazo médio de análise: <strong>18 a 36 meses</strong>. Registro válido por <strong>10 anos</strong>, renovável.
+          O INPI <strong>não oferece API pública</strong> para automação — a consulta e o depósito são feitos manualmente no portal oficial <strong>pePI</strong> (busca.inpi.gov.br) e <strong>e-INPI</strong> (com certificado digital).
+          Use os botões "pePI ↗" acima para abrir rapidamente a consulta de cada pedido. Prazo médio de análise: <strong>18 a 36 meses</strong>. Registro válido por <strong>10 anos</strong>, renovável.
         </div>
       </div>
     </div>
