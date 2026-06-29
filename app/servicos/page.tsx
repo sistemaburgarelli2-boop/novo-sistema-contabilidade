@@ -5,7 +5,7 @@ import { AppShell } from "@/components/layout/AppShell";
 
 /* ─── Tipos ───────────────────────────────────────────────────── */
 
-type Tab = "ferramentas" | "rescisao" | "contratos" | "fgts" | "ferias" | "inss" | "irrf";
+type Tab = "ferramentas" | "rescisao" | "contratos" | "fgts" | "ferias" | "inss" | "irrf" | "marcas_inpi";
 
 type Ferramenta = {
   id: Tab;
@@ -22,6 +22,7 @@ const FERRAMENTAS: Ferramenta[] = [
   { id: "ferias", nome: "Calculadora de Ferias", descricao: "Calcula ferias proporcionais, integrais e abono", emoji: "🏖️", cor: "#059669" },
   { id: "inss", nome: "Calculadora de INSS", descricao: "Calcula contribuicao previdenciaria por faixa", emoji: "🛡️", cor: "#7c3aed" },
   { id: "irrf", nome: "Calculadora de IRRF", descricao: "Calcula imposto de renda retido na fonte sobre salario", emoji: "💰", cor: "#d97706" },
+  { id: "marcas_inpi", nome: "Registro de Marcas INPI", descricao: "Gerencie pedidos e acompanhe o status de marcas junto ao INPI", emoji: "™", cor: "#0891b2" },
 ];
 
 /* ─── Helpers ─────────────────────────────────────────────────── */
@@ -659,6 +660,222 @@ function CalculadoraIRRF() {
   );
 }
 
+/* ─── Marcas INPI ─────────────────────────────────────────────── */
+
+type StatusMarca = "em_preparacao" | "protocolo_pendente" | "depositada" | "em_exame" | "oposicao" | "deferida" | "registrada" | "arquivada" | "indeferida";
+type NaturezaMarca = "nominativa" | "figurativa" | "mista" | "tridimensional";
+
+type MarcaINPI = {
+  id: string; nome: string; numero_pedido: string; natureza: NaturezaMarca;
+  classe_ncl: string; descricao_servicos: string; data_deposito: string;
+  titular: string; procurador: string; obs: string; status: StatusMarca;
+};
+
+const S_MARCA: Record<StatusMarca, { bg: string; color: string; label: string }> = {
+  em_preparacao:     { bg: "#f3f4f6", color: "#6b7280", label: "Em preparação" },
+  protocolo_pendente:{ bg: "#fef9c3", color: "#854d0e", label: "Protocolo pendente" },
+  depositada:        { bg: "#eff6ff", color: "#1d4ed8", label: "Depositada" },
+  em_exame:          { bg: "#ecfeff", color: "#0e7490", label: "Em exame" },
+  oposicao:          { bg: "#fff7ed", color: "#c2410c", label: "Oposição" },
+  deferida:          { bg: "#f0fdf4", color: "#15803d", label: "Deferida" },
+  registrada:        { bg: "#dcfce7", color: "#065f46", label: "Registrada ✓" },
+  arquivada:         { bg: "#f3f4f6", color: "#6b7280", label: "Arquivada" },
+  indeferida:        { bg: "#fef2f2", color: "#b91c1c", label: "Indeferida" },
+};
+
+const FLUXO_MARCA: StatusMarca[] = ["em_preparacao", "protocolo_pendente", "depositada", "em_exame", "deferida", "registrada"];
+
+const CLASSES_NCL = [
+  "09 – Software e Tecnologia", "35 – Serviços de Negócios e Contabilidade",
+  "36 – Serviços Financeiros e Seguros", "41 – Educação e Entretenimento",
+  "42 – Serviços Científicos e Tecnológicos", "44 – Serviços Médicos e de Saúde",
+  "45 – Serviços Jurídicos e de Segurança",
+];
+
+function MarcasINPI() {
+  const [marcas, setMarcas] = useState<MarcaINPI[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [nome, setNome] = useState("");
+  const [natureza, setNatureza] = useState<NaturezaMarca>("nominativa");
+  const [classe, setClasse] = useState(CLASSES_NCL[1]);
+  const [descricao, setDescricao] = useState("");
+  const [titular, setTitular] = useState("");
+  const [procurador, setProcurador] = useState("");
+  const [pedido, setPedido] = useState("");
+  const [deposito, setDeposito] = useState("");
+  const [obs, setObs] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState<StatusMarca | "">("");
+
+  function salvar() {
+    if (!nome.trim()) return alert("Informe o nome da marca.");
+    const nova: MarcaINPI = {
+      id: crypto.randomUUID(), nome: nome.trim(),
+      numero_pedido: pedido.trim() || "—", natureza, classe_ncl: classe,
+      descricao_servicos: descricao.trim(), data_deposito: deposito || "—",
+      titular: titular.trim(), procurador: procurador.trim(), obs: obs.trim(),
+      status: pedido.trim() ? "depositada" : "em_preparacao",
+    };
+    setMarcas(prev => [nova, ...prev]);
+    setNome(""); setNatureza("nominativa"); setClasse(CLASSES_NCL[1]);
+    setDescricao(""); setTitular(""); setProcurador(""); setPedido(""); setDeposito(""); setObs("");
+    setShowForm(false);
+  }
+
+  function avancar(id: string) {
+    setMarcas(prev => prev.map(m => {
+      if (m.id !== id) return m;
+      const idx = FLUXO_MARCA.indexOf(m.status);
+      const prox = FLUXO_MARCA[idx + 1];
+      return prox ? { ...m, status: prox } : m;
+    }));
+  }
+
+  function remover(id: string, nome: string) {
+    if (confirm(`Remover a marca "${nome}"?`)) setMarcas(prev => prev.filter(m => m.id !== id));
+  }
+
+  const marcasFiltradas = filtroStatus ? marcas.filter(m => m.status === filtroStatus) : marcas;
+
+  return (
+    <div>
+      <h3 style={{ margin: "0 0 4px", fontSize: "1.05rem", color: "#07170d" }}>Registro de Marcas INPI</h3>
+      <p style={{ color: "#6f8f7c", fontSize: "0.82rem", marginBottom: 20 }}>Gerencie pedidos de registro de marcas e acompanhe o andamento junto ao INPI.</p>
+
+      {/* KPIs */}
+      <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: 20 }}>
+        {[
+          { label: "Total", value: marcas.length, color: "#374151", bg: "#f9fafb" },
+          { label: "Registradas", value: marcas.filter(m => m.status === "registrada").length, color: "#065f46", bg: "#f0fdf4" },
+          { label: "Em andamento", value: marcas.filter(m => ["depositada","em_exame","deferida"].includes(m.status)).length, color: "#1d4ed8", bg: "#eff6ff" },
+          { label: "Atenção", value: marcas.filter(m => ["oposicao","indeferida"].includes(m.status)).length, color: "#b91c1c", bg: "#fef2f2" },
+        ].map(k => (
+          <div key={k.label} style={{ background: k.bg, border: `1px solid ${k.color}22`, borderRadius: 10, padding: "0.75rem 1.1rem", minWidth: 110 }}>
+            <div style={{ fontSize: "1.5rem", fontWeight: 800, color: k.color }}>{k.value}</div>
+            <div style={{ fontSize: "0.7rem", color: "#6b7280", marginTop: 2 }}>{k.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Ações */}
+      <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", marginBottom: 16, flexWrap: "wrap" }}>
+        <button onClick={() => setShowForm(v => !v)} style={{ padding: "0.5rem 1.2rem", background: "linear-gradient(135deg, #0e7490, #0891b2)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }} type="button">
+          {showForm ? "✕ Cancelar" : "+ Nova Marca"}
+        </button>
+        <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value as StatusMarca | "")} style={{ padding: "0.5rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.82rem", background: "#fff", cursor: "pointer" }}>
+          <option value="">Todos os status</option>
+          {(Object.keys(S_MARCA) as StatusMarca[]).map(s => <option key={s} value={s}>{S_MARCA[s].label}</option>)}
+        </select>
+      </div>
+
+      {/* Formulário */}
+      {showForm && (
+        <div style={{ background: "#f9fafb", border: "1.5px solid #dfece5", borderRadius: 12, padding: "1.25rem", marginBottom: 20 }}>
+          <h4 style={{ margin: "0 0 1rem", fontSize: "0.9rem", fontWeight: 800 }}>Nova marca</h4>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+            <div style={{ gridColumn: "1/-1" }}>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Nome / Sinal da Marca *</label>
+              <input value={nome} onChange={e => setNome(e.target.value)} placeholder="Ex: FATTURATI" style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.875rem", boxSizing: "border-box" }} />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Natureza</label>
+              <select value={natureza} onChange={e => setNatureza(e.target.value as NaturezaMarca)} style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.875rem", background: "#fff", boxSizing: "border-box" }}>
+                <option value="nominativa">Nominativa</option>
+                <option value="figurativa">Figurativa</option>
+                <option value="mista">Mista</option>
+                <option value="tridimensional">Tridimensional</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Classe NCL</label>
+              <select value={classe} onChange={e => setClasse(e.target.value)} style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.875rem", background: "#fff", boxSizing: "border-box" }}>
+                {CLASSES_NCL.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div style={{ gridColumn: "1/-1" }}>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Descrição dos serviços / produtos</label>
+              <textarea value={descricao} onChange={e => setDescricao(e.target.value)} rows={2} placeholder="Descrição conforme petição de depósito..." style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box" }} />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Titular</label>
+              <input value={titular} onChange={e => setTitular(e.target.value)} placeholder="Nome do titular" style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.875rem", boxSizing: "border-box" }} />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Procurador / Agente</label>
+              <input value={procurador} onChange={e => setProcurador(e.target.value)} placeholder="Nome do procurador" style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.875rem", boxSizing: "border-box" }} />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Nº do Pedido (INPI)</label>
+              <input value={pedido} onChange={e => setPedido(e.target.value)} placeholder="Ex: 921234567" style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.875rem", boxSizing: "border-box" }} />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Data de depósito</label>
+              <input type="date" value={deposito} onChange={e => setDeposito(e.target.value)} style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.875rem", boxSizing: "border-box" }} />
+            </div>
+            <div style={{ gridColumn: "1/-1" }}>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Observações</label>
+              <textarea value={obs} onChange={e => setObs(e.target.value)} rows={2} placeholder="Andamentos, recursos, prazos especiais..." style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box" }} />
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "1rem" }}>
+            <button onClick={() => setShowForm(false)} style={{ padding: "0.5rem 1.2rem", background: "#f3f4f6", color: "#374151", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }} type="button">Cancelar</button>
+            <button onClick={salvar} style={{ padding: "0.5rem 1.4rem", background: "linear-gradient(135deg, #0e7490, #0891b2)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }} type="button">Salvar marca</button>
+          </div>
+        </div>
+      )}
+
+      {/* Tabela */}
+      {marcasFiltradas.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "3rem 2rem", background: "#f9fafb", borderRadius: 12, border: "2px dashed #e5e7eb" }}>
+          <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>™</div>
+          <div style={{ fontWeight: 700, color: "#374151", marginBottom: 4 }}>Nenhuma marca cadastrada</div>
+          <div style={{ fontSize: "0.82rem", color: "#9ca3af" }}>Clique em "Nova Marca" para iniciar o acompanhamento de um pedido no INPI.</div>
+        </div>
+      ) : (
+        <div style={{ overflowX: "auto", borderRadius: 10, border: "1.5px solid #dfece5" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+            <thead>
+              <tr style={{ background: "#f0fdf4" }}>
+                {["Marca","Natureza","Classe NCL","Nº Pedido","Depósito","Titular","Status","Ações"].map(h => (
+                  <th key={h} style={{ padding: "0.7rem 0.875rem", textAlign: "left", color: "#065f46", fontWeight: 700, fontSize: "0.72rem", textTransform: "uppercase", borderBottom: "1.5px solid #dfece5", whiteSpace: "nowrap" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {marcasFiltradas.map(m => (
+                <tr key={m.id}>
+                  <td style={{ padding: "0.75rem 0.875rem", fontWeight: 700, borderBottom: "1px solid #e8f0eb" }}>{m.nome}</td>
+                  <td style={{ padding: "0.75rem 0.875rem", borderBottom: "1px solid #e8f0eb", color: "#6b7280" }}>{m.natureza.charAt(0).toUpperCase() + m.natureza.slice(1)}</td>
+                  <td style={{ padding: "0.75rem 0.875rem", borderBottom: "1px solid #e8f0eb", color: "#6b7280", fontSize: "0.78rem", maxWidth: 160 }}>{m.classe_ncl}</td>
+                  <td style={{ padding: "0.75rem 0.875rem", borderBottom: "1px solid #e8f0eb" }}>{m.numero_pedido}</td>
+                  <td style={{ padding: "0.75rem 0.875rem", borderBottom: "1px solid #e8f0eb", color: "#6b7280" }}>{m.data_deposito === "—" ? "—" : new Date(m.data_deposito + "T00:00:00").toLocaleDateString("pt-BR")}</td>
+                  <td style={{ padding: "0.75rem 0.875rem", borderBottom: "1px solid #e8f0eb" }}>{m.titular || "—"}</td>
+                  <td style={{ padding: "0.75rem 0.875rem", borderBottom: "1px solid #e8f0eb" }}>
+                    <span style={{ display: "inline-block", background: S_MARCA[m.status].bg, color: S_MARCA[m.status].color, borderRadius: 999, padding: "3px 10px", fontSize: "0.72rem", fontWeight: 700, whiteSpace: "nowrap" }}>{S_MARCA[m.status].label}</span>
+                  </td>
+                  <td style={{ padding: "0.75rem 0.875rem", borderBottom: "1px solid #e8f0eb", whiteSpace: "nowrap" }}>
+                    {FLUXO_MARCA.includes(m.status) && FLUXO_MARCA.indexOf(m.status) < FLUXO_MARCA.length - 1 && (
+                      <button onClick={() => avancar(m.id)} style={{ background: "#f0fdf4", color: "#065f46", border: "1px solid #bbf7d0", borderRadius: 6, padding: "3px 10px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", marginRight: 6 }} type="button">Avançar →</button>
+                    )}
+                    <button onClick={() => remover(m.id, m.nome)} style={{ background: "#fef2f2", color: "#b91c1c", border: "1px solid #fecaca", borderRadius: 6, padding: "3px 10px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer" }} type="button">Remover</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Informativo */}
+      <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 10, padding: "0.875rem 1.1rem", marginTop: 20 }}>
+        <div style={{ fontWeight: 700, fontSize: "0.82rem", color: "#1d4ed8", marginBottom: "0.35rem" }}>ℹ️ Sobre o registro de marcas no Brasil</div>
+        <div style={{ fontSize: "0.77rem", color: "#1e40af", lineHeight: 1.65 }}>
+          Prazo médio de análise pelo INPI: <strong>18 a 36 meses</strong>. Registro válido por <strong>10 anos</strong>, renovável. Acompanhe pela Revista da Propriedade Industrial (RPI) publicada semanalmente.
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Componente principal ────────────────────────────────────── */
 
 export default function ServicosAvulsosPage() {
@@ -722,6 +939,7 @@ export default function ServicosAvulsosPage() {
               {tab === "ferias" && <CalculadoraFerias />}
               {tab === "inss" && <CalculadoraINSS />}
               {tab === "irrf" && <CalculadoraIRRF />}
+              {tab === "marcas_inpi" && <MarcasINPI />}
             </div>
           </div>
         )}
