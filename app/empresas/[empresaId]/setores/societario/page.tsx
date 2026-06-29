@@ -30,6 +30,24 @@ type Alvara = {
 type Documento = {
   id: string; nome: string; tipo: string; processoId: string;
   upload: string; tamanho: string; status: "ok" | "pendente" | "revisao";
+  fileName?: string; file?: File;
+};
+
+type Certidao = {
+  id: string; tipo: string; orgao: string; numero: string;
+  emissao: string; validade: string; status: "valida" | "vencendo" | "vencida" | "solicitada";
+  arquivo?: string;
+};
+
+type Socio = {
+  id: string; nome: string; cpf: string; participacao: number;
+  administrador: boolean; dataEntrada: string; status: "ativo" | "retirado";
+};
+
+type Procuracao = {
+  id: string; outorgante: string; outorgado: string; tipo: string;
+  poderes: string; dataInicio: string; dataFim: string;
+  status: "ativa" | "vencida" | "revogada";
 };
 
 type LogSoc = {
@@ -39,7 +57,8 @@ type LogSoc = {
 
 type Tab =
   | "dashboard" | "processos" | "constituicao" | "alteracoes"
-  | "encerramento" | "alvaras" | "documentos" | "historico";
+  | "encerramento" | "alvaras" | "certidoes" | "quadro_societario"
+  | "procuracoes" | "documentos" | "historico";
 
 /* ─── Ícone ───────────────────────────────────────────────────── */
 
@@ -85,15 +104,31 @@ const S_ALVARA: Record<StatusAlvara, { bg: string; color: string; label: string 
   pendente:    { bg: "#f3f4f6", color: "#6b7280", label: "Pendente" },
 };
 
+const S_CERTIDAO: Record<string, { bg: string; color: string; label: string }> = {
+  valida:     { bg: "#f0fdf4", color: "#065f46", label: "Válida" },
+  vencendo:   { bg: "#fffbeb", color: "#92400e", label: "Vencendo" },
+  vencida:    { bg: "#fef2f2", color: "#b91c1c", label: "Vencida" },
+  solicitada: { bg: "#eff6ff", color: "#1d4ed8", label: "Solicitada" },
+};
+
+const TIPOS_CERTIDAO = [
+  "CND Federal (PGFN/RFB)", "CND Estadual (SEFAZ)", "CND Municipal",
+  "CRF (FGTS)", "CNDT (Trabalhista)", "Certidão INSS",
+  "Certidão Junta Comercial", "Certidão Cartório",
+];
+
 const TABS_SOC = [
-  { id: "dashboard",    label: "Dashboard",    icon: "◉" },
-  { id: "processos",    label: "Processos",    icon: "📋" },
-  { id: "constituicao", label: "Constituição", icon: "🏢" },
-  { id: "alteracoes",   label: "Alterações",   icon: "✏" },
-  { id: "encerramento", label: "Encerramento", icon: "🔒" },
-  { id: "alvaras",      label: "Alvarás",      icon: "📜" },
-  { id: "documentos",   label: "Documentos",   icon: "📁" },
-  { id: "historico",    label: "Histórico",    icon: "⌛" },
+  { id: "dashboard",         label: "Dashboard",       icon: "◉" },
+  { id: "processos",         label: "Processos",       icon: "📋" },
+  { id: "quadro_societario", label: "Quadro Societário",icon: "👥" },
+  { id: "constituicao",      label: "Constituição",    icon: "🏢" },
+  { id: "alteracoes",        label: "Alterações",      icon: "✏" },
+  { id: "encerramento",      label: "Encerramento",    icon: "🔒" },
+  { id: "certidoes",         label: "Certidões",       icon: "📋" },
+  { id: "alvaras",           label: "Alvarás",         icon: "📜" },
+  { id: "procuracoes",       label: "Procurações",     icon: "📝" },
+  { id: "documentos",        label: "Documentos",      icon: "📁" },
+  { id: "historico",         label: "Histórico",       icon: "⌛" },
 ] as const;
 
 const TIPO_ICONE: Record<TipoProcesso, string> = {
@@ -153,21 +188,54 @@ export default function SocietarioPage() {
   const [altTipo, setAltTipo] = useState("Alteração de sócio");
   const [altObs, setAltObs] = useState("");
 
+  /* Certidões */
+  const [certidoes, setCertidoes] = useState<Certidao[]>([]);
+  const [novaCertTipo, setNovaCertTipo] = useState(TIPOS_CERTIDAO[0]);
+  const [novaCertOrgao, setNovaCertOrgao] = useState("");
+  const [novaCertNumero, setNovaCertNumero] = useState("");
+  const [novaCertValidade, setNovaCertValidade] = useState("");
+
+  /* Quadro Societário */
+  const [socios, setSocios] = useState<Socio[]>([]);
+  const [novoSocNome, setNovoSocNome] = useState("");
+  const [novoSocCpf, setNovoSocCpf] = useState("");
+  const [novoSocPart, setNovoSocPart] = useState("");
+  const [novoSocAdmin, setNovoSocAdmin] = useState(false);
+
+  /* Procurações */
+  const [procuracoes, setProcuracoes] = useState<Procuracao[]>([]);
+  const [novaProcOutorgado, setNovaProcOutorgado] = useState("");
+  const [novaProcTipo, setNovaProcTipo] = useState("Plenos poderes");
+  const [novaProcPoderes, setNovaProcPoderes] = useState("");
+  const [novaProcFim, setNovaProcFim] = useState("");
+
   /* Filtro processos */
   const [filtroTipo, setFiltroTipo] = useState<TipoProcesso | "">("");
   const [filtroStatus, setFiltroStatus] = useState<StatusKanban | "">("");
 
   /* ── Carregar dados reais ── */
   useEffect(() => {
-    fetch(`/api/empresas/${empresaId}/setores/societario`)
-      .then(r => r.json())
-      .then(json => {
-        setProcessos(json.data?.processos ?? []);
-        setAlvaras(json.data?.alvaras ?? []);
-        setDocumentos(json.data?.documentos ?? []);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    Promise.all([
+      fetch(`/api/empresas/${empresaId}/setores/societario`).then(r => r.json()).catch(() => ({ data: {} })),
+      fetch(`/api/empresas/${empresaId}`).then(r => r.json()).catch(() => ({ data: null })),
+    ]).then(([setorJson, empresaJson]) => {
+      setProcessos(setorJson.data?.processos ?? []);
+      setAlvaras(setorJson.data?.alvaras ?? []);
+      setDocumentos(setorJson.data?.documentos ?? []);
+      // Carregar sócios do metadata
+      const m = empresaJson.data?.metadata ?? {};
+      if (Array.isArray(m.socios)) {
+        setSocios(m.socios.map((s: Record<string, unknown>, i: number) => ({
+          id: String(i + 1),
+          nome: (s.nome_socio as string) || (s.nome as string) || "",
+          cpf: (s.cpf_socio as string) || (s.cpf as string) || "",
+          participacao: parseFloat(String(s.participacao ?? s.quota ?? 0)),
+          administrador: !!(s.administrador),
+          dataEntrada: (s.dataEntrada as string) || new Date().toISOString().slice(0, 10),
+          status: "ativo" as const,
+        })));
+      }
+    }).finally(() => setLoading(false));
   }, [empresaId]);
 
   /* ── Auditoria ── */
@@ -234,9 +302,9 @@ export default function SocietarioPage() {
       setorResumo="Processos paralegal: constituição, alterações, encerramento, alvarás e certidões"
       stats={[
         { label: "Processos ativos",  value: String(processosAtivos),     cor: "#fcd34d" },
-        { label: "Aguardando cliente",value: String(aguardandoCliente),   cor: "#fbbf24" },
-        { label: "Alvarás",           value: String(alvaras.length),      cor: "#34d399" },
-        { label: "Concluídos",        value: String(concluidos),          cor: "#34d399" },
+        { label: "Sócios",            value: String(socios.filter(s => s.status === "ativo").length), cor: "#fbbf24" },
+        { label: "Certidões",         value: String(certidoes.length),    cor: "#34d399" },
+        { label: "Procurações",       value: String(procuracoes.filter(p => p.status === "ativa").length), cor: "#34d399" },
       ]}
     >
       {/* ── Tabs ── */}
@@ -272,9 +340,9 @@ export default function SocietarioPage() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
               {[
                 { label: "Processos ativos",    value: processosAtivos,   color: "#92400e", bg: "#fffbeb" },
-                { label: "Aguardando cliente",  value: aguardandoCliente, color: "#7c3aed", bg: "#f5f3ff" },
+                { label: "Sócios ativos",       value: socios.filter(s => s.status === "ativo").length, color: "#7c3aed", bg: "#f5f3ff" },
+                { label: "Certidões",           value: certidoes.length,  color: "#1d4ed8", bg: "#eff6ff" },
                 { label: "Concluídos",          value: concluidos,        color: "#065f46", bg: "#f0fdf4" },
-                { label: "Alvarás",             value: alvaras.length,    color: "#1d4ed8", bg: "#eff6ff" },
               ].map((k) => (
                 <div key={k.label} style={{ background: k.bg, border: `1px solid ${k.color}22`, borderTop: `3px solid ${k.color}`, borderRadius: 12, padding: "0.875rem 1rem" }}>
                   <p style={{ margin: "0 0 4px", fontSize: "0.65rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase" }}>{k.label}</p>
@@ -571,18 +639,239 @@ export default function SocietarioPage() {
           </div>
         )}
 
+        {/* ════════════ CERTIDÕES ════════════ */}
+        {tab === "certidoes" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Certidões Negativas</h2>
+              <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#9ca3af" }}>{certidoes.length} certidões cadastradas · {certidoes.filter(c => c.status === "vencida").length} vencidas</p></div>
+            </div>
+
+            {/* Formulário nova certidão */}
+            <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 12, padding: "1.25rem" }}>
+              <p style={{ margin: "0 0 12px", fontWeight: 800, fontSize: "0.875rem", color: "#92400e" }}>Registrar certidão</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10 }}>
+                <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>Tipo *
+                  <select className="input" value={novaCertTipo} onChange={e => setNovaCertTipo(e.target.value)}>{TIPOS_CERTIDAO.map(t => <option key={t}>{t}</option>)}</select>
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>Órgão emissor
+                  <input className="input" value={novaCertOrgao} onChange={e => setNovaCertOrgao(e.target.value)} placeholder="Ex: Receita Federal" />
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>Número
+                  <input className="input" value={novaCertNumero} onChange={e => setNovaCertNumero(e.target.value)} placeholder="Nº da certidão" />
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>Validade
+                  <input className="input" type="date" value={novaCertValidade} onChange={e => setNovaCertValidade(e.target.value)} />
+                </label>
+              </div>
+              <button onClick={() => {
+                if (!novaCertTipo) return;
+                const dias = novaCertValidade ? diasParaVencer(novaCertValidade) : 999;
+                setCertidoes(prev => [...prev, {
+                  id: crypto.randomUUID(), tipo: novaCertTipo, orgao: novaCertOrgao || novaCertTipo,
+                  numero: novaCertNumero || "—", emissao: new Date().toISOString().slice(0, 10),
+                  validade: novaCertValidade || "—",
+                  status: dias <= 0 ? "vencida" : dias <= 30 ? "vencendo" : "valida",
+                }]);
+                audit("Certidão registrada", "Certidões", novaCertTipo);
+                setNovaCertOrgao(""); setNovaCertNumero(""); setNovaCertValidade("");
+              }} style={{ marginTop: 12 }} type="button">Registrar certidão</button>
+            </div>
+
+            {/* Tabela de certidões */}
+            {certidoes.length === 0 ? (
+              <p style={{ textAlign: "center", color: "#9ca3af", padding: "2rem", fontSize: "0.9rem" }}>Nenhuma certidão cadastrada</p>
+            ) : (
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead><tr><TH>Tipo</TH><TH>Órgão</TH><TH>Número</TH><TH>Emissão</TH><TH>Validade</TH><TH>Status</TH><TH right>Ações</TH></tr></thead>
+                <tbody>
+                  {certidoes.map(c => {
+                    const dias = c.validade !== "—" ? diasParaVencer(c.validade) : 999;
+                    return (
+                      <tr key={c.id}>
+                        <TD bold>{c.tipo}</TD><TD muted>{c.orgao}</TD>
+                        <TD muted><span style={{ fontFamily: "monospace", fontSize: "0.78rem" }}>{c.numero}</span></TD>
+                        <TD muted>{c.emissao !== "—" ? new Date(c.emissao).toLocaleDateString("pt-BR") : "—"}</TD>
+                        <TD>{c.validade !== "—" ? <span style={{ fontWeight: 600, color: dias <= 0 ? "#b91c1c" : dias <= 30 ? "#92400e" : "#374151" }}>{new Date(c.validade).toLocaleDateString("pt-BR")}{dias > 0 && dias <= 60 && <span style={{ fontSize: "0.7rem", color: "#9ca3af" }}> ({dias}d)</span>}</span> : "—"}</TD>
+                        <TD><Badge {...(S_CERTIDAO[c.status] ?? S_CERTIDAO.solicitada)} /></TD>
+                        <TD right>
+                          <button className="small-action" onClick={() => { audit("Renovação solicitada", "Certidões", c.tipo); setCertidoes(prev => prev.map(x => x.id === c.id ? { ...x, status: "solicitada" } : x)); }} type="button">Renovar</button>
+                        </TD>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
+
+        {/* ════════════ QUADRO SOCIETÁRIO ════════════ */}
+        {tab === "quadro_societario" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+            <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Quadro Societário Atual</h2>
+            <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#9ca3af" }}>{socios.filter(s => s.status === "ativo").length} sócio(s) ativo(s) · Total: {socios.filter(s => s.status === "ativo").reduce((s, x) => s + x.participacao, 0).toFixed(1)}%</p></div>
+
+            {/* KPIs */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+              <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderTop: "3px solid #92400e", borderRadius: 12, padding: "0.875rem 1rem" }}>
+                <p style={{ margin: "0 0 4px", fontSize: "0.65rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase" }}>Sócios ativos</p>
+                <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: 900, color: "#92400e" }}>{socios.filter(s => s.status === "ativo").length}</p>
+              </div>
+              <div style={{ background: "#f0fdf4", border: "1px solid #86efac", borderTop: "3px solid #065f46", borderRadius: 12, padding: "0.875rem 1rem" }}>
+                <p style={{ margin: "0 0 4px", fontSize: "0.65rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase" }}>Administradores</p>
+                <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: 900, color: "#065f46" }}>{socios.filter(s => s.status === "ativo" && s.administrador).length}</p>
+              </div>
+              <div style={{ background: "#eff6ff", border: "1px solid #93c5fd", borderTop: "3px solid #1d4ed8", borderRadius: 12, padding: "0.875rem 1rem" }}>
+                <p style={{ margin: "0 0 4px", fontSize: "0.65rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase" }}>Participação total</p>
+                <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: 900, color: "#1d4ed8" }}>{socios.filter(s => s.status === "ativo").reduce((s, x) => s + x.participacao, 0).toFixed(1)}%</p>
+              </div>
+            </div>
+
+            {/* Tabela sócios */}
+            {socios.length > 0 && (
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead><tr><TH>Sócio</TH><TH>CPF</TH><TH right>Participação</TH><TH>Administrador</TH><TH>Entrada</TH><TH>Status</TH><TH right>Ações</TH></tr></thead>
+                <tbody>
+                  {socios.map(s => (
+                    <tr key={s.id}>
+                      <TD bold>{s.nome}</TD><TD muted>{s.cpf}</TD>
+                      <TD right><span style={{ fontWeight: 800, fontSize: "1rem", color: "#92400e" }}>{s.participacao}%</span></TD>
+                      <TD>{s.administrador ? <Badge bg="#f0fdf4" color="#065f46" label="Sim" /> : <span style={{ color: "#9ca3af", fontSize: "0.82rem" }}>Não</span>}</TD>
+                      <TD muted>{s.dataEntrada ? new Date(s.dataEntrada).toLocaleDateString("pt-BR") : "—"}</TD>
+                      <TD><Badge {...(s.status === "ativo" ? { bg: "#f0fdf4", color: "#065f46", label: "Ativo" } : { bg: "#f3f4f6", color: "#6b7280", label: "Retirado" })} /></TD>
+                      <TD right>
+                        {s.status === "ativo" && <button className="small-action" onClick={() => { setSocios(prev => prev.map(x => x.id === s.id ? { ...x, status: "retirado" } : x)); audit("Sócio retirado", "Quadro Societário", s.nome); }} type="button">Retirar</button>}
+                      </TD>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+
+            {/* Adicionar sócio */}
+            <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 12, padding: "1.25rem" }}>
+              <p style={{ margin: "0 0 12px", fontWeight: 800, fontSize: "0.875rem", color: "#92400e" }}>Adicionar novo sócio</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 160px 100px auto", gap: 10, alignItems: "end" }}>
+                <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>Nome *<input className="input" value={novoSocNome} onChange={e => setNovoSocNome(e.target.value)} placeholder="Nome completo" /></label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>CPF *<input className="input" value={novoSocCpf} onChange={e => setNovoSocCpf(e.target.value)} placeholder="000.000.000-00" /></label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>Quota %<input className="input" type="number" value={novoSocPart} onChange={e => setNovoSocPart(e.target.value)} placeholder="%" /></label>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.78rem", cursor: "pointer" }}><input type="checkbox" checked={novoSocAdmin} onChange={e => setNovoSocAdmin(e.target.checked)} /> Admin</label>
+                  <button disabled={!novoSocNome || !novoSocCpf} onClick={() => {
+                    setSocios(prev => [...prev, { id: crypto.randomUUID(), nome: novoSocNome, cpf: novoSocCpf, participacao: parseFloat(novoSocPart) || 0, administrador: novoSocAdmin, dataEntrada: new Date().toISOString().slice(0, 10), status: "ativo" }]);
+                    audit("Sócio adicionado", "Quadro Societário", novoSocNome);
+                    setNovoSocNome(""); setNovoSocCpf(""); setNovoSocPart(""); setNovoSocAdmin(false);
+                  }} style={{ opacity: (!novoSocNome || !novoSocCpf) ? 0.5 : 1 }} type="button">+ Adicionar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ════════════ PROCURAÇÕES ════════════ */}
+        {tab === "procuracoes" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+            <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Procurações</h2>
+            <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#9ca3af" }}>{procuracoes.filter(p => p.status === "ativa").length} ativa(s) · {procuracoes.length} total</p></div>
+
+            {/* Nova procuração */}
+            <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 12, padding: "1.25rem" }}>
+              <p style={{ margin: "0 0 12px", fontWeight: 800, fontSize: "0.875rem", color: "#92400e" }}>Nova procuração</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+                <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>Outorgado (procurador) *<input className="input" value={novaProcOutorgado} onChange={e => setNovaProcOutorgado(e.target.value)} placeholder="Nome do procurador" /></label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>Tipo
+                  <select className="input" value={novaProcTipo} onChange={e => setNovaProcTipo(e.target.value)}>{["Plenos poderes", "Poderes específicos", "Ad judicia", "Substabelecimento"].map(t => <option key={t}>{t}</option>)}</select>
+                </label>
+                <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>Validade<input className="input" type="date" value={novaProcFim} onChange={e => setNovaProcFim(e.target.value)} /></label>
+              </div>
+              <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e", marginTop: 10 }}>Poderes
+                <textarea className="input" value={novaProcPoderes} onChange={e => setNovaProcPoderes(e.target.value)} rows={2} style={{ resize: "vertical" }} placeholder="Descreva os poderes concedidos..." />
+              </label>
+              <button disabled={!novaProcOutorgado} onClick={() => {
+                setProcuracoes(prev => [...prev, {
+                  id: crypto.randomUUID(), outorgante: "Empresa", outorgado: novaProcOutorgado,
+                  tipo: novaProcTipo, poderes: novaProcPoderes || novaProcTipo,
+                  dataInicio: new Date().toISOString().slice(0, 10), dataFim: novaProcFim || "",
+                  status: "ativa",
+                }]);
+                audit("Procuração emitida", "Procurações", `${novaProcTipo} — ${novaProcOutorgado}`);
+                setNovaProcOutorgado(""); setNovaProcPoderes(""); setNovaProcFim("");
+              }} style={{ marginTop: 12, opacity: !novaProcOutorgado ? 0.5 : 1 }} type="button">Registrar procuração</button>
+            </div>
+
+            {/* Tabela procurações */}
+            {procuracoes.length === 0 ? (
+              <p style={{ textAlign: "center", color: "#9ca3af", padding: "2rem", fontSize: "0.9rem" }}>Nenhuma procuração cadastrada</p>
+            ) : (
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead><tr><TH>Outorgado</TH><TH>Tipo</TH><TH>Poderes</TH><TH>Início</TH><TH>Validade</TH><TH>Status</TH><TH right>Ações</TH></tr></thead>
+                <tbody>
+                  {procuracoes.map(p => {
+                    const vencida = p.dataFim && new Date(p.dataFim) < new Date();
+                    const statusReal = vencida && p.status === "ativa" ? "vencida" : p.status;
+                    return (
+                      <tr key={p.id}>
+                        <TD bold>{p.outorgado}</TD><TD muted>{p.tipo}</TD>
+                        <TD muted><span style={{ fontSize: "0.78rem", maxWidth: 200, display: "inline-block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.poderes}</span></TD>
+                        <TD muted>{new Date(p.dataInicio).toLocaleDateString("pt-BR")}</TD>
+                        <TD>{p.dataFim ? <span style={{ fontWeight: 600, color: vencida ? "#b91c1c" : "#374151" }}>{new Date(p.dataFim).toLocaleDateString("pt-BR")}</span> : <span style={{ color: "#9ca3af" }}>Indeterminada</span>}</TD>
+                        <TD><Badge {...(statusReal === "ativa" ? { bg: "#f0fdf4", color: "#065f46", label: "Ativa" } : statusReal === "vencida" ? { bg: "#fef2f2", color: "#b91c1c", label: "Vencida" } : { bg: "#f3f4f6", color: "#6b7280", label: "Revogada" })} /></TD>
+                        <TD right>
+                          {statusReal === "ativa" && <button className="small-action" onClick={() => { setProcuracoes(prev => prev.map(x => x.id === p.id ? { ...x, status: "revogada" } : x)); audit("Procuração revogada", "Procurações", p.outorgado); }} type="button">Revogar</button>}
+                        </TD>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
+
         {/* ════════════ DOCUMENTOS ════════════ */}
         {tab === "documentos" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Documentos Societários</h2><p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#9ca3af" }}>{docs.length} documentos</p></div>
-              <button onClick={() => audit("Documento enviado", "Documentos", "Upload manual")} type="button">Enviar documento</button>
+              <label style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "0.5rem 1rem", background: "linear-gradient(135deg, #92400e, #b45309)", color: "#fff", borderRadius: 8, fontSize: "0.82rem", fontWeight: 700, cursor: "pointer" }}>
+                Enviar documento
+                <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xml,.zip" style={{ display: "none" }} onChange={e => {
+                  Array.from(e.target.files ?? []).forEach(f => {
+                    setDocumentos(prev => [...prev, {
+                      id: crypto.randomUUID(), nome: f.name,
+                      tipo: f.name.split(".").pop()?.toUpperCase() || "PDF",
+                      processoId: "", upload: new Date().toISOString().slice(0, 10),
+                      tamanho: `${(f.size / 1024).toFixed(0)} KB`, status: "ok",
+                      fileName: f.name, file: f,
+                    }]);
+                    audit("Documento enviado", "Documentos", f.name);
+                  });
+                  e.target.value = "";
+                }} />
+              </label>
             </div>
+
+            {/* Drag-and-drop */}
+            <div
+              onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#92400e"; }}
+              onDragLeave={e => { e.currentTarget.style.borderColor = "#fde68a"; }}
+              onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#fde68a"; Array.from(e.dataTransfer.files).forEach(f => {
+                setDocumentos(prev => [...prev, { id: crypto.randomUUID(), nome: f.name, tipo: f.name.split(".").pop()?.toUpperCase() || "PDF", processoId: "", upload: new Date().toISOString().slice(0, 10), tamanho: `${(f.size / 1024).toFixed(0)} KB`, status: "ok", fileName: f.name, file: f }]);
+                audit("Documento enviado", "Documentos", f.name);
+              }); }}
+              onClick={() => { const inp = document.createElement("input"); inp.type = "file"; inp.multiple = true; inp.accept = ".pdf,.jpg,.jpeg,.png,.doc,.docx,.xml,.zip"; inp.onchange = (ev) => { Array.from((ev.target as HTMLInputElement).files ?? []).forEach(f => { setDocumentos(prev => [...prev, { id: crypto.randomUUID(), nome: f.name, tipo: f.name.split(".").pop()?.toUpperCase() || "PDF", processoId: "", upload: new Date().toISOString().slice(0, 10), tamanho: `${(f.size / 1024).toFixed(0)} KB`, status: "ok", fileName: f.name, file: f }]); audit("Documento enviado", "Documentos", f.name); }); }; inp.click(); }}
+              style={{ border: "2px dashed #fde68a", borderRadius: 10, padding: 24, textAlign: "center", cursor: "pointer", background: "#fffbeb", transition: "border-color 0.2s" }}
+            >
+              <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#92400e", marginBottom: 4 }}>Arraste documentos aqui ou clique para selecionar</div>
+              <div style={{ fontSize: "0.72rem", color: "#9ca3af" }}>Contrato social, atas, procurações, certidões — PDF, imagens, Word</div>
+            </div>
+
             {docs.length === 0 ? (
               <p style={{ textAlign: "center", color: "#9ca3af", padding: "2rem", fontSize: "0.9rem" }}>Nenhum documento cadastrado</p>
             ) : (
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead><tr><TH>Nome</TH><TH>Tipo</TH><TH>Upload</TH><TH>Tamanho</TH><TH>Status</TH></tr></thead>
+                <thead><tr><TH>Nome</TH><TH>Tipo</TH><TH>Upload</TH><TH>Tamanho</TH><TH>Status</TH><TH right>Ações</TH></tr></thead>
                 <tbody>
                   {docs.map((d) => (
                     <tr key={d.id}>
@@ -590,6 +879,7 @@ export default function SocietarioPage() {
                       <TD muted>{d.upload !== "—" ? new Date(d.upload).toLocaleDateString("pt-BR") : "Aguardando"}</TD>
                       <TD muted>{d.tamanho}</TD>
                       <TD><Badge {...(d.status === "ok" ? { bg: "#f0fdf4", color: "#065f46", label: "OK" } : d.status === "pendente" ? { bg: "#fffbeb", color: "#92400e", label: "Pendente" } : { bg: "#fef2f2", color: "#b91c1c", label: "Revisão" })} /></TD>
+                      <TD right><button className="small-action" onClick={() => { setDocumentos(prev => prev.filter(x => x.id !== d.id)); audit("Documento removido", "Documentos", d.nome); }} type="button">Remover</button></TD>
                     </tr>
                   ))}
                 </tbody>
