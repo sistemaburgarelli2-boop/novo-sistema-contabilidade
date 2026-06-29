@@ -301,8 +301,15 @@ export default function NotasFiscaisPage() {
 
         {!loading && (
           <>
-            {/* ── Botao sincronizar ── */}
-            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "1rem" }}>
+            {/* ── Botões de ação ── */}
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginBottom: "1rem" }}>
+              <a
+                href={`/empresas/${empresaId}/notas-fiscais/emitir`}
+                style={{ display: "flex", alignItems: "center", gap: 6, padding: "0.5rem 1rem", background: "linear-gradient(135deg, #065f46, #10b981)", color: "#fff", border: "none", borderRadius: 8, fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", textDecoration: "none" }}
+              >
+                <svg fill="none" height={16} viewBox="0 0 24 24" width={16}><path d="M12 5v14M5 12h14" stroke="currentColor" strokeLinecap="round" strokeWidth={2.5}/></svg>
+                Emitir nota fiscal
+              </a>
               <button
                 onClick={() => { setShowSync(true); setSyncResult(null); }}
                 style={{ display: "flex", alignItems: "center", gap: 6, padding: "0.5rem 1rem", background: "linear-gradient(135deg, #4f46e5, #6366f1)", color: "#fff", border: "none", borderRadius: 8, fontSize: "0.82rem", fontWeight: 700, cursor: "pointer" }}

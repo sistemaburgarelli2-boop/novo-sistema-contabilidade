@@ -51,6 +51,70 @@ export async function GET(request: Request, { params }: { params: Promise<{ empr
   }
 }
 
+export async function POST(request: Request, { params }: { params: Promise<{ empresaId: string }> }) {
+  try {
+    const { empresaId } = await params;
+    const supabase = await createSupabaseServerClient();
+    const { data: { user }, error: authErr } = await supabase.auth.getUser();
+    if (authErr || !user) return fail("Nao autenticado.", 401);
+
+    const body = await request.json();
+
+    // Gerar número sequencial
+    const { data: ultima } = await supabase
+      .from("notas_fiscais")
+      .select("numero")
+      .eq("empresa_id", empresaId)
+      .eq("tipo", "emitida")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    const proximoNumero = ultima ? String(Number(ultima.numero) + 1).padStart(6, "0") : "000001";
+
+    // Gerar chave de acesso simulada (44 dígitos)
+    const chave = Array.from({ length: 44 }, () => Math.floor(Math.random() * 10)).join("");
+
+    const registro = {
+      empresa_id: empresaId,
+      tipo: "emitida",
+      numero: proximoNumero,
+      serie: body.serie || "1",
+      modelo: body.modelo || "nfse",
+      chave_acesso: chave,
+      natureza_operacao: body.natureza_operacao || "Prestação de serviços",
+      data_emissao: body.data_emissao || new Date().toISOString(),
+      emitente_cnpj: body.emitente_cnpj || null,
+      emitente_nome: body.emitente_nome || null,
+      destinatario_cnpj: body.destinatario_cnpj || null,
+      destinatario_nome: body.destinatario_nome || null,
+      valor_total: body.valor_total || 0,
+      valor_produtos: body.valor_produtos || 0,
+      valor_servicos: body.valor_servicos || 0,
+      valor_desconto: body.valor_desconto || 0,
+      valor_icms: body.valor_icms || 0,
+      valor_ipi: body.valor_ipi || 0,
+      valor_pis: body.valor_pis || 0,
+      valor_cofins: body.valor_cofins || 0,
+      valor_iss: body.valor_iss || 0,
+      valor_frete: body.valor_frete || 0,
+      status: "autorizada",
+      situacao: "pendente",
+    };
+
+    const { data, error } = await supabase
+      .from("notas_fiscais")
+      .insert(registro)
+      .select("*")
+      .single();
+
+    if (error) return fail(error.message, 500);
+    return ok(data, 201);
+  } catch (e) {
+    return fail(e instanceof Error ? e.message : "Erro", 500);
+  }
+}
+
 export async function PATCH(request: Request, { params }: { params: Promise<{ empresaId: string }> }) {
   try {
     const { empresaId } = await params;
