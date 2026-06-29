@@ -60,7 +60,7 @@ export default function EmitirNotaPage() {
   const [carregando, setCarregando] = useState(true);
   const [emitindo, setEmitindo] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
-  const [sucesso, setSucesso] = useState<{ numero: string; chave: string } | null>(null);
+  const [sucesso, setSucesso] = useState<{ numero: string; chave: string; protocolo?: string; viaSefaz?: boolean } | null>(null);
 
   // Dados da nota
   const [modelo, setModelo] = useState<"nfse" | "55" | "65">("nfse");
@@ -83,6 +83,12 @@ export default function EmitirNotaPage() {
   const [aliquotaPis, setAliquotaPis] = useState(0.65);
   const [aliquotaCofins, setAliquotaCofins] = useState(3);
   const [aliquotaIcms, setAliquotaIcms] = useState(0);
+
+  // NFS-e Nacional (gov.br)
+  const [tokenGovBr, setTokenGovBr] = useState("");
+  const [ambiente, setAmbiente] = useState<"homologacao" | "producao">("homologacao");
+  const [inscricaoMunicipal, setInscricaoMunicipal] = useState("");
+  const [codigoMunicipio, setCodigoMunicipio] = useState("");
 
   // Observações
   const [observacoes, setObservacoes] = useState("");
@@ -116,6 +122,8 @@ export default function EmitirNotaPage() {
   const totalImpostos = totalISS + totalICMS + totalPIS + totalCOFINS;
   const valorTotal = subtotal;
 
+  const usandoSefaz = modelo === "nfse" && !!tokenGovBr.trim();
+
   async function emitirNota() {
     if (!destNome || !destCnpj) {
       setErro("Preencha nome e CNPJ/CPF do destinatário.");
@@ -130,36 +138,86 @@ export default function EmitirNotaPage() {
     setErro(null);
 
     try {
-      const m = (empresa?.metadata ?? {}) as Record<string, string>;
-      const res = await fetch(`/api/notas-fiscais/${empresaId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          modelo,
-          natureza_operacao: natureza,
-          data_emissao: new Date(dataEmissao + "T12:00:00").toISOString(),
-          emitente_cnpj: empresa?.cnpj || "",
-          emitente_nome: empresa?.nome_legal || "",
-          destinatario_cnpj: destCnpj,
-          destinatario_nome: destNome,
-          valor_total: valorTotal,
-          valor_produtos: modelo !== "nfse" ? subtotal : 0,
-          valor_servicos: modelo === "nfse" ? subtotal : 0,
-          valor_desconto: 0,
-          valor_icms: totalICMS,
-          valor_ipi: 0,
-          valor_pis: totalPIS,
-          valor_cofins: totalCOFINS,
-          valor_iss: totalISS,
-          valor_frete: 0,
-        }),
-      });
-      const json = await res.json();
-      if (!res.ok) {
-        setErro(json.error || "Erro ao emitir nota.");
-        return;
+      if (usandoSefaz) {
+        // Emissão real via API NFS-e Nacional (gov.br)
+        const res = await fetch(`/api/notas-fiscais/${empresaId}/emitir`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token: tokenGovBr.trim(),
+            ambiente,
+            prestador: {
+              cnpj: empresa?.cnpj || "",
+              nomeRazaoSocial: empresa?.nome_legal || "",
+              inscricaoMunicipal: inscricaoMunicipal || undefined,
+              codigoMunicipio: codigoMunicipio || "3550308",
+              uf: empresa?.estado || "SP",
+            },
+            tomador: {
+              cnpjCpf: destCnpj,
+              nomeRazaoSocial: destNome,
+              email: destEmail || undefined,
+              telefone: destTelefone || undefined,
+              endereco: destEndereco || undefined,
+              cidade: destCidade || undefined,
+              uf: destUf || undefined,
+            },
+            servicos: itens.map(item => ({
+              codigoServico: item.codigo_servico,
+              descricao: item.descricao,
+              quantidade: item.quantidade,
+              valorUnitario: item.valor_unitario,
+              valorTotal: item.quantidade * item.valor_unitario,
+              aliquotaISS: item.aliquota_iss,
+            })),
+            competencia: dataEmissao.slice(0, 7),
+            natureza_operacao: natureza,
+            observacoes: observacoes || undefined,
+          }),
+        });
+        const json = await res.json();
+        if (!res.ok) {
+          setErro(json.error || "Erro ao emitir nota na SEFAZ.");
+          return;
+        }
+        setSucesso({
+          numero: json.data.nfse?.numero || json.data.nota?.numero || "",
+          chave: json.data.nfse?.chaveAcesso || json.data.nota?.chave_acesso || "",
+          protocolo: json.data.nfse?.protocolo || "",
+          viaSefaz: true,
+        });
+      } else {
+        // Emissão apenas local (sem SEFAZ)
+        const res = await fetch(`/api/notas-fiscais/${empresaId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            modelo,
+            natureza_operacao: natureza,
+            data_emissao: new Date(dataEmissao + "T12:00:00").toISOString(),
+            emitente_cnpj: empresa?.cnpj || "",
+            emitente_nome: empresa?.nome_legal || "",
+            destinatario_cnpj: destCnpj,
+            destinatario_nome: destNome,
+            valor_total: valorTotal,
+            valor_produtos: modelo !== "nfse" ? subtotal : 0,
+            valor_servicos: modelo === "nfse" ? subtotal : 0,
+            valor_desconto: 0,
+            valor_icms: totalICMS,
+            valor_ipi: 0,
+            valor_pis: totalPIS,
+            valor_cofins: totalCOFINS,
+            valor_iss: totalISS,
+            valor_frete: 0,
+          }),
+        });
+        const json = await res.json();
+        if (!res.ok) {
+          setErro(json.error || "Erro ao emitir nota.");
+          return;
+        }
+        setSucesso({ numero: json.data.numero, chave: json.data.chave_acesso, viaSefaz: false });
       }
-      setSucesso({ numero: json.data.numero, chave: json.data.chave_acesso });
     } catch {
       setErro("Erro de conexão.");
     } finally {
@@ -185,15 +243,31 @@ export default function EmitirNotaPage() {
             </svg>
           </div>
           <h2 style={{ margin: "0 0 8px", color: V.ink, fontSize: 24 }}>Nota fiscal emitida!</h2>
-          <p style={{ color: V.muted, fontSize: 15, marginBottom: 16 }}>
+          <p style={{ color: V.muted, fontSize: 15, marginBottom: 8 }}>
             Nota nº <strong>{sucesso.numero}</strong> emitida com sucesso.
           </p>
+          {sucesso.viaSefaz ? (
+            <div style={{
+              background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 8,
+              padding: "8px 14px", marginBottom: 16, fontSize: 13, fontWeight: 600, color: "#166534",
+            }}>
+              Autorizada pela SEFAZ via NFS-e Nacional (gov.br)
+            </div>
+          ) : (
+            <div style={{
+              background: "#fffbeb", border: "1px solid #fcd34d", borderRadius: 8,
+              padding: "8px 14px", marginBottom: 16, fontSize: 13, fontWeight: 600, color: "#92400e",
+            }}>
+              Registro interno — não transmitida à SEFAZ
+            </div>
+          )}
           <div style={{
             background: V.bg, border: `1px solid ${V.border}`, borderRadius: 10,
             padding: 16, marginBottom: 24, fontSize: 12, fontFamily: "monospace",
             wordBreak: "break-all", color: V.muted,
           }}>
             Chave de acesso: {sucesso.chave}
+            {sucesso.protocolo && <><br />Protocolo: {sucesso.protocolo}</>}
           </div>
           <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
             <button
@@ -394,6 +468,51 @@ export default function EmitirNotaPage() {
             </div>
           )}
 
+          {/* Integração NFS-e Nacional */}
+          {modelo === "nfse" && (
+            <div style={{ background: V.panel, border: `1px solid ${V.border}`, borderRadius: 14, padding: 24 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>Integração NFS-e Nacional (gov.br)</h3>
+                <span style={{
+                  fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 6,
+                  background: tokenGovBr ? "#f0fdf4" : "#fffbeb",
+                  color: tokenGovBr ? "#166534" : "#92400e",
+                  border: `1px solid ${tokenGovBr ? "#86efac" : "#fcd34d"}`,
+                }}>
+                  {tokenGovBr ? "SEFAZ ativa" : "Apenas local"}
+                </span>
+              </div>
+              <p style={{ fontSize: 13, color: V.muted, margin: "0 0 16px" }}>
+                Para emitir via SEFAZ, informe o token de acesso do gov.br. Sem token, a nota será registrada apenas internamente.
+              </p>
+              <div style={gridRow(2)}>
+                <Field label="Token gov.br (Bearer)">
+                  <input style={inputStyle} type="password" value={tokenGovBr}
+                    onChange={e => setTokenGovBr(e.target.value)}
+                    placeholder="Cole o token de acesso aqui" />
+                </Field>
+                <Field label="Ambiente">
+                  <select style={inputStyle} value={ambiente} onChange={e => setAmbiente(e.target.value as "homologacao" | "producao")}>
+                    <option value="homologacao">Homologação (testes)</option>
+                    <option value="producao">Produção (real)</option>
+                  </select>
+                </Field>
+              </div>
+              <div style={gridRow(2)}>
+                <Field label="Inscrição Municipal">
+                  <input style={inputStyle} value={inscricaoMunicipal}
+                    onChange={e => setInscricaoMunicipal(e.target.value)}
+                    placeholder="Número da IM" />
+                </Field>
+                <Field label="Código do município (IBGE)">
+                  <input style={inputStyle} value={codigoMunicipio}
+                    onChange={e => setCodigoMunicipio(e.target.value)}
+                    placeholder="Ex: 3550308 (São Paulo)" />
+                </Field>
+              </div>
+            </div>
+          )}
+
           {/* Observações */}
           <div style={{ background: V.panel, border: `1px solid ${V.border}`, borderRadius: 14, padding: 24 }}>
             <h3 style={{ margin: "0 0 16px", fontSize: 16, fontWeight: 700 }}>Informações adicionais</h3>
@@ -420,12 +539,15 @@ export default function EmitirNotaPage() {
             disabled={emitindo}
             style={{
               width: "100%", padding: "14px 24px",
-              background: "linear-gradient(135deg, #1e40af, #3b82f6)", color: "#fff",
+              background: usandoSefaz ? "linear-gradient(135deg, #065f46, #10b981)" : "linear-gradient(135deg, #1e40af, #3b82f6)", color: "#fff",
               border: "none", borderRadius: 10, fontSize: 16, fontWeight: 700, cursor: "pointer",
               opacity: emitindo ? 0.7 : 1,
             }}
           >
-            {emitindo ? "Emitindo nota fiscal..." : "Emitir nota fiscal"}
+            {emitindo
+              ? (usandoSefaz ? "Transmitindo para a SEFAZ..." : "Emitindo nota fiscal...")
+              : (usandoSefaz ? "Emitir e transmitir à SEFAZ" : "Emitir nota fiscal (apenas local)")
+            }
           </button>
         </div>
 

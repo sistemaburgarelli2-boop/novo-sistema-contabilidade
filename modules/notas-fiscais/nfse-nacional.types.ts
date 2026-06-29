@@ -32,6 +32,54 @@ export type NFSeNacionalResposta = {
   situacao: "normal" | "cancelada" | "substituida";
 };
 
+export type DPSServico = {
+  codigoServico: string;
+  descricao: string;
+  quantidade: number;
+  valorUnitario: number;
+  valorTotal: number;
+  aliquotaISS: number;
+};
+
+export type DPSPrestador = {
+  cnpj: string;
+  nomeRazaoSocial: string;
+  inscricaoMunicipal?: string;
+  codigoMunicipio: string;
+  uf: string;
+};
+
+export type DPSTomador = {
+  cnpjCpf: string;
+  nomeRazaoSocial: string;
+  email?: string;
+  telefone?: string;
+  endereco?: string;
+  cidade?: string;
+  uf?: string;
+};
+
+export type EmissaoNFSePayload = {
+  ambiente: AmbienteNFSe;
+  token: string;
+  prestador: DPSPrestador;
+  tomador: DPSTomador;
+  servicos: DPSServico[];
+  competencia: string;
+  naturezaOperacao: string;
+  observacoes?: string;
+};
+
+export type EmissaoNFSeResposta = {
+  sucesso: boolean;
+  chaveAcesso?: string;
+  numero?: string;
+  dataEmissao?: string;
+  protocolo?: string;
+  mensagem?: string;
+  erros?: string[];
+};
+
 export type NotaFiscalInsert = {
   empresa_id: string;
   chave_acesso: string;
