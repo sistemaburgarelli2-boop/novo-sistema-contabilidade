@@ -52,7 +52,7 @@ type Socio = {
 };
 
 type DocStatus = "pendente" | "recebido" | "conferido" | "aprovado";
-type DocItem = { key: string; status: DocStatus; fileName: string };
+type DocItem = { key: string; status: DocStatus; fileName: string; file?: File };
 
 type FormState = {
   /* step 1 */
@@ -178,11 +178,7 @@ export default function NovaEmpresaPage() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormState>(initialForm);
   const [socios, setSocios] = useState<Socio[]>([]);
-  const [docs, setDocs] = useState<DocItem[]>([
-    { key: "cpf", status: "recebido", fileName: "cpf_cliente.pdf" },
-    { key: "rg", status: "recebido", fileName: "rg_frente_verso.pdf" },
-    { key: "contrato_social", status: "recebido", fileName: "contrato_social_v2.pdf" },
-  ]);
+  const [docs, setDocs] = useState<DocItem[]>([]);
   const [savedAt, setSavedAt] = useState<string>("");
   const [empresaCriadaId, setEmpresaCriadaId] = useState<string | null>(null);
   const [salvando, setSalvando] = useState(false);
@@ -263,7 +259,7 @@ export default function NovaEmpresaPage() {
         const total = socios.reduce((s, sc) => s + (parseFloat(sc.participacao) || 0), 0);
         return Math.abs(total - 100) < 0.01;
       case 5: return true;
-      case 6: return docs.length >= 3;
+      case 6: return true;
       case 7: return !!(form.email_portal);
       case 8: return true;
       case 9: return true;
@@ -319,7 +315,21 @@ export default function NovaEmpresaPage() {
         });
         const json = await res.json();
         if (!res.ok) { setErroSalvar(json.error || "Erro ao criar empresa."); return; }
-        setEmpresaCriadaId(json.data?.id ?? null);
+        const novaEmpresaId = json.data?.id;
+        setEmpresaCriadaId(novaEmpresaId ?? null);
+        // Upload dos documentos
+        if (novaEmpresaId) {
+          const docsComArquivo = docs.filter(d => d.file);
+          for (const doc of docsComArquivo) {
+            try {
+              const fd = new FormData();
+              fd.append("arquivo", doc.file!);
+              fd.append("categoria", doc.key);
+              fd.append("setor", "geral");
+              await fetch(`/api/documentos/${novaEmpresaId}`, { method: "POST", body: fd });
+            } catch { /* continua com os próximos */ }
+          }
+        }
         setStep(9);
       } catch { setErroSalvar("Erro de conexao. Tente novamente."); }
       finally { setSalvando(false); }
@@ -349,13 +359,24 @@ export default function NovaEmpresaPage() {
 
   const getDocStatus = (key: string): DocItem | undefined => docs.find(d => d.key === key);
 
-  const toggleDoc = (key: string) => {
-    const existing = docs.find(d => d.key === key);
-    if (existing) {
-      setDocs(prev => prev.filter(d => d.key !== key));
-    } else {
-      setDocs(prev => [...prev, { key, status: "recebido", fileName: `${key}_upload.pdf` }]);
-    }
+  const handleDocFile = (key: string, file: File) => {
+    setDocs(prev => {
+      const filtered = prev.filter(d => d.key !== key);
+      return [...filtered, { key, status: "recebido" as DocStatus, fileName: file.name, file }];
+    });
+  };
+
+  const removeDoc = (key: string) => {
+    setDocs(prev => prev.filter(d => d.key !== key));
+  };
+
+  const handleDropGeneral = (files: FileList) => {
+    Array.from(files).forEach(file => {
+      const existing = docs.find(d => d.fileName === file.name);
+      if (!existing) {
+        setDocs(prev => [...prev, { key: "outros", status: "recebido" as DocStatus, fileName: file.name, file }]);
+      }
+    });
   };
 
   const obrigacoesFiscais = (): string[] => {
@@ -370,11 +391,7 @@ export default function NovaEmpresaPage() {
   const resetForm = () => {
     setForm(initialForm);
     setSocios([]);
-    setDocs([
-      { key: "cpf", status: "recebido", fileName: "cpf_cliente.pdf" },
-      { key: "rg", status: "recebido", fileName: "rg_frente_verso.pdf" },
-      { key: "contrato_social", status: "recebido", fileName: "contrato_social_v2.pdf" },
-    ]);
+    setDocs([]);
     setStep(1);
   };
 
@@ -940,19 +957,19 @@ export default function NovaEmpresaPage() {
       <div>
         <h2 style={{ margin: "0 0 8px", color: V.ink, fontSize: 22 }}>Documentos</h2>
         <p style={{ color: V.muted, fontSize: 14, marginBottom: 24 }}>
-          Gerencie os documentos necessários para a constituição.
+          Envie os documentos necessários para a constituição.
         </p>
 
         <div style={{
-          display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+          display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
           gap: 12, marginBottom: 24,
         }}>
           {DOC_CATEGORIES.map(cat => {
             const doc = getDocStatus(cat.key);
             const status: DocStatus = doc?.status ?? "pendente";
             return (
-              <div key={cat.key} onClick={() => toggleDoc(cat.key)} style={{
-                padding: 16, borderRadius: 12, cursor: "pointer",
+              <div key={cat.key} style={{
+                padding: 16, borderRadius: 12, position: "relative",
                 border: `1px solid ${doc ? statusColors[status] + "60" : V.border}`,
                 background: doc ? statusColors[status] + "08" : V.panel,
                 transition: "all .2s",
@@ -960,23 +977,61 @@ export default function NovaEmpresaPage() {
                 <div style={{ fontSize: 28, marginBottom: 8 }}>{cat.icon}</div>
                 <div style={{ fontSize: 14, fontWeight: 600, color: V.ink, marginBottom: 4 }}>{cat.label}</div>
                 <Badge text={statusLabels[status]} color={statusColors[status]} />
-                {doc && (
-                  <div style={{ fontSize: 12, color: V.muted, marginTop: 6 }}>{doc.fileName}</div>
+                {doc ? (
+                  <div style={{ marginTop: 8 }}>
+                    <div style={{ fontSize: 12, color: V.muted, marginBottom: 6, wordBreak: "break-all" }}>{doc.fileName}</div>
+                    <button onClick={() => removeDoc(cat.key)} style={{
+                      background: "none", border: "none", color: V.danger,
+                      fontSize: 12, fontWeight: 600, cursor: "pointer", padding: 0,
+                    }}>Remover</button>
+                  </div>
+                ) : (
+                  <label style={{
+                    display: "inline-block", marginTop: 8, padding: "4px 12px",
+                    background: V.green700 + "10", color: V.green700, borderRadius: 6,
+                    fontSize: 12, fontWeight: 600, cursor: "pointer",
+                    border: `1px solid ${V.green700}25`,
+                  }}>
+                    Enviar arquivo
+                    <input type="file" accept=".pdf,.jpg,.jpeg,.png,.xml,.zip,.xlsx"
+                      style={{ display: "none" }}
+                      onChange={e => {
+                        const f = e.target.files?.[0];
+                        if (f) handleDocFile(cat.key, f);
+                        e.target.value = "";
+                      }} />
+                  </label>
                 )}
               </div>
             );
           })}
         </div>
 
-        <div style={{
-          border: `2px dashed ${V.border}`, borderRadius: 12, padding: 40,
-          textAlign: "center", color: V.muted, cursor: "pointer",
-          background: V.bg, transition: "border-color .2s",
-        }}>
-          <div style={{ fontSize: 32, marginBottom: 8 }}>&#128449;</div>
-          <p style={{ fontSize: 15, marginBottom: 8 }}>Arraste arquivos aqui ou clique para selecionar</p>
+        {/* Drag-and-drop area */}
+        <div
+          onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = V.green500; e.currentTarget.style.background = "#ecfdf5"; }}
+          onDragLeave={e => { e.currentTarget.style.borderColor = V.border; e.currentTarget.style.background = V.bg; }}
+          onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor = V.border; e.currentTarget.style.background = V.bg; if (e.dataTransfer.files.length) handleDropGeneral(e.dataTransfer.files); }}
+          onClick={() => {
+            const inp = document.createElement("input");
+            inp.type = "file"; inp.multiple = true;
+            inp.accept = ".pdf,.jpg,.jpeg,.png,.xml,.zip,.xlsx,.xls,.csv";
+            inp.onchange = (ev) => {
+              const files = (ev.target as HTMLInputElement).files;
+              if (files) handleDropGeneral(files);
+            };
+            inp.click();
+          }}
+          style={{
+            border: `2px dashed ${V.border}`, borderRadius: 12, padding: 32,
+            textAlign: "center", color: V.muted, cursor: "pointer",
+            background: V.bg, transition: "all .2s",
+          }}
+        >
+          <div style={{ fontSize: 28, marginBottom: 6 }}>+</div>
+          <p style={{ fontSize: 15, marginBottom: 8, margin: "0 0 8px" }}>Arraste arquivos aqui ou clique para selecionar</p>
           <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
-            {["PDF","XML","ZIP","Excel"].map(f =>
+            {["PDF","XML","ZIP","Excel","Imagens"].map(f =>
               <span key={f} style={{
                 padding: "2px 10px", borderRadius: 6, fontSize: 12, fontWeight: 600,
                 background: V.green700 + "12", color: V.green700,
@@ -984,6 +1039,29 @@ export default function NovaEmpresaPage() {
             )}
           </div>
         </div>
+
+        {/* Documentos extras enviados via drag-and-drop */}
+        {docs.filter(d => !DOC_CATEGORIES.find(c => c.key === d.key) || (d.key === "outros" && d.file)).length > 0 && (
+          <div style={{ marginTop: 16 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: V.muted, marginBottom: 8 }}>Arquivos enviados</div>
+            {docs.filter(d => d.file && !DOC_CATEGORIES.slice(0, -1).find(c => c.key === d.key)).map((d, i) => (
+              <div key={i} style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "8px 12px", background: V.bg, borderRadius: 8, marginBottom: 6,
+                border: `1px solid ${V.border}`,
+              }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: V.ink }}>{d.fileName}</div>
+                  <div style={{ fontSize: 11, color: V.muted }}>{d.file ? `${(d.file.size / 1024).toFixed(0)} KB` : ""}</div>
+                </div>
+                <button onClick={() => setDocs(prev => prev.filter((_, idx) => idx !== docs.indexOf(d)))} style={{
+                  background: "none", border: "none", color: V.danger,
+                  fontSize: 12, fontWeight: 600, cursor: "pointer",
+                }}>Remover</button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     );
   };
