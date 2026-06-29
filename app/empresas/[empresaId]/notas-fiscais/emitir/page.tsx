@@ -60,7 +60,10 @@ export default function EmitirNotaPage() {
   const [carregando, setCarregando] = useState(true);
   const [emitindo, setEmitindo] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
-  const [sucesso, setSucesso] = useState<{ numero: string; chave: string; protocolo?: string; viaSefaz?: boolean } | null>(null);
+  const [sucesso, setSucesso] = useState<{ numero: string; chave: string; protocolo?: string; viaSefaz?: boolean; notaId?: string } | null>(null);
+  const [enviandoEmail, setEnviandoEmail] = useState(false);
+  const [emailEnviado, setEmailEnviado] = useState(false);
+  const [erroEmail, setErroEmail] = useState<string | null>(null);
 
   // Dados da nota
   const [modelo, setModelo] = useState<"nfse" | "55" | "65">("nfse");
@@ -185,6 +188,7 @@ export default function EmitirNotaPage() {
           chave: json.data.nfse?.chaveAcesso || json.data.nota?.chave_acesso || "",
           protocolo: json.data.nfse?.protocolo || "",
           viaSefaz: true,
+          notaId: json.data.nota?.id || "",
         });
       } else {
         // Emissão apenas local (sem SEFAZ)
@@ -216,7 +220,7 @@ export default function EmitirNotaPage() {
           setErro(json.error || "Erro ao emitir nota.");
           return;
         }
-        setSucesso({ numero: json.data.numero, chave: json.data.chave_acesso, viaSefaz: false });
+        setSucesso({ numero: json.data.numero, chave: json.data.chave_acesso, viaSefaz: false, notaId: json.data.id });
       }
     } catch {
       setErro("Erro de conexão.");
@@ -269,6 +273,82 @@ export default function EmitirNotaPage() {
             Chave de acesso: {sucesso.chave}
             {sucesso.protocolo && <><br />Protocolo: {sucesso.protocolo}</>}
           </div>
+          {/* Enviar por e-mail */}
+          {destEmail && !emailEnviado && (
+            <div style={{
+              background: V.panel, border: `1px solid ${V.border}`, borderRadius: 10,
+              padding: 20, marginBottom: 20, textAlign: "left",
+            }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: V.ink, marginBottom: 12 }}>
+                Enviar nota por e-mail
+              </div>
+              <div style={{ fontSize: 13, color: V.muted, marginBottom: 12 }}>
+                Destinatário: <strong style={{ color: V.ink }}>{destNome}</strong> — {destEmail}
+              </div>
+              {erroEmail && (
+                <div style={{ background: "#fef2f2", color: "#b91c1c", padding: "8px 12px", borderRadius: 6, fontSize: 13, marginBottom: 12 }}>
+                  {erroEmail}
+                </div>
+              )}
+              <button
+                onClick={async () => {
+                  setEnviandoEmail(true);
+                  setErroEmail(null);
+                  try {
+                    const res = await fetch(`/api/notas-fiscais/${empresaId}/enviar-email`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        notaId: sucesso.notaId,
+                        emailDestinatario: destEmail,
+                        assunto: `Nota Fiscal nº ${sucesso.numero} — ${empresa?.nome_legal || ""}`,
+                      }),
+                    });
+                    const json = await res.json();
+                    if (!res.ok) {
+                      setErroEmail(json.error || "Erro ao enviar e-mail.");
+                    } else {
+                      setEmailEnviado(true);
+                    }
+                  } catch {
+                    setErroEmail("Erro de conexão.");
+                  } finally {
+                    setEnviandoEmail(false);
+                  }
+                }}
+                disabled={enviandoEmail}
+                style={{
+                  padding: "10px 20px", background: "#1e40af", color: "#fff",
+                  border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer",
+                  opacity: enviandoEmail ? 0.7 : 1, display: "flex", alignItems: "center", gap: 8,
+                }}
+              >
+                <svg fill="none" height={16} viewBox="0 0 24 24" width={16}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" strokeWidth="2"/><path d="M22 6l-10 7L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                {enviandoEmail ? "Enviando..." : `Enviar para ${destEmail}`}
+              </button>
+            </div>
+          )}
+
+          {emailEnviado && (
+            <div style={{
+              background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 10,
+              padding: "12px 16px", marginBottom: 20, fontSize: 14, fontWeight: 600, color: "#166534",
+              display: "flex", alignItems: "center", gap: 8,
+            }}>
+              <svg fill="none" height={18} viewBox="0 0 24 24" width={18}><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              E-mail enviado para {destEmail}
+            </div>
+          )}
+
+          {!destEmail && (
+            <div style={{
+              background: V.bg, border: `1px solid ${V.border}`, borderRadius: 10,
+              padding: "12px 16px", marginBottom: 20, fontSize: 13, color: V.muted,
+            }}>
+              Para enviar por e-mail, preencha o e-mail do destinatário ao emitir a nota.
+            </div>
+          )}
+
           <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
             <button
               onClick={() => router.push(`/empresas/${empresaId}/notas-fiscais`)}
@@ -280,7 +360,7 @@ export default function EmitirNotaPage() {
               Ver notas fiscais
             </button>
             <button
-              onClick={() => { setSucesso(null); setItens([{ ...emptyItem }]); setDestNome(""); setDestCnpj(""); }}
+              onClick={() => { setSucesso(null); setEmailEnviado(false); setItens([{ ...emptyItem }]); setDestNome(""); setDestCnpj(""); setDestEmail(""); }}
               style={{
                 padding: "10px 24px", background: "transparent", color: V.green700,
                 border: `1px solid ${V.border}`, borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer",
