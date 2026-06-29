@@ -201,24 +201,31 @@ export default function NovaEmpresaPage() {
     const limpo = cep.replace(/\D/g, "");
     if (limpo.length !== 8) return;
     try {
-      const res = await fetch(`/api/cep/${limpo}`);
-      const data = await res.json();
-      if (data.erro || !res.ok) return;
+      let data: Record<string, string> | null = null;
+      try {
+        const res = await fetch(`/api/cep/${limpo}`);
+        if (res.ok) data = await res.json();
+      } catch { /* fallback abaixo */ }
+      if (!data || data.erro) {
+        const res2 = await fetch(`https://viacep.com.br/ws/${limpo}/json/`);
+        data = await res2.json();
+      }
+      if (!data || data.erro) return;
       if (tipo === "empresa") {
         setForm(prev => ({
           ...prev,
-          logradouro_empresa: data.logradouro || prev.logradouro_empresa,
-          bairro_empresa: data.bairro || prev.bairro_empresa,
-          cidade_empresa: data.localidade || prev.cidade_empresa,
-          uf_empresa: data.uf || prev.uf_empresa,
+          logradouro_empresa: data!.logradouro || prev.logradouro_empresa,
+          bairro_empresa: data!.bairro || prev.bairro_empresa,
+          cidade_empresa: data!.localidade || prev.cidade_empresa,
+          uf_empresa: data!.uf || prev.uf_empresa,
         }));
       } else {
         setForm(prev => ({
           ...prev,
-          logradouro: data.logradouro || prev.logradouro,
-          bairro: data.bairro || prev.bairro,
-          cidade: data.localidade || prev.cidade,
-          uf: data.uf || prev.uf,
+          logradouro: data!.logradouro || prev.logradouro,
+          bairro: data!.bairro || prev.bairro,
+          cidade: data!.localidade || prev.cidade,
+          uf: data!.uf || prev.uf,
         }));
       }
     } catch { /* silently fail */ }
