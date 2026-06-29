@@ -58,7 +58,30 @@ type LogSoc = {
 type Tab =
   | "dashboard" | "processos" | "constituicao" | "alteracoes"
   | "encerramento" | "alvaras" | "certidoes" | "quadro_societario"
-  | "procuracoes" | "documentos" | "historico";
+  | "procuracoes" | "documentos" | "historico" | "marcas_inpi";
+
+type StatusMarca =
+  | "em_preparacao" | "protocolo_pendente" | "depositada" | "em_exame"
+  | "oposicao" | "deferida" | "registrada" | "arquivada" | "indeferida";
+
+type NaturezaMarca = "nominativa" | "figurativa" | "mista" | "tridimensional";
+
+type MarcaINPI = {
+  id: string;
+  nome: string;
+  numero_pedido: string;
+  numero_registro: string;
+  natureza: NaturezaMarca;
+  classe_ncl: string;
+  descricao_servicos: string;
+  data_deposito: string;
+  data_concessao: string;
+  data_vencimento: string;
+  status: StatusMarca;
+  titular: string;
+  procurador: string;
+  obs: string;
+};
 
 /* ─── Ícone ───────────────────────────────────────────────────── */
 
@@ -117,18 +140,38 @@ const TIPOS_CERTIDAO = [
   "Certidão Junta Comercial", "Certidão Cartório",
 ];
 
+const S_MARCA: Record<StatusMarca, { bg: string; color: string; label: string }> = {
+  em_preparacao:    { bg: "#f3f4f6", color: "#6b7280", label: "Em preparação" },
+  protocolo_pendente: { bg: "#fef9c3", color: "#854d0e", label: "Protocolo pendente" },
+  depositada:       { bg: "#eff6ff", color: "#1d4ed8", label: "Depositada" },
+  em_exame:         { bg: "#ecfeff", color: "#0e7490", label: "Em exame" },
+  oposicao:         { bg: "#fff7ed", color: "#c2410c", label: "Oposição" },
+  deferida:         { bg: "#f0fdf4", color: "#15803d", label: "Deferida" },
+  registrada:       { bg: "#dcfce7", color: "#065f46", label: "Registrada ✓" },
+  arquivada:        { bg: "#f3f4f6", color: "#6b7280", label: "Arquivada" },
+  indeferida:       { bg: "#fef2f2", color: "#b91c1c", label: "Indeferida" },
+};
+
+const CLASSES_NCL_COMUNS = [
+  "09 – Software e Tecnologia", "35 – Serviços de Negócios e Contabilidade",
+  "36 – Serviços Financeiros e Seguros", "41 – Educação e Entretenimento",
+  "42 – Serviços Científicos e Tecnológicos", "44 – Serviços Médicos e de Saúde",
+  "45 – Serviços Jurídicos e de Segurança",
+];
+
 const TABS_SOC = [
-  { id: "dashboard",         label: "Dashboard",       icon: "◉" },
-  { id: "processos",         label: "Processos",       icon: "📋" },
-  { id: "quadro_societario", label: "Quadro Societário",icon: "👥" },
-  { id: "constituicao",      label: "Constituição",    icon: "🏢" },
-  { id: "alteracoes",        label: "Alterações",      icon: "✏" },
-  { id: "encerramento",      label: "Encerramento",    icon: "🔒" },
-  { id: "certidoes",         label: "Certidões",       icon: "📋" },
-  { id: "alvaras",           label: "Alvarás",         icon: "📜" },
-  { id: "procuracoes",       label: "Procurações",     icon: "📝" },
-  { id: "documentos",        label: "Documentos",      icon: "📁" },
-  { id: "historico",         label: "Histórico",       icon: "⌛" },
+  { id: "dashboard",         label: "Dashboard",        icon: "◉" },
+  { id: "processos",         label: "Processos",        icon: "📋" },
+  { id: "quadro_societario", label: "Quadro Societário", icon: "👥" },
+  { id: "constituicao",      label: "Constituição",     icon: "🏢" },
+  { id: "alteracoes",        label: "Alterações",       icon: "✏" },
+  { id: "encerramento",      label: "Encerramento",     icon: "🔒" },
+  { id: "certidoes",         label: "Certidões",        icon: "📋" },
+  { id: "alvaras",           label: "Alvarás",          icon: "📜" },
+  { id: "procuracoes",       label: "Procurações",      icon: "📝" },
+  { id: "marcas_inpi",       label: "Marcas INPI",      icon: "™" },
+  { id: "documentos",        label: "Documentos",       icon: "📁" },
+  { id: "historico",         label: "Histórico",        icon: "⌛" },
 ] as const;
 
 const TIPO_ICONE: Record<TipoProcesso, string> = {
@@ -208,6 +251,19 @@ export default function SocietarioPage() {
   const [novaProcTipo, setNovaProcTipo] = useState("Plenos poderes");
   const [novaProcPoderes, setNovaProcPoderes] = useState("");
   const [novaProcFim, setNovaProcFim] = useState("");
+
+  /* Marcas INPI */
+  const [marcas, setMarcas] = useState<MarcaINPI[]>([]);
+  const [showFormMarca, setShowFormMarca] = useState(false);
+  const [novaMarcaNome, setNovaMarcaNome] = useState("");
+  const [novaMarcaNatureza, setNovaMarcaNatureza] = useState<NaturezaMarca>("nominativa");
+  const [novaMarcaClasse, setNovaMarcaClasse] = useState(CLASSES_NCL_COMUNS[1]);
+  const [novaMarcaDescricao, setNovaMarcaDescricao] = useState("");
+  const [novaMarcaTitular, setNovaMarcaTitular] = useState("");
+  const [novaMarcaProcurador, setNovaMarcaProcurador] = useState("");
+  const [novaMarcaDeposito, setNovaMarcaDeposito] = useState("");
+  const [novaMarcaPedido, setNovaMarcaPedido] = useState("");
+  const [novaMarcaObs, setNovaMarcaObs] = useState("");
 
   /* Filtro processos */
   const [filtroTipo, setFiltroTipo] = useState<TipoProcesso | "">("");
@@ -885,6 +941,214 @@ export default function SocietarioPage() {
                 </tbody>
               </table>
             )}
+          </div>
+        )}
+
+        {/* ════════════ MARCAS INPI ════════════ */}
+        {tab === "marcas_inpi" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+
+            {/* Header */}
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 800, color: "#07170d" }}>Marcas INPI</h2>
+                <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#9ca3af" }}>Registro e acompanhamento de marcas junto ao Instituto Nacional da Propriedade Industrial</p>
+              </div>
+              <button
+                onClick={() => setShowFormMarca(true)}
+                style={{ background: "#065f46", color: "#fff", border: "none", borderRadius: 8, padding: "0.55rem 1.2rem", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem" }}
+                type="button"
+              >
+                + Nova Marca
+              </button>
+            </div>
+
+            {/* KPIs */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+              {[
+                { label: "Total",        value: marcas.length,                                                                    color: "#374151", bg: "#f9fafb" },
+                { label: "Registradas",  value: marcas.filter(m => m.status === "registrada").length,                            color: "#065f46", bg: "#f0fdf4" },
+                { label: "Em andamento", value: marcas.filter(m => ["depositada","em_exame","deferida"].includes(m.status)).length, color: "#1d4ed8", bg: "#eff6ff" },
+                { label: "Atenção",      value: marcas.filter(m => ["oposicao","indeferida"].includes(m.status)).length,          color: "#b91c1c", bg: "#fef2f2" },
+              ].map((k) => (
+                <div key={k.label} style={{ background: k.bg, border: `1px solid ${k.color}22`, borderRadius: 10, padding: "0.9rem 1rem" }}>
+                  <div style={{ fontSize: "1.6rem", fontWeight: 800, color: k.color }}>{k.value}</div>
+                  <div style={{ fontSize: "0.72rem", color: "#6b7280", marginTop: 2 }}>{k.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Formulário nova marca */}
+            {showFormMarca && (
+              <div style={{ background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 12, padding: "1.5rem" }}>
+                <h3 style={{ margin: "0 0 1rem", fontSize: "0.95rem", fontWeight: 800 }}>Registrar nova marca</h3>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.875rem" }}>
+                  <div style={{ gridColumn: "1/-1" }}>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#374151" }}>Nome / Sinal da Marca *</label>
+                    <input value={novaMarcaNome} onChange={e => setNovaMarcaNome(e.target.value)} placeholder="Ex: FATTURATI" style={{ display: "block", width: "100%", marginTop: 4, padding: "0.55rem 0.75rem", borderRadius: 8, border: "1px solid #d1d5db", fontSize: "0.875rem", boxSizing: "border-box" }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#374151" }}>Natureza</label>
+                    <select value={novaMarcaNatureza} onChange={e => setNovaMarcaNatureza(e.target.value as NaturezaMarca)} style={{ display: "block", width: "100%", marginTop: 4, padding: "0.55rem 0.75rem", borderRadius: 8, border: "1px solid #d1d5db", fontSize: "0.875rem" }}>
+                      <option value="nominativa">Nominativa</option>
+                      <option value="figurativa">Figurativa</option>
+                      <option value="mista">Mista</option>
+                      <option value="tridimensional">Tridimensional</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#374151" }}>Classe NCL</label>
+                    <select value={novaMarcaClasse} onChange={e => setNovaMarcaClasse(e.target.value)} style={{ display: "block", width: "100%", marginTop: 4, padding: "0.55rem 0.75rem", borderRadius: 8, border: "1px solid #d1d5db", fontSize: "0.875rem" }}>
+                      {CLASSES_NCL_COMUNS.map(c => <option key={c} value={c}>{c}</option>)}
+                      <option value="outro">Outra classe (informar manualmente)</option>
+                    </select>
+                  </div>
+                  <div style={{ gridColumn: "1/-1" }}>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#374151" }}>Descrição dos serviços / produtos</label>
+                    <textarea value={novaMarcaDescricao} onChange={e => setNovaMarcaDescricao(e.target.value)} rows={2} placeholder="Descrição conforme especificação na petição de depósito..." style={{ display: "block", width: "100%", marginTop: 4, padding: "0.55rem 0.75rem", borderRadius: 8, border: "1px solid #d1d5db", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box" }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#374151" }}>Titular</label>
+                    <input value={novaMarcaTitular} onChange={e => setNovaMarcaTitular(e.target.value)} placeholder="Nome do titular" style={{ display: "block", width: "100%", marginTop: 4, padding: "0.55rem 0.75rem", borderRadius: 8, border: "1px solid #d1d5db", fontSize: "0.875rem", boxSizing: "border-box" }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#374151" }}>Procurador / Agente</label>
+                    <input value={novaMarcaProcurador} onChange={e => setNovaMarcaProcurador(e.target.value)} placeholder="Nome do procurador" style={{ display: "block", width: "100%", marginTop: 4, padding: "0.55rem 0.75rem", borderRadius: 8, border: "1px solid #d1d5db", fontSize: "0.875rem", boxSizing: "border-box" }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#374151" }}>Nº do Pedido (INPI)</label>
+                    <input value={novaMarcaPedido} onChange={e => setNovaMarcaPedido(e.target.value)} placeholder="Ex: 921234567" style={{ display: "block", width: "100%", marginTop: 4, padding: "0.55rem 0.75rem", borderRadius: 8, border: "1px solid #d1d5db", fontSize: "0.875rem", boxSizing: "border-box" }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#374151" }}>Data de depósito</label>
+                    <input type="date" value={novaMarcaDeposito} onChange={e => setNovaMarcaDeposito(e.target.value)} style={{ display: "block", width: "100%", marginTop: 4, padding: "0.55rem 0.75rem", borderRadius: 8, border: "1px solid #d1d5db", fontSize: "0.875rem", boxSizing: "border-box" }} />
+                  </div>
+                  <div style={{ gridColumn: "1/-1" }}>
+                    <label style={{ fontSize: "0.78rem", fontWeight: 700, color: "#374151" }}>Observações</label>
+                    <textarea value={novaMarcaObs} onChange={e => setNovaMarcaObs(e.target.value)} rows={2} placeholder="Informações adicionais, andamentos, recursos..." style={{ display: "block", width: "100%", marginTop: 4, padding: "0.55rem 0.75rem", borderRadius: 8, border: "1px solid #d1d5db", fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box" }} />
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.25rem", justifyContent: "flex-end" }}>
+                  <button onClick={() => setShowFormMarca(false)} style={{ background: "#f3f4f6", color: "#374151", border: "none", borderRadius: 8, padding: "0.55rem 1.2rem", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }} type="button">Cancelar</button>
+                  <button
+                    onClick={() => {
+                      if (!novaMarcaNome.trim()) return alert("Informe o nome da marca.");
+                      const nova: MarcaINPI = {
+                        id: crypto.randomUUID(),
+                        nome: novaMarcaNome.trim(),
+                        numero_pedido: novaMarcaPedido.trim() || "—",
+                        numero_registro: "—",
+                        natureza: novaMarcaNatureza,
+                        classe_ncl: novaMarcaClasse,
+                        descricao_servicos: novaMarcaDescricao.trim(),
+                        data_deposito: novaMarcaDeposito || "—",
+                        data_concessao: "—",
+                        data_vencimento: "—",
+                        status: novaMarcaPedido.trim() ? "depositada" : "em_preparacao",
+                        titular: novaMarcaTitular.trim(),
+                        procurador: novaMarcaProcurador.trim(),
+                        obs: novaMarcaObs.trim(),
+                      };
+                      setMarcas(prev => [nova, ...prev]);
+                      audit("Marca registrada", "Marcas INPI", `${nova.nome} — ${nova.natureza} — Pedido: ${nova.numero_pedido}`);
+                      setNovaMarcaNome(""); setNovaMarcaNatureza("nominativa");
+                      setNovaMarcaClasse(CLASSES_NCL_COMUNS[1]); setNovaMarcaDescricao("");
+                      setNovaMarcaTitular(""); setNovaMarcaProcurador("");
+                      setNovaMarcaDeposito(""); setNovaMarcaPedido(""); setNovaMarcaObs("");
+                      setShowFormMarca(false);
+                    }}
+                    style={{ background: "#065f46", color: "#fff", border: "none", borderRadius: 8, padding: "0.55rem 1.4rem", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
+                    type="button"
+                  >
+                    Salvar marca
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Tabela de marcas */}
+            {marcas.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "3rem 2rem", background: "#f9fafb", borderRadius: 12, border: "2px dashed #e5e7eb" }}>
+                <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>™</div>
+                <div style={{ fontWeight: 700, color: "#374151", marginBottom: 4 }}>Nenhuma marca registrada</div>
+                <div style={{ fontSize: "0.82rem", color: "#9ca3af" }}>Clique em "Nova Marca" para iniciar o acompanhamento de um pedido junto ao INPI.</div>
+              </div>
+            ) : (
+              <div style={{ overflowX: "auto", borderRadius: 10, border: "1px solid #fde68a" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+                  <thead>
+                    <tr>
+                      <TH>Marca</TH>
+                      <TH>Natureza</TH>
+                      <TH>Classe NCL</TH>
+                      <TH>Nº Pedido</TH>
+                      <TH>Data Depósito</TH>
+                      <TH>Titular</TH>
+                      <TH>Status</TH>
+                      <TH>Ações</TH>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {marcas.map((m) => (
+                      <tr key={m.id} style={{ transition: "background 0.15s" }}>
+                        <TD bold>{m.nome}</TD>
+                        <TD>{m.natureza.charAt(0).toUpperCase() + m.natureza.slice(1)}</TD>
+                        <TD muted>{m.classe_ncl}</TD>
+                        <TD>{m.numero_pedido}</TD>
+                        <TD muted>{m.data_deposito === "—" ? "—" : new Date(m.data_deposito + "T00:00:00").toLocaleDateString("pt-BR")}</TD>
+                        <TD>{m.titular || "—"}</TD>
+                        <td style={{ padding: "0.75rem 0.875rem", borderBottom: "1px solid #fef9ec" }}>
+                          <Badge {...S_MARCA[m.status]} />
+                        </td>
+                        <td style={{ padding: "0.75rem 0.875rem", borderBottom: "1px solid #fef9ec", whiteSpace: "nowrap" }}>
+                          {/* Avançar status */}
+                          {(["em_preparacao","protocolo_pendente","depositada","em_exame","deferida"] as StatusMarca[]).includes(m.status) && (
+                            <button
+                              onClick={() => {
+                                const fluxo: StatusMarca[] = ["em_preparacao","protocolo_pendente","depositada","em_exame","deferida","registrada"];
+                                const idx = fluxo.indexOf(m.status);
+                                const prox = fluxo[idx + 1];
+                                if (!prox) return;
+                                setMarcas(prev => prev.map(x => x.id === m.id ? { ...x, status: prox } : x));
+                                audit("Status atualizado", "Marcas INPI", `${m.nome}: ${S_MARCA[m.status].label} → ${S_MARCA[prox].label}`);
+                              }}
+                              style={{ background: "#f0fdf4", color: "#065f46", border: "1px solid #bbf7d0", borderRadius: 6, padding: "3px 10px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", marginRight: 6 }}
+                              title="Avançar para próxima etapa"
+                              type="button"
+                            >
+                              Avançar →
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              if (confirm(`Remover a marca "${m.nome}"?`)) {
+                                setMarcas(prev => prev.filter(x => x.id !== m.id));
+                                audit("Marca removida", "Marcas INPI", m.nome);
+                              }
+                            }}
+                            style={{ background: "#fef2f2", color: "#b91c1c", border: "1px solid #fecaca", borderRadius: 6, padding: "3px 10px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer" }}
+                            type="button"
+                          >
+                            Remover
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Informativo INPI */}
+            <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 10, padding: "1rem 1.25rem" }}>
+              <div style={{ fontWeight: 700, fontSize: "0.83rem", color: "#1d4ed8", marginBottom: "0.4rem" }}>ℹ️ Sobre o registro de marcas no Brasil</div>
+              <div style={{ fontSize: "0.78rem", color: "#1e40af", lineHeight: 1.65 }}>
+                O prazo médio de análise pelo INPI é de <strong>18 a 36 meses</strong>. O registro concedido tem validade de <strong>10 anos</strong>, renovável por igual período.
+                Após o depósito, a marca entra em exame formal e técnico. Caso não haja oposição de terceiros na fase de publicação,
+                o pedido é deferido e o certificado emitido. Acompanhe regularmente a Revista da Propriedade Industrial (RPI).
+              </div>
+            </div>
+
           </div>
         )}
 
