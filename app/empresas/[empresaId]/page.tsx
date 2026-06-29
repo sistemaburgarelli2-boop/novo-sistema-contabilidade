@@ -775,18 +775,82 @@ export default function EmpresaDetalhe() {
               )}
 
               {/* ── Tab 5: Portal ──────────────────────────────── */}
-              {tab === "portal" && (
-                <div style={{ display: "grid", gap: 20 }}>
-                  <div>
-                    <h3 style={sectionTitle}>Portal do cliente</h3>
-                    <p style={sectionSubtitle}>Acesso e atividades do cliente no portal</p>
+              {tab === "portal" && (() => {
+                const m = (empresa?.metadata ?? {}) as Record<string, string>;
+                const temPortal = !!(m.email_portal || m.nome_portal);
+                return (
+                  <div style={{ display: "grid", gap: 20 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+                      <div>
+                        <h3 style={sectionTitle}>Portal do cliente</h3>
+                        <p style={sectionSubtitle}>Acesso e atividades do cliente no portal</p>
+                      </div>
+                      <div style={{ display: "flex", gap: 10 }}>
+                        <Link href={`/empresas/${empresaId}/editar`} className="small-action" style={{ textDecoration: "none" }}>Editar portal</Link>
+                        {temPortal && (
+                          <Link href={`/portal/${empresaId}`} style={{
+                            display: "inline-flex", alignItems: "center", gap: 6,
+                            background: "linear-gradient(135deg,#10b981,#059669)", border: "none",
+                            borderRadius: 8, color: "#fff", fontSize: 13, fontWeight: 700,
+                            padding: "8px 16px", textDecoration: "none",
+                          }}>
+                            Acessar portal
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+
+                    {!temPortal ? (
+                      <EmptyState
+                        titulo="Portal não configurado"
+                        descricao="Clique em 'Editar portal' para configurar o acesso do cliente"
+                      />
+                    ) : (
+                      <>
+                        <div style={{
+                          background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 10,
+                          padding: "12px 16px", fontSize: 13, fontWeight: 600, color: "#166534",
+                          display: "flex", alignItems: "center", gap: 8,
+                        }}>
+                          <span style={{ fontSize: 18 }}>✓</span> Portal configurado e ativo
+                        </div>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 }}>
+                          {[
+                            { label: "Nome no portal", value: m.nome_portal },
+                            { label: "E-mail do portal", value: m.email_portal },
+                            { label: "Telefone do portal", value: m.telefone_portal },
+                          ].filter(c => c.value).map(c => (
+                            <div key={c.label} style={infoCard}>
+                              <div style={infoLabel}>{c.label}</div>
+                              <div style={infoValue}>{c.value}</div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div>
+                          <div style={{ ...infoLabel, marginBottom: 10 }}>Permissões</div>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                            {["empresa.read", "documento.read", "documento.upload", "guia.download", "solicitacao.create"].map(p => (
+                              <span key={p} style={{
+                                padding: "4px 12px", borderRadius: 6, fontSize: 12, fontWeight: 500,
+                                background: "#065f4610", color: "#065f46", border: "1px solid #065f4625",
+                              }}>{p}</span>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div style={infoCard}>
+                          <div style={infoLabel}>Link do portal</div>
+                          <div style={{ ...infoValue, fontFamily: "monospace", fontSize: 13 }}>
+                            portal.burgarelli.com.br/{empresa?.subdominio || empresaId}
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
-                  <EmptyState
-                    titulo="Portal não configurado"
-                    descricao="O acesso ao portal será criado durante o onboarding"
-                  />
-                </div>
-              )}
+                );
+              })()}
 
               {/* ── Tab 6: Financeiro ──────────────────────────── */}
               {tab === "financeiro" && (
