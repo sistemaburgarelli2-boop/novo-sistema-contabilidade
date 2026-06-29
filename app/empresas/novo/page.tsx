@@ -201,9 +201,9 @@ export default function NovaEmpresaPage() {
     const limpo = cep.replace(/\D/g, "");
     if (limpo.length !== 8) return;
     try {
-      const res = await fetch(`https://viacep.com.br/ws/${limpo}/json/`);
+      const res = await fetch(`/api/cep/${limpo}`);
       const data = await res.json();
-      if (data.erro) return;
+      if (data.erro || !res.ok) return;
       if (tipo === "empresa") {
         setForm(prev => ({
           ...prev,
@@ -505,7 +505,7 @@ export default function NovaEmpresaPage() {
       <div style={gridRow(3)}>
         <Field label="CEP">
           <input style={inputStyle} value={form.cep}
-            onChange={e => set("cep", e.target.value)}
+            onChange={e => { set("cep", e.target.value); const v = e.target.value.replace(/\D/g, ""); if (v.length === 8) buscarCep(v); }}
             onBlur={() => buscarCep(form.cep)}
             placeholder="00000-000" />
         </Field>
@@ -687,7 +687,7 @@ export default function NovaEmpresaPage() {
       <div style={gridRow(3)}>
         <Field label="CEP">
           <input style={inputStyle} value={form.cep_empresa}
-            onChange={e => set("cep_empresa", e.target.value)}
+            onChange={e => { set("cep_empresa", e.target.value); const v = e.target.value.replace(/\D/g, ""); if (v.length === 8) buscarCep(v, "empresa"); }}
             onBlur={() => buscarCep(form.cep_empresa, "empresa")}
             placeholder="00000-000" />
         </Field>

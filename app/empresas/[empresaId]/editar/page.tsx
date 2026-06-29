@@ -263,9 +263,9 @@ export default function EditarEmpresaPage() {
     const limpo = cep.replace(/\D/g, "");
     if (limpo.length !== 8) return;
     try {
-      const res = await fetch(`https://viacep.com.br/ws/${limpo}/json/`);
+      const res = await fetch(`/api/cep/${limpo}`);
       const data = await res.json();
-      if (data.erro) return;
+      if (data.erro || !res.ok) return;
       if (tipo === "empresa") {
         setForm(prev => ({
           ...prev,
@@ -467,7 +467,7 @@ export default function EditarEmpresaPage() {
       <p style={{ color: V.muted, fontSize: 14, marginBottom: 24 }}>Endereço residencial e informações complementares.</p>
 
       <div style={gridRow(3)}>
-        <Field label="CEP"><input style={inputStyle} value={form.cep} onChange={e => set("cep", e.target.value)} onBlur={() => buscarCep(form.cep)} placeholder="00000-000" /></Field>
+        <Field label="CEP"><input style={inputStyle} value={form.cep} onChange={e => { set("cep", e.target.value); const v = e.target.value.replace(/\D/g, ""); if (v.length === 8) buscarCep(v); }} onBlur={() => buscarCep(form.cep)} placeholder="00000-000" /></Field>
         <Field label="Logradouro"><input style={inputStyle} value={form.logradouro} onChange={e => set("logradouro", e.target.value)} placeholder="Rua, Av..." /></Field>
         <Field label="Número"><input style={inputStyle} value={form.numero} onChange={e => set("numero", e.target.value)} placeholder="Nº" /></Field>
       </div>
@@ -547,7 +547,7 @@ export default function EditarEmpresaPage() {
 
       <h3 style={{ fontSize: 16, color: V.ink, margin: "20px 0 12px", borderTop: `1px solid ${V.border}`, paddingTop: 16 }}>Endereço da empresa</h3>
       <div style={gridRow(3)}>
-        <Field label="CEP"><input style={inputStyle} value={form.cep_empresa} onChange={e => set("cep_empresa", e.target.value)} onBlur={() => buscarCep(form.cep_empresa, "empresa")} placeholder="00000-000" /></Field>
+        <Field label="CEP"><input style={inputStyle} value={form.cep_empresa} onChange={e => { set("cep_empresa", e.target.value); const v = e.target.value.replace(/\D/g, ""); if (v.length === 8) buscarCep(v, "empresa"); }} onBlur={() => buscarCep(form.cep_empresa, "empresa")} placeholder="00000-000" /></Field>
         <Field label="Logradouro"><input style={inputStyle} value={form.logradouro_empresa} onChange={e => set("logradouro_empresa", e.target.value)} placeholder="Rua, Av..." /></Field>
         <Field label="Número"><input style={inputStyle} value={form.numero_empresa} onChange={e => set("numero_empresa", e.target.value)} placeholder="Nº" /></Field>
       </div>
