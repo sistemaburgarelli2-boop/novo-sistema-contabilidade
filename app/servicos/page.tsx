@@ -669,6 +669,15 @@ type MarcaINPI = {
   id: string; nome: string; numero_pedido: string; natureza: NaturezaMarca;
   classe_ncl: string; descricao_servicos: string; data_deposito: string;
   titular: string; procurador: string; obs: string; status: StatusMarca;
+  inpi_situacao?: string; inpi_ultimo_despacho?: string; inpi_data_despacho?: string;
+  inpi_data_concessao?: string; inpi_data_vencimento?: string; inpi_synced_at?: string;
+};
+
+type ResultadoBuscaINPI = {
+  numero_pedido: string; nome_marca: string; titular: string; natureza: string;
+  classe_ncl: string; situacao: string; data_deposito: string;
+  data_concessao: string; data_vencimento: string;
+  ultimo_despacho: string; data_ultimo_despacho: string;
 };
 
 const S_MARCA: Record<StatusMarca, { bg: string; color: string; label: string }> = {
@@ -706,6 +715,14 @@ function MarcasINPI() {
   const [obs, setObs] = useState("");
   const [filtroStatus, setFiltroStatus] = useState<StatusMarca | "">("");
 
+  // Busca INPI
+  const [buscaTermo, setBuscaTermo] = useState("");
+  const [buscando, setBuscando] = useState(false);
+  const [resultadosBusca, setResultadosBusca] = useState<ResultadoBuscaINPI[]>([]);
+  const [erroBusca, setErroBusca] = useState("");
+  const [sincronizando, setSincronizando] = useState<string | null>(null);
+  const [detalheAberto, setDetalheAberto] = useState<string | null>(null);
+
   function salvar() {
     if (!nome.trim()) return alert("Informe o nome da marca.");
     const nova: MarcaINPI = {
@@ -730,8 +747,83 @@ function MarcasINPI() {
     }));
   }
 
-  function remover(id: string, nome: string) {
-    if (confirm(`Remover a marca "${nome}"?`)) setMarcas(prev => prev.filter(m => m.id !== id));
+  function remover(id: string, nomeMarca: string) {
+    if (confirm(`Remover a marca "${nomeMarca}"?`)) setMarcas(prev => prev.filter(m => m.id !== id));
+  }
+
+  async function buscarINPI() {
+    const termo = buscaTermo.trim();
+    if (!termo) return;
+    setBuscando(true); setErroBusca(""); setResultadosBusca([]);
+    try {
+      const isNumero = /^\d+$/.test(termo);
+      const qs = isNumero ? `pedido=${termo}` : `termo=${encodeURIComponent(termo)}`;
+      const res = await fetch(`/api/inpi/marcas?${qs}`);
+      const json = await res.json();
+      if (!res.ok) { setErroBusca(json.error ?? "Erro ao consultar INPI."); return; }
+      setResultadosBusca(json.data?.marcas ?? []);
+      if ((json.data?.marcas ?? []).length === 0) setErroBusca("Nenhuma marca encontrada no INPI para essa busca.");
+    } catch {
+      setErroBusca("Não foi possível conectar à API do INPI. Tente novamente.");
+    } finally {
+      setBuscando(false);
+    }
+  }
+
+  function importarDaINPI(r: ResultadoBuscaINPI) {
+    const nova: MarcaINPI = {
+      id: crypto.randomUUID(),
+      nome: r.nome_marca,
+      numero_pedido: r.numero_pedido,
+      natureza: "nominativa",
+      classe_ncl: r.classe_ncl,
+      descricao_servicos: "",
+      data_deposito: r.data_deposito,
+      titular: r.titular,
+      procurador: "",
+      obs: "",
+      status: "depositada",
+      inpi_situacao: r.situacao,
+      inpi_ultimo_despacho: r.ultimo_despacho,
+      inpi_data_despacho: r.data_ultimo_despacho,
+      inpi_data_concessao: r.data_concessao,
+      inpi_data_vencimento: r.data_vencimento,
+      inpi_synced_at: new Date().toISOString(),
+    };
+    setMarcas(prev => [nova, ...prev]);
+    setResultadosBusca([]);
+    setBuscaTermo("");
+  }
+
+  async function sincronizar(id: string) {
+    const marca = marcas.find(m => m.id === id);
+    if (!marca || marca.numero_pedido === "—") return alert("Esta marca não tem número de pedido INPI cadastrado.");
+    setSincronizando(id);
+    try {
+      const res = await fetch(`/api/inpi/marcas?pedido=${marca.numero_pedido.replace(/\D/g, "")}`);
+      const json = await res.json();
+      if (!res.ok) { alert(json.error ?? "Erro ao consultar INPI."); return; }
+      const r: ResultadoBuscaINPI = json.data?.marcas?.[0];
+      if (!r) { alert("Pedido não encontrado no INPI. Verifique o número."); return; }
+      setMarcas(prev => prev.map(m => m.id !== id ? m : {
+        ...m,
+        inpi_situacao: r.situacao,
+        inpi_ultimo_despacho: r.ultimo_despacho,
+        inpi_data_despacho: r.data_ultimo_despacho,
+        inpi_data_concessao: r.data_concessao,
+        inpi_data_vencimento: r.data_vencimento,
+        inpi_synced_at: new Date().toISOString(),
+      }));
+    } catch {
+      alert("Erro de conexão com o INPI.");
+    } finally {
+      setSincronizando(null);
+    }
+  }
+
+  async function sincronizarTodas() {
+    const comPedido = marcas.filter(m => m.numero_pedido !== "—");
+    for (const m of comPedido) await sincronizar(m.id);
   }
 
   const marcasFiltradas = filtroStatus ? marcas.filter(m => m.status === filtroStatus) : marcas;
@@ -739,7 +831,7 @@ function MarcasINPI() {
   return (
     <div>
       <h3 style={{ margin: "0 0 4px", fontSize: "1.05rem", color: "#07170d" }}>Registro de Marcas INPI</h3>
-      <p style={{ color: "#6f8f7c", fontSize: "0.82rem", marginBottom: 20 }}>Gerencie pedidos de registro de marcas e acompanhe o andamento junto ao INPI.</p>
+      <p style={{ color: "#6f8f7c", fontSize: "0.82rem", marginBottom: 20 }}>Gerencie pedidos e consulte o andamento em tempo real diretamente na base do INPI.</p>
 
       {/* KPIs */}
       <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: 20 }}>
@@ -747,6 +839,7 @@ function MarcasINPI() {
           { label: "Total", value: marcas.length, color: "#374151", bg: "#f9fafb" },
           { label: "Registradas", value: marcas.filter(m => m.status === "registrada").length, color: "#065f46", bg: "#f0fdf4" },
           { label: "Em andamento", value: marcas.filter(m => ["depositada","em_exame","deferida"].includes(m.status)).length, color: "#1d4ed8", bg: "#eff6ff" },
+          { label: "Sincronizadas", value: marcas.filter(m => !!m.inpi_synced_at).length, color: "#0e7490", bg: "#ecfeff" },
           { label: "Atenção", value: marcas.filter(m => ["oposicao","indeferida"].includes(m.status)).length, color: "#b91c1c", bg: "#fef2f2" },
         ].map(k => (
           <div key={k.label} style={{ background: k.bg, border: `1px solid ${k.color}22`, borderRadius: 10, padding: "0.75rem 1.1rem", minWidth: 110 }}>
@@ -756,10 +849,87 @@ function MarcasINPI() {
         ))}
       </div>
 
+      {/* Busca no INPI */}
+      <div style={{ background: "#f0f9ff", border: "1.5px solid #bae6fd", borderRadius: 12, padding: "1.1rem 1.25rem", marginBottom: 20 }}>
+        <div style={{ fontWeight: 800, fontSize: "0.88rem", color: "#0369a1", marginBottom: "0.6rem" }}>
+          🔍 Consultar base do INPI
+        </div>
+        <p style={{ margin: "0 0 0.75rem", fontSize: "0.78rem", color: "#0369a1" }}>
+          Digite o <strong>nome da marca</strong> para verificar conflitos, ou o <strong>número do pedido</strong> para consultar o andamento oficial.
+        </p>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          <input
+            value={buscaTermo}
+            onChange={e => setBuscaTermo(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && buscarINPI()}
+            placeholder="Ex: FATTURATI ou 921234567"
+            style={{ flex: 1, padding: "0.55rem 0.875rem", border: "1.5px solid #bae6fd", borderRadius: 8, fontSize: "0.875rem", outline: "none", background: "#fff" }}
+          />
+          <button
+            onClick={buscarINPI}
+            disabled={buscando || !buscaTermo.trim()}
+            style={{ padding: "0.55rem 1.25rem", background: buscando ? "#94a3b8" : "linear-gradient(135deg, #0369a1, #0891b2)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: buscando ? "not-allowed" : "pointer", whiteSpace: "nowrap" }}
+            type="button"
+          >
+            {buscando ? "Consultando..." : "Consultar INPI"}
+          </button>
+          {marcas.some(m => m.numero_pedido !== "—") && (
+            <button
+              onClick={sincronizarTodas}
+              disabled={!!sincronizando}
+              style={{ padding: "0.55rem 1rem", background: "#fff", color: "#0369a1", border: "1.5px solid #bae6fd", borderRadius: 8, fontWeight: 700, fontSize: "0.82rem", cursor: "pointer", whiteSpace: "nowrap" }}
+              title="Atualiza o status de todas as marcas com número de pedido"
+              type="button"
+            >
+              ↻ Atualizar todas
+            </button>
+          )}
+        </div>
+
+        {erroBusca && (
+          <div style={{ marginTop: "0.75rem", padding: "0.6rem 0.875rem", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, fontSize: "0.8rem", color: "#b91c1c" }}>
+            {erroBusca}
+          </div>
+        )}
+
+        {resultadosBusca.length > 0 && (
+          <div style={{ marginTop: "0.875rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0369a1", textTransform: "uppercase" }}>{resultadosBusca.length} resultado(s) encontrado(s) no INPI</div>
+            {resultadosBusca.map((r, i) => (
+              <div key={i} style={{ background: "#fff", border: "1.5px solid #bae6fd", borderRadius: 10, padding: "0.875rem 1rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "0.5rem" }}>
+                  <div>
+                    <div style={{ fontWeight: 800, fontSize: "0.9rem", color: "#07170d" }}>{r.nome_marca}</div>
+                    <div style={{ fontSize: "0.75rem", color: "#6b7280", marginTop: 2 }}>
+                      Pedido: <strong>{r.numero_pedido}</strong> · Titular: {r.titular} · Classe: {r.classe_ncl}
+                    </div>
+                    <div style={{ fontSize: "0.75rem", color: "#0369a1", marginTop: 4, fontWeight: 600 }}>
+                      Situação INPI: {r.situacao}
+                    </div>
+                    {r.ultimo_despacho !== "—" && (
+                      <div style={{ fontSize: "0.72rem", color: "#6b7280", marginTop: 2 }}>
+                        Último despacho: {r.ultimo_despacho} {r.data_ultimo_despacho !== "—" ? `(${r.data_ultimo_despacho})` : ""}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => importarDaINPI(r)}
+                    style={{ padding: "0.4rem 0.875rem", background: "linear-gradient(135deg, #065f46, #10b981)", color: "#fff", border: "none", borderRadius: 7, fontWeight: 700, fontSize: "0.78rem", cursor: "pointer", whiteSpace: "nowrap" }}
+                    type="button"
+                  >
+                    + Importar para minha lista
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Ações */}
       <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", marginBottom: 16, flexWrap: "wrap" }}>
         <button onClick={() => setShowForm(v => !v)} style={{ padding: "0.5rem 1.2rem", background: "linear-gradient(135deg, #0e7490, #0891b2)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }} type="button">
-          {showForm ? "✕ Cancelar" : "+ Nova Marca"}
+          {showForm ? "✕ Cancelar" : "+ Nova Marca Manual"}
         </button>
         <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value as StatusMarca | "")} style={{ padding: "0.5rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.82rem", background: "#fff", cursor: "pointer" }}>
           <option value="">Todos os status</option>
@@ -767,10 +937,10 @@ function MarcasINPI() {
         </select>
       </div>
 
-      {/* Formulário */}
+      {/* Formulário manual */}
       {showForm && (
         <div style={{ background: "#f9fafb", border: "1.5px solid #dfece5", borderRadius: 12, padding: "1.25rem", marginBottom: 20 }}>
-          <h4 style={{ margin: "0 0 1rem", fontSize: "0.9rem", fontWeight: 800 }}>Nova marca</h4>
+          <h4 style={{ margin: "0 0 1rem", fontSize: "0.9rem", fontWeight: 800 }}>Cadastrar marca manualmente</h4>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
             <div style={{ gridColumn: "1/-1" }}>
               <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Nome / Sinal da Marca *</label>
@@ -828,48 +998,104 @@ function MarcasINPI() {
         <div style={{ textAlign: "center", padding: "3rem 2rem", background: "#f9fafb", borderRadius: 12, border: "2px dashed #e5e7eb" }}>
           <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>™</div>
           <div style={{ fontWeight: 700, color: "#374151", marginBottom: 4 }}>Nenhuma marca cadastrada</div>
-          <div style={{ fontSize: "0.82rem", color: "#9ca3af" }}>Clique em "Nova Marca" para iniciar o acompanhamento de um pedido no INPI.</div>
+          <div style={{ fontSize: "0.82rem", color: "#9ca3af" }}>Use a busca acima para encontrar marcas no INPI, ou clique em "Nova Marca Manual".</div>
         </div>
       ) : (
-        <div style={{ overflowX: "auto", borderRadius: 10, border: "1.5px solid #dfece5" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
-            <thead>
-              <tr style={{ background: "#f0fdf4" }}>
-                {["Marca","Natureza","Classe NCL","Nº Pedido","Depósito","Titular","Status","Ações"].map(h => (
-                  <th key={h} style={{ padding: "0.7rem 0.875rem", textAlign: "left", color: "#065f46", fontWeight: 700, fontSize: "0.72rem", textTransform: "uppercase", borderBottom: "1.5px solid #dfece5", whiteSpace: "nowrap" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {marcasFiltradas.map(m => (
-                <tr key={m.id}>
-                  <td style={{ padding: "0.75rem 0.875rem", fontWeight: 700, borderBottom: "1px solid #e8f0eb" }}>{m.nome}</td>
-                  <td style={{ padding: "0.75rem 0.875rem", borderBottom: "1px solid #e8f0eb", color: "#6b7280" }}>{m.natureza.charAt(0).toUpperCase() + m.natureza.slice(1)}</td>
-                  <td style={{ padding: "0.75rem 0.875rem", borderBottom: "1px solid #e8f0eb", color: "#6b7280", fontSize: "0.78rem", maxWidth: 160 }}>{m.classe_ncl}</td>
-                  <td style={{ padding: "0.75rem 0.875rem", borderBottom: "1px solid #e8f0eb" }}>{m.numero_pedido}</td>
-                  <td style={{ padding: "0.75rem 0.875rem", borderBottom: "1px solid #e8f0eb", color: "#6b7280" }}>{m.data_deposito === "—" ? "—" : new Date(m.data_deposito + "T00:00:00").toLocaleDateString("pt-BR")}</td>
-                  <td style={{ padding: "0.75rem 0.875rem", borderBottom: "1px solid #e8f0eb" }}>{m.titular || "—"}</td>
-                  <td style={{ padding: "0.75rem 0.875rem", borderBottom: "1px solid #e8f0eb" }}>
-                    <span style={{ display: "inline-block", background: S_MARCA[m.status].bg, color: S_MARCA[m.status].color, borderRadius: 999, padding: "3px 10px", fontSize: "0.72rem", fontWeight: 700, whiteSpace: "nowrap" }}>{S_MARCA[m.status].label}</span>
-                  </td>
-                  <td style={{ padding: "0.75rem 0.875rem", borderBottom: "1px solid #e8f0eb", whiteSpace: "nowrap" }}>
-                    {FLUXO_MARCA.includes(m.status) && FLUXO_MARCA.indexOf(m.status) < FLUXO_MARCA.length - 1 && (
-                      <button onClick={() => avancar(m.id)} style={{ background: "#f0fdf4", color: "#065f46", border: "1px solid #bbf7d0", borderRadius: 6, padding: "3px 10px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", marginRight: 6 }} type="button">Avançar →</button>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          {marcasFiltradas.map(m => (
+            <div key={m.id} style={{ background: "#fff", border: "1.5px solid #dfece5", borderRadius: 12, overflow: "hidden" }}>
+              {/* Linha principal */}
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.875rem 1rem", flexWrap: "wrap" }}>
+                <div style={{ flex: 1, minWidth: 200 }}>
+                  <div style={{ fontWeight: 800, fontSize: "0.92rem", color: "#07170d" }}>{m.nome}</div>
+                  <div style={{ fontSize: "0.75rem", color: "#6b7280", marginTop: 2 }}>
+                    {m.numero_pedido !== "—" && <>Pedido: <strong>{m.numero_pedido}</strong> · </>}
+                    {m.natureza.charAt(0).toUpperCase() + m.natureza.slice(1)} · {m.classe_ncl}
+                  </div>
+                  {m.titular && <div style={{ fontSize: "0.73rem", color: "#9ca3af", marginTop: 1 }}>Titular: {m.titular}</div>}
+                </div>
+
+                {/* Status INPI ao vivo */}
+                {m.inpi_situacao && (
+                  <div style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 8, padding: "0.4rem 0.75rem", fontSize: "0.73rem" }}>
+                    <div style={{ color: "#0369a1", fontWeight: 700, fontSize: "0.65rem", textTransform: "uppercase" }}>INPI ao vivo</div>
+                    <div style={{ color: "#0c4a6e", fontWeight: 600, marginTop: 1 }}>{m.inpi_situacao}</div>
+                    {m.inpi_synced_at && (
+                      <div style={{ color: "#94a3b8", fontSize: "0.62rem", marginTop: 1 }}>
+                        Atualizado: {new Date(m.inpi_synced_at).toLocaleString("pt-BR")}
+                      </div>
                     )}
-                    <button onClick={() => remover(m.id, m.nome)} style={{ background: "#fef2f2", color: "#b91c1c", border: "1px solid #fecaca", borderRadius: 6, padding: "3px 10px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer" }} type="button">Remover</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                )}
+
+                <span style={{ display: "inline-block", background: S_MARCA[m.status].bg, color: S_MARCA[m.status].color, borderRadius: 999, padding: "4px 12px", fontSize: "0.72rem", fontWeight: 700, whiteSpace: "nowrap" }}>
+                  {S_MARCA[m.status].label}
+                </span>
+
+                {/* Ações */}
+                <div style={{ display: "flex", gap: "0.4rem", flexShrink: 0 }}>
+                  {m.numero_pedido !== "—" && (
+                    <button
+                      onClick={() => sincronizar(m.id)}
+                      disabled={sincronizando === m.id}
+                      style={{ background: "#f0f9ff", color: "#0369a1", border: "1px solid #bae6fd", borderRadius: 6, padding: "4px 10px", fontSize: "0.73rem", fontWeight: 700, cursor: "pointer" }}
+                      title="Consultar status atualizado no INPI"
+                      type="button"
+                    >
+                      {sincronizando === m.id ? "..." : "↻ INPI"}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setDetalheAberto(detalheAberto === m.id ? null : m.id)}
+                    style={{ background: "#f3f4f6", color: "#374151", border: "1px solid #e5e7eb", borderRadius: 6, padding: "4px 10px", fontSize: "0.73rem", fontWeight: 700, cursor: "pointer" }}
+                    type="button"
+                  >
+                    {detalheAberto === m.id ? "▲" : "▼"}
+                  </button>
+                  {FLUXO_MARCA.includes(m.status) && FLUXO_MARCA.indexOf(m.status) < FLUXO_MARCA.length - 1 && (
+                    <button onClick={() => avancar(m.id)} style={{ background: "#f0fdf4", color: "#065f46", border: "1px solid #bbf7d0", borderRadius: 6, padding: "4px 10px", fontSize: "0.73rem", fontWeight: 700, cursor: "pointer" }} type="button">→</button>
+                  )}
+                  <button onClick={() => remover(m.id, m.nome)} style={{ background: "#fef2f2", color: "#b91c1c", border: "1px solid #fecaca", borderRadius: 6, padding: "4px 10px", fontSize: "0.73rem", fontWeight: 700, cursor: "pointer" }} type="button">✕</button>
+                </div>
+              </div>
+
+              {/* Detalhe expandido */}
+              {detalheAberto === m.id && (
+                <div style={{ borderTop: "1px solid #e8f0eb", background: "#f9fafb", padding: "0.875rem 1rem", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "0.75rem" }}>
+                  {[
+                    { label: "Nº Pedido", value: m.numero_pedido },
+                    { label: "Depósito", value: m.data_deposito && m.data_deposito !== "—" ? new Date(m.data_deposito + "T00:00:00").toLocaleDateString("pt-BR") : "—" },
+                    { label: "Concessão INPI", value: m.inpi_data_concessao ?? "—" },
+                    { label: "Vencimento INPI", value: m.inpi_data_vencimento ?? "—" },
+                    { label: "Último despacho", value: m.inpi_ultimo_despacho ?? "—" },
+                    { label: "Data do despacho", value: m.inpi_data_despacho ?? "—" },
+                    { label: "Procurador", value: m.procurador || "—" },
+                    { label: "Observações", value: m.obs || "—" },
+                  ].map(f => (
+                    <div key={f.label}>
+                      <div style={{ fontSize: "0.65rem", color: "#9ca3af", fontWeight: 700, textTransform: "uppercase" }}>{f.label}</div>
+                      <div style={{ fontSize: "0.8rem", color: "#374151", marginTop: 2, fontWeight: 500 }}>{f.value}</div>
+                    </div>
+                  ))}
+                  {m.descricao_servicos && (
+                    <div style={{ gridColumn: "1/-1" }}>
+                      <div style={{ fontSize: "0.65rem", color: "#9ca3af", fontWeight: 700, textTransform: "uppercase" }}>Descrição dos serviços</div>
+                      <div style={{ fontSize: "0.8rem", color: "#374151", marginTop: 2 }}>{m.descricao_servicos}</div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
 
       {/* Informativo */}
       <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 10, padding: "0.875rem 1.1rem", marginTop: 20 }}>
-        <div style={{ fontWeight: 700, fontSize: "0.82rem", color: "#1d4ed8", marginBottom: "0.35rem" }}>ℹ️ Sobre o registro de marcas no Brasil</div>
+        <div style={{ fontWeight: 700, fontSize: "0.82rem", color: "#1d4ed8", marginBottom: "0.35rem" }}>ℹ️ Sobre a integração com o INPI</div>
         <div style={{ fontSize: "0.77rem", color: "#1e40af", lineHeight: 1.65 }}>
-          Prazo médio de análise pelo INPI: <strong>18 a 36 meses</strong>. Registro válido por <strong>10 anos</strong>, renovável. Acompanhe pela Revista da Propriedade Industrial (RPI) publicada semanalmente.
+          A consulta usa a <strong>API pública de busca do INPI</strong> (buscaapi.inpi.gov.br) — sem login, sem custo. O depósito de novos pedidos deve ser feito diretamente no portal <strong>e-INPI</strong> com certificado digital.
+          Prazo médio de análise: <strong>18 a 36 meses</strong>. Registro válido por <strong>10 anos</strong>, renovável.
         </div>
       </div>
     </div>
