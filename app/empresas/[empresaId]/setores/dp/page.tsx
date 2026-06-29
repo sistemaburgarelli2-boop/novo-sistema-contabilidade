@@ -145,7 +145,7 @@ export default function DPPage() {
   const [rescisaoStep, setRescisaoStep] = useState(1);
   const [tipoRescisao, setTipoRescisao] = useState<TipoRescisao>("sem_justa_causa");
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
-  const [checklist, setChecklist] = useState([
+  const [checklist, setChecklist] = useState<Array<{ id: string; label: string; feito: boolean; fileName?: string; file?: File }>>([
     { id: "1", label: "RG — Registro Geral",         feito: false },
     { id: "2", label: "CPF — Cadastro de Pessoa Física", feito: false },
     { id: "3", label: "CTPS — Carteira de Trabalho",  feito: false },
@@ -444,14 +444,38 @@ export default function DPPage() {
               )}
               {admStep === 3 && (
                 <div><SectionTitle>Checklist de Documentos</SectionTitle>
+                  <p style={{ fontSize: "0.8rem", color: "#6b7280", margin: "0 0 12px" }}>Clique em "Enviar" para anexar o arquivo de cada documento.</p>
                   <div style={{ display: "grid", gap: 8 }}>
                     {checklist.map((item) => (
-                      <div key={item.id} onClick={() => setChecklist((prev) => prev.map((c) => c.id === item.id ? { ...c, feito: !c.feito } : c))} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 10, cursor: "pointer", background: item.feito ? "#f5f3ff" : "#fff", border: `1px solid ${item.feito ? "#c4b5fd" : "#e9d5ff"}` }}>
+                      <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 10, background: item.feito ? "#f5f3ff" : "#fff", border: `1px solid ${item.feito ? "#c4b5fd" : "#e9d5ff"}` }}>
                         <div style={{ width: 20, height: 20, borderRadius: 6, border: `2px solid ${item.feito ? "#7c3aed" : "#c4b5fd"}`, background: item.feito ? "#7c3aed" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{item.feito && <span style={{ color: "#fff", fontSize: 11, fontWeight: 900 }}>✓</span>}</div>
-                        <span style={{ fontSize: "0.875rem", fontWeight: 600, color: item.feito ? "#6b21a8" : "#07170d" }}>{item.label}</span>
+                        <span style={{ fontSize: "0.875rem", fontWeight: 600, color: item.feito ? "#6b21a8" : "#07170d", flex: 1 }}>{item.label}</span>
+                        {item.feito && item.fileName ? (
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{ fontSize: "0.75rem", color: "#6b21a8", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.fileName}</span>
+                            <button onClick={() => setChecklist((prev) => prev.map((c) => c.id === item.id ? { ...c, feito: false, fileName: undefined, file: undefined } : c))} style={{ background: "none", border: "none", color: "#b91c1c", fontSize: "0.7rem", fontWeight: 700, cursor: "pointer" }} type="button">Remover</button>
+                          </div>
+                        ) : (
+                          <label style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 12px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", background: "#ede9fe", color: "#7c3aed", border: "1px solid #c4b5fd" }}>
+                            Enviar
+                            <input type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style={{ display: "none" }} onChange={(e) => { const f = e.target.files?.[0]; if (f) setChecklist((prev) => prev.map((c) => c.id === item.id ? { ...c, feito: true, fileName: f.name, file: f } : c)); e.target.value = ""; }} />
+                          </label>
+                        )}
                         <Badge {...(item.feito ? S_ADM.concluido : S_ADM.pendente)} />
                       </div>
                     ))}
+                  </div>
+
+                  {/* Área de drag-and-drop para documentos extras */}
+                  <div
+                    onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#7c3aed"; }}
+                    onDragLeave={e => { e.currentTarget.style.borderColor = "#e9d5ff"; }}
+                    onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#e9d5ff"; Array.from(e.dataTransfer.files).forEach(f => { const newId = String(Date.now()) + f.name; setChecklist(prev => [...prev, { id: newId, label: f.name, feito: true, fileName: f.name, file: f }]); }); }}
+                    onClick={() => { const inp = document.createElement("input"); inp.type = "file"; inp.multiple = true; inp.accept = ".pdf,.jpg,.jpeg,.png,.doc,.docx"; inp.onchange = (ev) => { Array.from((ev.target as HTMLInputElement).files ?? []).forEach(f => { const newId = String(Date.now()) + f.name; setChecklist(prev => [...prev, { id: newId, label: f.name, feito: true, fileName: f.name, file: f }]); }); }; inp.click(); }}
+                    style={{ marginTop: 16, border: "2px dashed #e9d5ff", borderRadius: 10, padding: "20px", textAlign: "center", cursor: "pointer", background: "#faf5ff", transition: "border-color 0.2s" }}
+                  >
+                    <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#7c3aed", marginBottom: 4 }}>Arraste outros documentos aqui ou clique para selecionar</div>
+                    <div style={{ fontSize: "0.72rem", color: "#9ca3af" }}>PDF, imagens, Word — até 10 MB</div>
                   </div>
                 </div>
               )}
