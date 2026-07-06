@@ -172,6 +172,37 @@ function getInitials(name: string): string {
   return name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
 }
 
+const AVATAR_GRADIENTS = [
+  "linear-gradient(135deg, #10b981, #065f46)",
+  "linear-gradient(135deg, #3b82f6, #1e40af)",
+  "linear-gradient(135deg, #8b5cf6, #5b21b6)",
+  "linear-gradient(135deg, #f59e0b, #b45309)",
+  "linear-gradient(135deg, #ec4899, #9d174d)",
+  "linear-gradient(135deg, #06b6d4, #0e7490)",
+  "linear-gradient(135deg, #ef4444, #991b1b)",
+  "linear-gradient(135deg, #84cc16, #3f6212)",
+];
+
+function avatarGradient(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  return AVATAR_GRADIENTS[hash % AVATAR_GRADIENTS.length];
+}
+
+const REGIME_BADGE_STYLES: Record<string, { bg: string; color: string; border: string }> = {
+  simples_nacional: { bg: "#ecfdf5", color: "#047857", border: "#a7f3d0" },
+  lucro_presumido: { bg: "#eff6ff", color: "#1d4ed8", border: "#bfdbfe" },
+  lucro_real: { bg: "#f5f3ff", color: "#6d28d9", border: "#ddd6fe" },
+  mei: { bg: "#fffbeb", color: "#b45309", border: "#fde68a" },
+};
+
+const REGIME_BADGE_DEFAULT = { bg: "#f3f8f5", color: "#3a5c47", border: "#dfece5" };
+
+function getResponsavel(emp: Empresa): string {
+  const r = emp.metadata?.responsavel;
+  return typeof r === "string" ? r.trim() : "";
+}
+
 const STATUS_BADGE_STYLES: Record<Empresa["status"], { bg: string; color: string }> = {
   ativa: { bg: "#f0fdf4", color: "#065f46" },
   suspensa: { bg: "#fffbeb", color: "#92400e" },
@@ -212,6 +243,7 @@ export default function EmpresasPage() {
   const [arquivando, setArquivando] = useState(false);
   const [editandoEmpresa, setEditandoEmpresa] = useState<Empresa | null>(null);
   const [editForm, setEditForm] = useState<Partial<CriarEmpresaInput>>({});
+  const [editResponsavel, setEditResponsavel] = useState("");
   const [salvandoEdicao, setSalvandoEdicao] = useState(false);
   const [erroEdicao, setErroEdicao] = useState<string | null>(null);
 
@@ -319,6 +351,7 @@ export default function EmpresasPage() {
       cidade: emp.cidade ?? "",
       estado: emp.estado ?? "",
     });
+    setEditResponsavel(getResponsavel(emp));
     setErroEdicao(null);
   }
 
@@ -326,7 +359,10 @@ export default function EmpresasPage() {
     if (!editandoEmpresa) return;
     setSalvandoEdicao(true); setErroEdicao(null);
     try {
-      await atualizarEmpresaTenant(editandoEmpresa.id, editForm);
+      await atualizarEmpresaTenant(editandoEmpresa.id, {
+        ...editForm,
+        metadata: { ...editandoEmpresa.metadata, responsavel: editResponsavel.trim() },
+      });
       setEditandoEmpresa(null);
       await carregarEmpresas();
     } catch (e) {
@@ -522,11 +558,11 @@ export default function EmpresasPage() {
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.84rem" }}>
                   <thead>
                     <tr style={{ borderBottom: "1px solid #e6f0ea" }}>
-                      {["Empresa", "CNPJ", "Regime", "Cidade/UF", "Status", "Ultima atualizacao", "Acoes"].map((h, i) => (
+                      {["Empresa", "CNPJ", "Regime", "Responsavel", "Cidade/UF", "Status", "Ultima atualizacao", "Acoes"].map((h, i) => (
                         <th
                           key={h}
                           style={{
-                            textAlign: i === 6 ? "right" : "left",
+                            textAlign: i === 7 ? "right" : "left",
                             padding: "0.75rem 0.75rem",
                             color: "#6f8f7c",
                             fontWeight: 700,
@@ -554,7 +590,7 @@ export default function EmpresasPage() {
                           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                             <div style={{
                               width: 36, height: 36, borderRadius: 10,
-                              background: "linear-gradient(135deg, #10b981, #065f46)",
+                              background: avatarGradient(emp.nome_legal),
                               color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
                               fontSize: "0.72rem", fontWeight: 800, flexShrink: 0,
                             }}>
@@ -570,7 +606,32 @@ export default function EmpresasPage() {
                         <td style={{ padding: "0.75rem", color: "#374151", fontWeight: 500, whiteSpace: "nowrap", fontSize: "0.8rem" }}>{emp.cnpj || "—"}</td>
                         {/* Regime */}
                         <td style={{ padding: "0.75rem" }}>
-                          <span style={{ background: "#f3f8f5", color: "#3a5c47", borderRadius: 6, padding: "2px 8px", fontSize: "0.75rem", fontWeight: 600 }}>{regimeLabel(emp.regime_tributario)}</span>
+                          {(() => {
+                            const rb = REGIME_BADGE_STYLES[emp.regime_tributario ?? ""] ?? REGIME_BADGE_DEFAULT;
+                            return (
+                              <span style={{ background: rb.bg, color: rb.color, border: `1px solid ${rb.border}`, borderRadius: 6, padding: "2px 8px", fontSize: "0.75rem", fontWeight: 700, whiteSpace: "nowrap" }}>{regimeLabel(emp.regime_tributario)}</span>
+                            );
+                          })()}
+                        </td>
+                        {/* Responsavel */}
+                        <td style={{ padding: "0.75rem", whiteSpace: "nowrap" }}>
+                          {(() => {
+                            const resp = getResponsavel(emp);
+                            if (!resp) return <span style={{ color: "#9ca3af", fontSize: "0.78rem" }}>—</span>;
+                            return (
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
+                                <span style={{
+                                  width: 24, height: 24, borderRadius: "50%",
+                                  background: avatarGradient(resp),
+                                  color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center",
+                                  fontSize: "0.6rem", fontWeight: 800, flexShrink: 0,
+                                }}>
+                                  {getInitials(resp)}
+                                </span>
+                                <span style={{ color: "#374151", fontSize: "0.8rem", fontWeight: 600 }}>{resp}</span>
+                              </span>
+                            );
+                          })()}
                         </td>
                         {/* Cidade/UF */}
                         <td style={{ padding: "0.75rem", color: "#6f8f7c", fontSize: "0.8rem", whiteSpace: "nowrap" }}>
@@ -916,6 +977,9 @@ export default function EmpresasPage() {
                       <option value="">Selecione...</option>
                       {REGIMES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
                     </select>
+                  </Field>
+                  <Field label="Responsável">
+                    <input className="input" onChange={(e) => setEditResponsavel(e.target.value)} placeholder="Nome do responsável" value={editResponsavel} />
                   </Field>
                   <Field label="Cidade">
                     <input className="input" onChange={(e) => setEditForm((p) => ({ ...p, cidade: e.target.value }))} value={editForm.cidade ?? ""} />
