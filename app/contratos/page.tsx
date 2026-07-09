@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
+import { GeradorContratos } from "@/components/contratos/gerador/GeradorContratos";
 
 /* ─── Tipos ───────────────────────────────────────────────────── */
 
-type Tab = "dashboard" | "catalogo" | "solicitacoes" | "assinaturas" | "templates" | "historico";
+type Tab = "dashboard" | "gerador" | "catalogo" | "solicitacoes" | "assinaturas" | "templates" | "historico";
 
 type CategoriaContrato =
   | "Empresarial"
@@ -158,6 +159,7 @@ function formatCurrency(v: number) {
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "dashboard",    label: "Dashboard" },
+  { key: "gerador",      label: "Gerador" },
   { key: "catalogo",     label: "Catalogo" },
   { key: "solicitacoes", label: "Solicitacoes" },
   { key: "assinaturas",  label: "Assinaturas" },
@@ -250,6 +252,7 @@ export default function ContratosPage() {
 
         {/* ── Conteudo da tab ──────────────────────── */}
         {tab === "dashboard" && <TabDashboard contratos={contratos} loading={loading} />}
+        {tab === "gerador" && <GeradorContratos />}
         {tab === "catalogo" && (
           <TabCatalogo
             categorias={categorias}
