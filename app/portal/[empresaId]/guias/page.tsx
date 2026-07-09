@@ -26,10 +26,10 @@ export default function PortalGuias() {
   const nome = empresa.nome_fantasia || empresa.nome_legal;
 
   const KPI_CARDS = [
-    { label: "Total guias", value: "0", bg: "rgba(99,102,241,0.08)", color: "#4338ca" },
-    { label: "Disponíveis", value: "0", bg: "rgba(6,182,212,0.08)", color: "#0e7490" },
-    { label: "Pagas", value: "0", bg: "rgba(16,185,129,0.08)", color: "#065f46" },
-    { label: "Vencidas", value: "0", bg: "rgba(156,163,175,0.08)", color: "#6b7280" },
+    { label: "Total guias", value: "0", bg: "rgba(99,102,241,0.08)", color: "#a5b4fc" },
+    { label: "Disponíveis", value: "0", bg: "rgba(6,182,212,0.08)", color: "#67e8f9" },
+    { label: "Pagas", value: "0", bg: "rgba(16,185,129,0.08)", color: "#34d399" },
+    { label: "Vencidas", value: "0", bg: "rgba(156,163,175,0.08)", color: "var(--muted)" },
   ];
 
   return (
@@ -49,7 +49,7 @@ export default function PortalGuias() {
             <div
               key={kpi.label}
               style={{
-                background: "#fff",
+                background: "var(--panel)",
                 border: "1px solid var(--border)",
                 borderRadius: 12,
                 padding: "18px 20px",

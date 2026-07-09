@@ -7,8 +7,8 @@ import { buscarEmpresaTenant } from "@/services/empresaClientService";
 import type { Empresa } from "@/modules/empresas/empresas.types";
 
 const V = {
-  bg: "#f3f8f5", panel: "#ffffff", ink: "#07170d", muted: "#6f8f7c",
-  green700: "#075f3c", green500: "#10b981", border: "#dfece5", danger: "#ef445f",
+  bg: "var(--bg)", panel: "var(--panel)", ink: "var(--ink)", muted: "var(--muted)",
+  green700: "#2ee58f", green500: "#10b981", border: "var(--border)", danger: "#ef445f",
   gold: "#d4ae4a",
 };
 
@@ -252,15 +252,15 @@ export default function EmitirNotaPage() {
           </p>
           {sucesso.viaSefaz ? (
             <div style={{
-              background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 8,
-              padding: "8px 14px", marginBottom: 16, fontSize: 13, fontWeight: 600, color: "#166534",
+              background: "rgba(52,211,153,0.15)", border: "1px solid #86efac", borderRadius: 8,
+              padding: "8px 14px", marginBottom: 16, fontSize: 13, fontWeight: 600, color: "#4ade80",
             }}>
               Autorizada pela SEFAZ via NFS-e Nacional (gov.br)
             </div>
           ) : (
             <div style={{
-              background: "#fffbeb", border: "1px solid #fcd34d", borderRadius: 8,
-              padding: "8px 14px", marginBottom: 16, fontSize: 13, fontWeight: 600, color: "#92400e",
+              background: "rgba(251,191,36,0.15)", border: "1px solid #fcd34d", borderRadius: 8,
+              padding: "8px 14px", marginBottom: 16, fontSize: 13, fontWeight: 600, color: "#fbbf24",
             }}>
               Registro interno — não transmitida à SEFAZ
             </div>
@@ -286,7 +286,7 @@ export default function EmitirNotaPage() {
                 Destinatário: <strong style={{ color: V.ink }}>{destNome}</strong> — {destEmail}
               </div>
               {erroEmail && (
-                <div style={{ background: "#fef2f2", color: "#b91c1c", padding: "8px 12px", borderRadius: 6, fontSize: 13, marginBottom: 12 }}>
+                <div style={{ background: "rgba(248,113,113,0.15)", color: "#f87171", padding: "8px 12px", borderRadius: 6, fontSize: 13, marginBottom: 12 }}>
                   {erroEmail}
                 </div>
               )}
@@ -318,7 +318,7 @@ export default function EmitirNotaPage() {
                 }}
                 disabled={enviandoEmail}
                 style={{
-                  padding: "10px 20px", background: "#1e40af", color: "#fff",
+                  padding: "10px 20px", background: "#93c5fd", color: "#ffffff",
                   border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer",
                   opacity: enviandoEmail ? 0.7 : 1, display: "flex", alignItems: "center", gap: 8,
                 }}
@@ -331,8 +331,8 @@ export default function EmitirNotaPage() {
 
           {emailEnviado && (
             <div style={{
-              background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 10,
-              padding: "12px 16px", marginBottom: 20, fontSize: 14, fontWeight: 600, color: "#166534",
+              background: "rgba(52,211,153,0.15)", border: "1px solid #86efac", borderRadius: 10,
+              padding: "12px 16px", marginBottom: 20, fontSize: 14, fontWeight: 600, color: "#4ade80",
               display: "flex", alignItems: "center", gap: 8,
             }}>
               <svg fill="none" height={18} viewBox="0 0 24 24" width={18}><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -353,7 +353,7 @@ export default function EmitirNotaPage() {
             <button
               onClick={() => router.push(`/empresas/${empresaId}/notas-fiscais`)}
               style={{
-                padding: "10px 24px", background: V.green700, color: "#fff",
+                padding: "10px 24px", background: V.green700, color: "#ffffff",
                 border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer",
               }}
             >
@@ -555,8 +555,8 @@ export default function EmitirNotaPage() {
                 <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>Integração NFS-e Nacional (gov.br)</h3>
                 <span style={{
                   fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 6,
-                  background: tokenGovBr ? "#f0fdf4" : "#fffbeb",
-                  color: tokenGovBr ? "#166534" : "#92400e",
+                  background: tokenGovBr ? "rgba(52,211,153,0.15)" : "rgba(251,191,36,0.15)",
+                  color: tokenGovBr ? "#4ade80" : "#fbbf24",
                   border: `1px solid ${tokenGovBr ? "#86efac" : "#fcd34d"}`,
                 }}>
                   {tokenGovBr ? "SEFAZ ativa" : "Apenas local"}
@@ -606,8 +606,8 @@ export default function EmitirNotaPage() {
           {/* Erro */}
           {erro && (
             <div style={{
-              background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10,
-              padding: "12px 16px", color: "#b91c1c", fontSize: 14, fontWeight: 600,
+              background: "rgba(248,113,113,0.15)", border: "1px solid rgba(248,113,113,0.35)", borderRadius: 10,
+              padding: "12px 16px", color: "#f87171", fontSize: 14, fontWeight: 600,
             }}>
               {erro}
             </div>
@@ -619,7 +619,7 @@ export default function EmitirNotaPage() {
             disabled={emitindo}
             style={{
               width: "100%", padding: "14px 24px",
-              background: usandoSefaz ? "linear-gradient(135deg, #065f46, #10b981)" : "linear-gradient(135deg, #1e40af, #3b82f6)", color: "#fff",
+              background: usandoSefaz ? "linear-gradient(135deg, #065f46, #10b981)" : "linear-gradient(135deg, #1e40af, #3b82f6)", color: "#ffffff",
               border: "none", borderRadius: 10, fontSize: 16, fontWeight: 700, cursor: "pointer",
               opacity: emitindo ? 0.7 : 1,
             }}
@@ -642,7 +642,7 @@ export default function EmitirNotaPage() {
           {/* Modelo */}
           <div style={{
             background: "#1e40af12", border: "1px solid #1e40af30", borderRadius: 8,
-            padding: "8px 12px", marginBottom: 16, fontSize: 13, fontWeight: 600, color: "#1e40af",
+            padding: "8px 12px", marginBottom: 16, fontSize: 13, fontWeight: 600, color: "#93c5fd",
           }}>
             {modelo === "nfse" ? "NFS-e — Nota Fiscal de Serviços" :
               modelo === "55" ? "NF-e — Nota Fiscal Eletrônica" : "NFC-e — Nota Fiscal Consumidor"}
@@ -692,25 +692,25 @@ export default function EmitirNotaPage() {
             {totalISS > 0 && (
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}>
                 <span style={{ color: V.muted }}>ISS</span>
-                <span style={{ color: "#92400e" }}>{formatBRL(totalISS)}</span>
+                <span style={{ color: "#fbbf24" }}>{formatBRL(totalISS)}</span>
               </div>
             )}
             {totalICMS > 0 && (
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}>
                 <span style={{ color: V.muted }}>ICMS</span>
-                <span style={{ color: "#92400e" }}>{formatBRL(totalICMS)}</span>
+                <span style={{ color: "#fbbf24" }}>{formatBRL(totalICMS)}</span>
               </div>
             )}
             {totalPIS > 0 && (
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}>
                 <span style={{ color: V.muted }}>PIS</span>
-                <span style={{ color: "#92400e" }}>{formatBRL(totalPIS)}</span>
+                <span style={{ color: "#fbbf24" }}>{formatBRL(totalPIS)}</span>
               </div>
             )}
             {totalCOFINS > 0 && (
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}>
                 <span style={{ color: V.muted }}>COFINS</span>
-                <span style={{ color: "#92400e" }}>{formatBRL(totalCOFINS)}</span>
+                <span style={{ color: "#fbbf24" }}>{formatBRL(totalCOFINS)}</span>
               </div>
             )}
 
@@ -724,7 +724,7 @@ export default function EmitirNotaPage() {
               fontWeight: 800, color: V.ink, paddingTop: 12, borderTop: `2px solid ${V.border}`,
             }}>
               <span>Total</span>
-              <span style={{ color: "#1e40af" }}>{formatBRL(valorTotal)}</span>
+              <span style={{ color: "#93c5fd" }}>{formatBRL(valorTotal)}</span>
             </div>
           </div>
         </div>

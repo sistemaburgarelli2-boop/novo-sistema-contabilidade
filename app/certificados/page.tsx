@@ -21,21 +21,21 @@ type Tab = "dashboard" | "certificados" | "renovacao" | "instalacoes" | "histori
 /* ─── Estilos de status ───────────────────────────────────────── */
 
 const S_STATUS: Record<string, { bg: string; color: string; label: string }> = {
-  ativo:                { bg: "#f0fdf4", color: "#065f46", label: "Ativo" },
-  proximo_vencimento:   { bg: "#fffbeb", color: "#92400e", label: "Prox. Vencimento" },
-  renovando:            { bg: "#ecfeff", color: "#0e7490", label: "Renovando" },
-  vencido:              { bg: "#fef2f2", color: "#b91c1c", label: "Vencido" },
-  suspenso:             { bg: "#f3f4f6", color: "#6b7280", label: "Suspenso" },
-  revogado:             { bg: "#e5e7eb", color: "#374151", label: "Revogado" },
+  ativo:                { bg: "rgba(52,211,153,0.15)", color: "#34d399", label: "Ativo" },
+  proximo_vencimento:   { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Prox. Vencimento" },
+  renovando:            { bg: "#ecfeff", color: "#67e8f9", label: "Renovando" },
+  vencido:              { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Vencido" },
+  suspenso:             { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: "Suspenso" },
+  revogado:             { bg: "rgba(148,163,184,0.2)", color: "#374151", label: "Revogado" },
 };
 
 const S_RENOVACAO: Record<string, { bg: string; color: string }> = {
-  pendente:             { bg: "#fffbeb", color: "#92400e" },
-  cliente_avisado:      { bg: "#eff6ff", color: "#1e40af" },
-  aprovado:             { bg: "#ecfeff", color: "#0e7490" },
-  emitido:              { bg: "#f5f3ff", color: "#7c3aed" },
-  validado:             { bg: "#f0fdf4", color: "#065f46" },
-  concluido:            { bg: "#e8f5e9", color: "#1b5e20" },
+  pendente:             { bg: "rgba(251,191,36,0.15)", color: "#fbbf24" },
+  cliente_avisado:      { bg: "rgba(96,165,250,0.15)", color: "#93c5fd" },
+  aprovado:             { bg: "#ecfeff", color: "#67e8f9" },
+  emitido:              { bg: "rgba(196,181,253,0.15)", color: "#c4b5fd" },
+  validado:             { bg: "rgba(52,211,153,0.15)", color: "#34d399" },
+  concluido:            { bg: "rgba(74,222,128,0.15)", color: "#4ade80" },
 };
 
 /* ─── Helpers ────────────────────────────────────────────────── */
@@ -67,10 +67,10 @@ function TH({ children, right }: { children: React.ReactNode; right?: boolean })
         textAlign: right ? "right" : "left",
         fontSize: "0.75rem",
         fontWeight: 600,
-        color: "#64748b",
+        color: "var(--muted)",
         textTransform: "uppercase",
         letterSpacing: "0.04em",
-        borderBottom: "1px solid #e2e8f0",
+        borderBottom: "1px solid var(--border)",
       }}
     >
       {children}
@@ -84,8 +84,8 @@ function TD({ children, right, mono }: { children: React.ReactNode; right?: bool
       style={{
         padding: "10px 14px",
         fontSize: "0.85rem",
-        color: "#334155",
-        borderBottom: "1px solid #f1f5f9",
+        color: "var(--ink-2)",
+        borderBottom: "1px solid var(--panel-2)",
         textAlign: right ? "right" : "left",
         fontFamily: mono ? "var(--font-mono, monospace)" : "inherit",
       }}
@@ -116,10 +116,10 @@ function formatDateTime(dateStr: string) {
 }
 
 function diasRestantesColor(dias: number): string {
-  if (dias <= 0) return "#b91c1c";
-  if (dias <= 30) return "#b91c1c";
-  if (dias <= 60) return "#92400e";
-  return "#065f46";
+  if (dias <= 0) return "#f87171";
+  if (dias <= 30) return "#f87171";
+  if (dias <= 60) return "#fbbf24";
+  return "#34d399";
 }
 
 /* ─── Tabs ───────────────────────────────────────────────────── */
@@ -344,7 +344,7 @@ export default function CertificadosPage() {
         <section className="module-hero">
           <div>
             <h2 style={{ fontSize: "1.6rem", fontWeight: 700, margin: 0 }}>Certificados Digitais</h2>
-            <p style={{ color: "#64748b", margin: "4px 0 0", fontSize: "0.95rem" }}>
+            <p style={{ color: "var(--muted)", margin: "4px 0 0", fontSize: "0.95rem" }}>
               Gestao, renovacao e monitoramento de certificados digitais
             </p>
           </div>
@@ -354,7 +354,7 @@ export default function CertificadosPage() {
               display: "inline-flex",
               alignItems: "center",
               gap: 6,
-              background: "#0f172a",
+              background: "var(--green-500)",
               color: "#fff",
               border: "none",
               borderRadius: 8,
@@ -388,7 +388,7 @@ export default function CertificadosPage() {
         )}
 
         {/* ── Tabs ─────────────────────────────────── */}
-        <div style={{ display: "flex", gap: 4, borderBottom: "1px solid #e2e8f0", marginBottom: 8 }}>
+        <div style={{ display: "flex", gap: 4, borderBottom: "1px solid var(--border)", marginBottom: 8 }}>
           {TABS.map((t) => (
             <button
               key={t.key}
@@ -397,10 +397,10 @@ export default function CertificadosPage() {
                 padding: "10px 18px",
                 fontSize: "0.85rem",
                 fontWeight: tab === t.key ? 700 : 500,
-                color: tab === t.key ? "#0f172a" : "#64748b",
+                color: tab === t.key ? "var(--ink)" : "var(--muted)",
                 background: "none",
                 border: "none",
-                borderBottom: tab === t.key ? "2px solid #0f172a" : "2px solid transparent",
+                borderBottom: tab === t.key ? "2px solid var(--green-400)" : "2px solid transparent",
                 cursor: "pointer",
                 transition: "all 0.15s",
               }}
@@ -414,11 +414,11 @@ export default function CertificadosPage() {
         {error && (
           <div
             style={{
-              background: "#fef2f2",
-              border: "1px solid #fecaca",
+              background: "rgba(248,113,113,0.15)",
+              border: "1px solid rgba(248,113,113,0.35)",
               borderRadius: 8,
               padding: "12px 16px",
-              color: "#b91c1c",
+              color: "#f87171",
               fontSize: "0.85rem",
               marginBottom: 12,
             }}
@@ -489,7 +489,7 @@ function TabDashboard({
   onNovoCertificado: () => void;
 }) {
   if (loading) {
-    return <div style={{ padding: 40, textAlign: "center", color: "#64748b" }}>Carregando...</div>;
+    return <div style={{ padding: 40, textAlign: "center", color: "var(--muted)" }}>Carregando...</div>;
   }
 
   return (
@@ -497,35 +497,35 @@ function TabDashboard({
       {/* KPIs */}
       <div className="kpi-strip">
         <div className="metric-card">
-          <span style={{ fontSize: "0.78rem", color: "#64748b" }}>Ativos</span>
-          <strong style={{ fontSize: "1.6rem", color: "#065f46" }}>{kpiAtivos}</strong>
+          <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Ativos</span>
+          <strong style={{ fontSize: "1.6rem", color: "#34d399" }}>{kpiAtivos}</strong>
         </div>
         <div className="metric-card">
-          <span style={{ fontSize: "0.78rem", color: "#64748b" }}>Vencendo 30d</span>
-          <strong style={{ fontSize: "1.6rem", color: "#92400e" }}>{kpiVencendo30}</strong>
+          <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Vencendo 30d</span>
+          <strong style={{ fontSize: "1.6rem", color: "#fbbf24" }}>{kpiVencendo30}</strong>
         </div>
         <div className="metric-card">
-          <span style={{ fontSize: "0.78rem", color: "#64748b" }}>Vencendo 7d</span>
-          <strong style={{ fontSize: "1.6rem", color: "#b91c1c" }}>{kpiVencendo7}</strong>
+          <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Vencendo 7d</span>
+          <strong style={{ fontSize: "1.6rem", color: "#f87171" }}>{kpiVencendo7}</strong>
         </div>
         <div className="metric-card">
-          <span style={{ fontSize: "0.78rem", color: "#64748b" }}>Vencidos</span>
-          <strong style={{ fontSize: "1.6rem", color: "#b91c1c" }}>{kpiVencidos}</strong>
+          <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Vencidos</span>
+          <strong style={{ fontSize: "1.6rem", color: "#f87171" }}>{kpiVencidos}</strong>
         </div>
         <div className="metric-card">
-          <span style={{ fontSize: "0.78rem", color: "#64748b" }}>Renovando</span>
-          <strong style={{ fontSize: "1.6rem", color: "#0e7490" }}>{kpiRenovando}</strong>
+          <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Renovando</span>
+          <strong style={{ fontSize: "1.6rem", color: "#67e8f9" }}>{kpiRenovando}</strong>
         </div>
       </div>
 
       {/* Table */}
       {certificados.length === 0 ? (
         <div className="list-panel" style={{ textAlign: "center", padding: 40 }}>
-          <p style={{ color: "#64748b", margin: "0 0 16px" }}>Nenhum certificado cadastrado</p>
+          <p style={{ color: "var(--muted)", margin: "0 0 16px" }}>Nenhum certificado cadastrado</p>
           <button
             onClick={onNovoCertificado}
             style={{
-              background: "#0f172a",
+              background: "var(--green-500)",
               color: "#fff",
               border: "none",
               borderRadius: 8,
@@ -542,7 +542,7 @@ function TabDashboard({
         <div className="list-panel">
           <div className="list-panel-header">
             <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 700 }}>Todos os certificados</h3>
-            <span style={{ fontSize: "0.78rem", color: "#64748b" }}>
+            <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
               Ordenados por validade (mais proximos primeiro)
             </span>
           </div>
@@ -560,13 +560,13 @@ function TabDashboard({
               </thead>
               <tbody>
                 {certificados.map((c) => {
-                  const st = S_STATUS[c.status] ?? { bg: "#f3f4f6", color: "#6b7280", label: c.status };
+                  const st = S_STATUS[c.status] ?? { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: c.status };
                   return (
                     <tr key={c.id} style={{ transition: "background 0.1s" }}>
                       <TD>{c.empresas?.nome_legal ?? "—"}</TD>
                       <TD>{c.titular}</TD>
                       <TD>
-                        <Badge bg="#eff6ff" color="#1e40af" label={c.tipo} />
+                        <Badge bg="rgba(96,165,250,0.15)" color="#93c5fd" label={c.tipo} />
                       </TD>
                       <TD>{formatDate(c.validade)}</TD>
                       <TD right>
@@ -617,7 +617,7 @@ function TabCertificados({
   onNovoCertificado: () => void;
 }) {
   if (loading) {
-    return <div style={{ padding: 40, textAlign: "center", color: "#64748b" }}>Carregando...</div>;
+    return <div style={{ padding: 40, textAlign: "center", color: "var(--muted)" }}>Carregando...</div>;
   }
 
   const tipos = ["Todos", "A1", "A3", "eCPF", "eCNPJ", "Representante"];
@@ -636,7 +636,7 @@ function TabCertificados({
             flex: "1 1 250px",
             padding: "8px 14px",
             fontSize: "0.85rem",
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border)",
             borderRadius: 8,
             outline: "none",
           }}
@@ -647,9 +647,9 @@ function TabCertificados({
           style={{
             padding: "8px 14px",
             fontSize: "0.85rem",
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border)",
             borderRadius: 8,
-            background: "#fff",
+            background: "var(--panel)",
             cursor: "pointer",
           }}
         >
@@ -663,9 +663,9 @@ function TabCertificados({
           style={{
             padding: "8px 14px",
             fontSize: "0.85rem",
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border)",
             borderRadius: 8,
-            background: "#fff",
+            background: "var(--panel)",
             cursor: "pointer",
           }}
         >
@@ -680,11 +680,11 @@ function TabCertificados({
       {/* Table */}
       {certificados.length === 0 ? (
         <div className="list-panel" style={{ textAlign: "center", padding: 40 }}>
-          <p style={{ color: "#64748b", margin: "0 0 16px" }}>Nenhum certificado encontrado</p>
+          <p style={{ color: "var(--muted)", margin: "0 0 16px" }}>Nenhum certificado encontrado</p>
           <button
             onClick={onNovoCertificado}
             style={{
-              background: "#0f172a",
+              background: "var(--green-500)",
               color: "#fff",
               border: "none",
               borderRadius: 8,
@@ -701,7 +701,7 @@ function TabCertificados({
         <div className="list-panel">
           <div className="list-panel-header">
             <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 700 }}>Certificados</h3>
-            <span style={{ fontSize: "0.78rem", color: "#64748b" }}>
+            <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
               {certificados.length} certificado{certificados.length !== 1 ? "s" : ""}
             </span>
           </div>
@@ -723,14 +723,14 @@ function TabCertificados({
               </thead>
               <tbody>
                 {certificados.map((c) => {
-                  const st = S_STATUS[c.status] ?? { bg: "#f3f4f6", color: "#6b7280", label: c.status };
+                  const st = S_STATUS[c.status] ?? { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: c.status };
                   return (
                     <tr key={c.id} style={{ transition: "background 0.1s" }}>
                       <TD>{c.empresas?.nome_legal ?? "—"}</TD>
                       <TD>{c.titular}</TD>
                       <TD mono>{c.documento}</TD>
                       <TD>
-                        <Badge bg="#eff6ff" color="#1e40af" label={c.tipo} />
+                        <Badge bg="rgba(96,165,250,0.15)" color="#93c5fd" label={c.tipo} />
                       </TD>
                       <TD>{c.fornecedor ?? "—"}</TD>
                       <TD>{formatDate(c.emissao)}</TD>
@@ -751,10 +751,10 @@ function TabCertificados({
                               padding: "4px 10px",
                               fontSize: "0.73rem",
                               fontWeight: 600,
-                              border: "1px solid #e2e8f0",
+                              border: "1px solid var(--border)",
                               borderRadius: 6,
-                              background: "#f8fafc",
-                              color: "#0f172a",
+                              background: "var(--panel-2)",
+                              color: "var(--ink)",
                               cursor: "pointer",
                               whiteSpace: "nowrap",
                             }}
@@ -767,10 +767,10 @@ function TabCertificados({
                               padding: "4px 10px",
                               fontSize: "0.73rem",
                               fontWeight: 600,
-                              border: "1px solid #fecaca",
+                              border: "1px solid rgba(248,113,113,0.35)",
                               borderRadius: 6,
-                              background: "#fef2f2",
-                              color: "#b91c1c",
+                              background: "rgba(248,113,113,0.15)",
+                              color: "#f87171",
                               cursor: "pointer",
                             }}
                           >
@@ -800,13 +800,13 @@ function TabRenovacao({
   renovacoes: CertificadoRenovacao[];
 }) {
   if (loading) {
-    return <div style={{ padding: 40, textAlign: "center", color: "#64748b" }}>Carregando...</div>;
+    return <div style={{ padding: 40, textAlign: "center", color: "var(--muted)" }}>Carregando...</div>;
   }
 
   if (renovacoes.length === 0) {
     return (
       <div className="list-panel" style={{ textAlign: "center", padding: 40 }}>
-        <p style={{ color: "#64748b", margin: 0 }}>Nenhuma renovacao registrada</p>
+        <p style={{ color: "var(--muted)", margin: 0 }}>Nenhuma renovacao registrada</p>
       </div>
     );
   }
@@ -824,7 +824,7 @@ function TabRenovacao({
     <div className="list-panel">
       <div className="list-panel-header">
         <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 700 }}>Renovacoes de certificados</h3>
-        <span style={{ fontSize: "0.78rem", color: "#64748b" }}>
+        <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
           Acompanhe o fluxo de renovacao
         </span>
       </div>
@@ -841,7 +841,7 @@ function TabRenovacao({
           </thead>
           <tbody>
             {renovacoes.map((r) => {
-              const st = S_RENOVACAO[r.status] ?? { bg: "#f3f4f6", color: "#6b7280" };
+              const st = S_RENOVACAO[r.status] ?? { bg: "rgba(148,163,184,0.15)", color: "var(--muted)" };
               const label = statusLabels[r.status] ?? r.status;
               return (
                 <tr key={r.id}>
@@ -871,7 +871,7 @@ function TabRenovacao({
 function TabInstalacoes() {
   return (
     <div className="list-panel" style={{ textAlign: "center", padding: 40 }}>
-      <p style={{ color: "#64748b", margin: 0 }}>Nenhuma instalacao registrada</p>
+      <p style={{ color: "var(--muted)", margin: 0 }}>Nenhuma instalacao registrada</p>
     </div>
   );
 }
@@ -886,13 +886,13 @@ function TabHistorico({
   historico: CertificadoHistorico[];
 }) {
   if (loading) {
-    return <div style={{ padding: 40, textAlign: "center", color: "#64748b" }}>Carregando...</div>;
+    return <div style={{ padding: 40, textAlign: "center", color: "var(--muted)" }}>Carregando...</div>;
   }
 
   if (historico.length === 0) {
     return (
       <div className="list-panel" style={{ textAlign: "center", padding: 40 }}>
-        <p style={{ color: "#64748b", margin: 0 }}>Nenhum registro no historico</p>
+        <p style={{ color: "var(--muted)", margin: 0 }}>Nenhum registro no historico</p>
       </div>
     );
   }
@@ -901,7 +901,7 @@ function TabHistorico({
     <div className="list-panel">
       <div className="list-panel-header">
         <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 700 }}>Historico de certificados</h3>
-        <span style={{ fontSize: "0.78rem", color: "#64748b" }}>
+        <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
           Timeline de acoes realizadas
         </span>
       </div>
@@ -913,7 +913,7 @@ function TabHistorico({
               display: "flex",
               gap: 16,
               padding: "14px 0",
-              borderBottom: i < historico.length - 1 ? "1px solid #f1f5f9" : "none",
+              borderBottom: i < historico.length - 1 ? "1px solid var(--panel-2)" : "none",
             }}
           >
             {/* Timeline dot */}
@@ -923,26 +923,26 @@ function TabHistorico({
                   width: 10,
                   height: 10,
                   borderRadius: "50%",
-                  background: "#0f172a",
+                  background: "var(--green-500)",
                   marginTop: 4,
                 }}
               />
               {i < historico.length - 1 && (
-                <div style={{ width: 2, flex: 1, background: "#e2e8f0", marginTop: 4 }} />
+                <div style={{ width: 2, flex: 1, background: "var(--border)", marginTop: 4 }} />
               )}
             </div>
             {/* Content */}
             <div style={{ flex: 1 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                <strong style={{ fontSize: "0.88rem", color: "#0f172a" }}>{h.acao}</strong>
+                <strong style={{ fontSize: "0.88rem", color: "var(--ink)" }}>{h.acao}</strong>
                 {h.usuario && (
-                  <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>por {h.usuario}</span>
+                  <span style={{ fontSize: "0.75rem", color: "var(--muted)" }}>por {h.usuario}</span>
                 )}
               </div>
               {h.descricao && (
-                <p style={{ fontSize: "0.82rem", color: "#64748b", margin: "2px 0 0" }}>{h.descricao}</p>
+                <p style={{ fontSize: "0.82rem", color: "var(--muted)", margin: "2px 0 0" }}>{h.descricao}</p>
               )}
-              <span style={{ fontSize: "0.72rem", color: "#94a3b8" }}>
+              <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
                 {formatDateTime(h.created_at)}
               </span>
             </div>
@@ -1009,7 +1009,7 @@ function FormNovoCertificado({
     width: "100%",
     padding: "8px 12px",
     fontSize: "0.85rem",
-    border: "1px solid #e2e8f0",
+    border: "1px solid var(--border)",
     borderRadius: 8,
     outline: "none",
     boxSizing: "border-box",
@@ -1042,8 +1042,8 @@ function FormNovoCertificado({
           width: 28,
           height: 28,
           borderRadius: "50%",
-          background: formStep >= step ? "#0f172a" : "#e2e8f0",
-          color: formStep >= step ? "#fff" : "#64748b",
+          background: formStep >= step ? "var(--green-500)" : "var(--border)",
+          color: formStep >= step ? "#fff" : "var(--muted)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -1057,7 +1057,7 @@ function FormNovoCertificado({
         style={{
           fontSize: "0.82rem",
           fontWeight: formStep === step ? 700 : 500,
-          color: formStep === step ? "#0f172a" : "#64748b",
+          color: formStep === step ? "var(--ink)" : "var(--muted)",
         }}
       >
         {label}
@@ -1068,8 +1068,8 @@ function FormNovoCertificado({
   return (
     <div
       style={{
-        background: "#fff",
-        border: "1px solid #e2e8f0",
+        background: "var(--panel)",
+        border: "1px solid var(--border)",
         borderRadius: 12,
         padding: 24,
         marginBottom: 16,
@@ -1081,12 +1081,12 @@ function FormNovoCertificado({
           onClick={onCancel}
           style={{
             background: "none",
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border)",
             borderRadius: 6,
             padding: "6px 14px",
             fontSize: "0.8rem",
             fontWeight: 600,
-            color: "#64748b",
+            color: "var(--muted)",
             cursor: "pointer",
           }}
         >
@@ -1095,11 +1095,11 @@ function FormNovoCertificado({
       </div>
 
       {/* Steps indicator */}
-      <div style={{ display: "flex", gap: 32, marginBottom: 24, borderBottom: "1px solid #f1f5f9", paddingBottom: 16 }}>
+      <div style={{ display: "flex", gap: 32, marginBottom: 24, borderBottom: "1px solid var(--panel-2)", paddingBottom: 16 }}>
         {stepIndicator(1, "Empresa")}
-        <div style={{ width: 40, borderTop: "2px solid #e2e8f0", alignSelf: "center" }} />
+        <div style={{ width: 40, borderTop: "2px solid var(--border)", alignSelf: "center" }} />
         {stepIndicator(2, "Dados do certificado")}
-        <div style={{ width: 40, borderTop: "2px solid #e2e8f0", alignSelf: "center" }} />
+        <div style={{ width: 40, borderTop: "2px solid var(--border)", alignSelf: "center" }} />
         {stepIndicator(3, "Alertas")}
       </div>
 
@@ -1129,7 +1129,7 @@ function FormNovoCertificado({
                 setFormStep(2);
               }}
               style={{
-                background: "#0f172a",
+                background: "var(--green-500)",
                 color: "#fff",
                 border: "none",
                 borderRadius: 8,
@@ -1274,12 +1274,12 @@ function FormNovoCertificado({
               onClick={() => setFormStep(1)}
               style={{
                 background: "none",
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border)",
                 borderRadius: 8,
                 padding: "8px 20px",
                 fontSize: "0.85rem",
                 fontWeight: 600,
-                color: "#64748b",
+                color: "var(--muted)",
                 cursor: "pointer",
               }}
             >
@@ -1288,7 +1288,7 @@ function FormNovoCertificado({
             <button
               onClick={() => setFormStep(3)}
               style={{
-                background: "#0f172a",
+                background: "var(--green-500)",
                 color: "#fff",
                 border: "none",
                 borderRadius: 8,
@@ -1318,10 +1318,10 @@ function FormNovoCertificado({
                     alignItems: "center",
                     gap: 6,
                     padding: "6px 14px",
-                    border: "1px solid #e2e8f0",
+                    border: "1px solid var(--border)",
                     borderRadius: 8,
                     cursor: "pointer",
-                    background: alertDias.includes(d) ? "#f0fdf4" : "#fff",
+                    background: alertDias.includes(d) ? "rgba(52,211,153,0.15)" : "var(--panel)",
                     fontSize: "0.82rem",
                     fontWeight: 600,
                   }}
@@ -1330,7 +1330,7 @@ function FormNovoCertificado({
                     type="checkbox"
                     checked={alertDias.includes(d)}
                     onChange={() => toggleDia(d)}
-                    style={{ accentColor: "#065f46" }}
+                    style={{ accentColor: "#34d399" }}
                   />
                   {d} dia{d !== 1 ? "s" : ""}
                 </label>
@@ -1349,10 +1349,10 @@ function FormNovoCertificado({
                     alignItems: "center",
                     gap: 6,
                     padding: "6px 14px",
-                    border: "1px solid #e2e8f0",
+                    border: "1px solid var(--border)",
                     borderRadius: 8,
                     cursor: "pointer",
-                    background: alertCanais.includes(c) ? "#eff6ff" : "#fff",
+                    background: alertCanais.includes(c) ? "rgba(96,165,250,0.15)" : "var(--panel)",
                     fontSize: "0.82rem",
                     fontWeight: 600,
                   }}
@@ -1361,7 +1361,7 @@ function FormNovoCertificado({
                     type="checkbox"
                     checked={alertCanais.includes(c)}
                     onChange={() => toggleCanal(c)}
-                    style={{ accentColor: "#1e40af" }}
+                    style={{ accentColor: "#93c5fd" }}
                   />
                   {c}
                 </label>
@@ -1372,11 +1372,11 @@ function FormNovoCertificado({
           {formError && (
             <div
               style={{
-                background: "#fef2f2",
-                border: "1px solid #fecaca",
+                background: "rgba(248,113,113,0.15)",
+                border: "1px solid rgba(248,113,113,0.35)",
                 borderRadius: 8,
                 padding: "10px 14px",
-                color: "#b91c1c",
+                color: "#f87171",
                 fontSize: "0.82rem",
                 marginBottom: 16,
               }}
@@ -1390,12 +1390,12 @@ function FormNovoCertificado({
               onClick={() => setFormStep(2)}
               style={{
                 background: "none",
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border)",
                 borderRadius: 8,
                 padding: "8px 20px",
                 fontSize: "0.85rem",
                 fontWeight: 600,
-                color: "#64748b",
+                color: "var(--muted)",
                 cursor: "pointer",
               }}
             >
@@ -1405,7 +1405,7 @@ function FormNovoCertificado({
               onClick={onSubmit}
               disabled={submitting}
               style={{
-                background: submitting ? "#94a3b8" : "#065f46",
+                background: submitting ? "var(--muted)" : "#34d399",
                 color: "#fff",
                 border: "none",
                 borderRadius: 8,

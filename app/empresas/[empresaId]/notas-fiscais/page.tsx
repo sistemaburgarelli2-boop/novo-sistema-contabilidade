@@ -62,17 +62,17 @@ const ICONE = (
 /* ─── Configs visuais ─────────────────────────────────────────── */
 
 const STATUS_NF: Record<StatusNota, { bg: string; color: string; label: string }> = {
-  autorizada:   { bg: "#f0fdf4", color: "#166534", label: "Autorizada" },
-  cancelada:    { bg: "#fef2f2", color: "#b91c1c", label: "Cancelada" },
-  denegada:     { bg: "#fffbeb", color: "#92400e", label: "Denegada" },
-  inutilizada:  { bg: "#f3f4f6", color: "#6b7280", label: "Inutilizada" },
+  autorizada:   { bg: "rgba(52,211,153,0.15)", color: "#4ade80", label: "Autorizada" },
+  cancelada:    { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Cancelada" },
+  denegada:     { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Denegada" },
+  inutilizada:  { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: "Inutilizada" },
 };
 
 const SITUACAO_NF: Record<SituacaoNota, { bg: string; color: string; label: string }> = {
-  pendente:     { bg: "#fffbeb", color: "#92400e", label: "Pendente" },
-  escriturada:  { bg: "#eff6ff", color: "#1d4ed8", label: "Escriturada" },
-  conciliada:   { bg: "#f0fdf4", color: "#166534", label: "Conciliada" },
-  ignorada:     { bg: "#f3f4f6", color: "#6b7280", label: "Ignorada" },
+  pendente:     { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Pendente" },
+  escriturada:  { bg: "rgba(96,165,250,0.15)", color: "#93c5fd", label: "Escriturada" },
+  conciliada:   { bg: "rgba(52,211,153,0.15)", color: "#4ade80", label: "Conciliada" },
+  ignorada:     { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: "Ignorada" },
 };
 
 const MODELO_LABEL: Record<ModeloNota, string> = {
@@ -112,7 +112,7 @@ function Badge({ cfg }: { cfg: { bg: string; color: string; label: string } }) {
 
 function TH({ children, right }: { children: React.ReactNode; right?: boolean }) {
   return (
-    <th style={{ textAlign: right ? "right" : "left", padding: "0.7rem 0.875rem", color: "#6f8f7c", fontWeight: 700, fontSize: "0.73rem", textTransform: "uppercase", letterSpacing: "0.5px", borderBottom: "1px solid #e8f0eb" }}>
+    <th style={{ textAlign: right ? "right" : "left", padding: "0.7rem 0.875rem", color: "var(--muted)", fontWeight: 700, fontSize: "0.73rem", textTransform: "uppercase", letterSpacing: "0.5px", borderBottom: "1px solid #e8f0eb" }}>
       {children}
     </th>
   );
@@ -120,7 +120,7 @@ function TH({ children, right }: { children: React.ReactNode; right?: boolean })
 
 function TD({ children, right, muted }: { children: React.ReactNode; right?: boolean; muted?: boolean }) {
   return (
-    <td style={{ padding: "0.8rem 0.875rem", textAlign: right ? "right" : "left", color: muted ? "#6f8f7c" : "#07170d", fontSize: "0.875rem", borderBottom: "1px solid #f0f7f3" }}>
+    <td style={{ padding: "0.8rem 0.875rem", textAlign: right ? "right" : "left", color: muted ? "var(--muted)" : "var(--ink)", fontSize: "0.875rem", borderBottom: "1px solid var(--panel-2)" }}>
       {children}
     </td>
   );
@@ -138,7 +138,7 @@ function LoadingSkeleton() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "2rem" }}>
       {[1, 2, 3, 4].map((i) => (
-        <div key={i} style={{ height: 48, background: "#f0f7f3", borderRadius: 8, animation: "pulse 1.5s infinite" }} />
+        <div key={i} style={{ height: 48, background: "var(--panel-2)", borderRadius: 8, animation: "pulse 1.5s infinite" }} />
       ))}
       <style>{`@keyframes pulse { 0%,100%{opacity:.6} 50%{opacity:1} }`}</style>
     </div>
@@ -253,7 +253,7 @@ export default function NotasFiscaisPage() {
       cor="#312e81"
       empresaId={empresaId}
       empresaNome="Empresa"
-      fundo="#eef2ff"
+      fundo="rgba(99,102,241,0.15)"
       icone={ICONE}
       setorNome="Notas Fiscais"
       setorResumo="Consulta automatica de NFe, NFC-e e NFS-e emitidas e recebidas"
@@ -265,7 +265,7 @@ export default function NotasFiscaisPage() {
       ]}
     >
       {/* ── Tabs ── */}
-      <div style={{ background: "#fff", borderRadius: "12px 12px 0 0", border: "1px solid var(--border)", borderBottom: "none" }}>
+      <div style={{ background: "var(--panel)", borderRadius: "12px 12px 0 0", border: "1px solid var(--border)", borderBottom: "none" }}>
         <div style={{ display: "flex", overflowX: "auto", padding: "0 8px" }}>
           {TABS.map((t) => (
             <button
@@ -275,7 +275,7 @@ export default function NotasFiscaisPage() {
                 background: "none",
                 border: "none",
                 borderBottom: tab === t.id ? "2px solid #6366f1" : "2px solid transparent",
-                color: tab === t.id ? "#312e81" : "#6f8f7c",
+                color: tab === t.id ? "#312e81" : "var(--muted)",
                 cursor: "pointer",
                 fontWeight: tab === t.id ? 800 : 500,
                 fontSize: "0.82rem",
@@ -287,15 +287,15 @@ export default function NotasFiscaisPage() {
               type="button"
             >
               {t.label}
-              {t.id === "todas" && <span style={{ marginLeft: 6, background: "#eef2ff", color: "#4f46e5", borderRadius: 999, padding: "1px 7px", fontSize: "0.7rem", fontWeight: 700 }}>{resumo.total}</span>}
-              {t.id === "emitidas" && <span style={{ marginLeft: 6, background: "#f0fdf4", color: "#166534", borderRadius: 999, padding: "1px 7px", fontSize: "0.7rem", fontWeight: 700 }}>{resumo.emitidas}</span>}
-              {t.id === "recebidas" && <span style={{ marginLeft: 6, background: "#fffbeb", color: "#92400e", borderRadius: 999, padding: "1px 7px", fontSize: "0.7rem", fontWeight: 700 }}>{resumo.recebidas}</span>}
+              {t.id === "todas" && <span style={{ marginLeft: 6, background: "rgba(99,102,241,0.15)", color: "#4f46e5", borderRadius: 999, padding: "1px 7px", fontSize: "0.7rem", fontWeight: 700 }}>{resumo.total}</span>}
+              {t.id === "emitidas" && <span style={{ marginLeft: 6, background: "rgba(52,211,153,0.15)", color: "#4ade80", borderRadius: 999, padding: "1px 7px", fontSize: "0.7rem", fontWeight: 700 }}>{resumo.emitidas}</span>}
+              {t.id === "recebidas" && <span style={{ marginLeft: 6, background: "rgba(251,191,36,0.15)", color: "#fbbf24", borderRadius: 999, padding: "1px 7px", fontSize: "0.7rem", fontWeight: 700 }}>{resumo.recebidas}</span>}
             </button>
           ))}
         </div>
       </div>
 
-      <div style={{ background: "#fff", border: "1px solid var(--border)", borderTop: "none", borderRadius: "0 0 12px 12px", padding: "1.5rem" }}>
+      <div style={{ background: "var(--panel)", border: "1px solid var(--border)", borderTop: "none", borderRadius: "0 0 12px 12px", padding: "1.5rem" }}>
 
         {loading && <LoadingSkeleton />}
 
@@ -305,14 +305,14 @@ export default function NotasFiscaisPage() {
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginBottom: "1rem" }}>
               <a
                 href={`/empresas/${empresaId}/notas-fiscais/emitir`}
-                style={{ display: "flex", alignItems: "center", gap: 6, padding: "0.5rem 1rem", background: "linear-gradient(135deg, #065f46, #10b981)", color: "#fff", border: "none", borderRadius: 8, fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", textDecoration: "none" }}
+                style={{ display: "flex", alignItems: "center", gap: 6, padding: "0.5rem 1rem", background: "linear-gradient(135deg, #065f46, #10b981)", color: "#ffffff", border: "none", borderRadius: 8, fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", textDecoration: "none" }}
               >
                 <svg fill="none" height={16} viewBox="0 0 24 24" width={16}><path d="M12 5v14M5 12h14" stroke="currentColor" strokeLinecap="round" strokeWidth={2.5}/></svg>
                 Emitir nota fiscal
               </a>
               <button
                 onClick={() => { setShowSync(true); setSyncResult(null); }}
-                style={{ display: "flex", alignItems: "center", gap: 6, padding: "0.5rem 1rem", background: "linear-gradient(135deg, #4f46e5, #6366f1)", color: "#fff", border: "none", borderRadius: 8, fontSize: "0.82rem", fontWeight: 700, cursor: "pointer" }}
+                style={{ display: "flex", alignItems: "center", gap: 6, padding: "0.5rem 1rem", background: "linear-gradient(135deg, #4f46e5, #6366f1)", color: "#ffffff", border: "none", borderRadius: 8, fontSize: "0.82rem", fontWeight: 700, cursor: "pointer" }}
                 type="button"
               >
                 <svg fill="none" height={16} viewBox="0 0 24 24" width={16}><path d="M21 12a9 9 0 1 1-3-6.7" stroke="currentColor" strokeLinecap="round" strokeWidth={2.5}/><path d="M21 3v6h-6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}/></svg>
@@ -325,13 +325,13 @@ export default function NotasFiscaisPage() {
               <input
                 onChange={(e) => setBusca(e.target.value)}
                 placeholder="Buscar por numero, nome ou CNPJ..."
-                style={{ flex: 1, minWidth: 200, padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.85rem", outline: "none" }}
+                style={{ flex: 1, minWidth: 200, padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.85rem", outline: "none" }}
                 type="text"
                 value={busca}
               />
               <select
                 onChange={(e) => setFiltroSituacao(e.target.value)}
-                style={{ padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.82rem", background: "#fff", cursor: "pointer" }}
+                style={{ padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.82rem", background: "var(--panel)", cursor: "pointer" }}
                 value={filtroSituacao}
               >
                 <option value="">Todas situacoes</option>
@@ -342,7 +342,7 @@ export default function NotasFiscaisPage() {
               </select>
               <select
                 onChange={(e) => setFiltroModelo(e.target.value)}
-                style={{ padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.82rem", background: "#fff", cursor: "pointer" }}
+                style={{ padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.82rem", background: "var(--panel)", cursor: "pointer" }}
                 value={filtroModelo}
               >
                 <option value="">Todos modelos</option>
@@ -353,9 +353,9 @@ export default function NotasFiscaisPage() {
             </div>
 
             {/* ── Resumo inline ── */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", fontSize: "0.82rem", color: "#6f8f7c" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", fontSize: "0.82rem", color: "var(--muted)" }}>
               <span>{notasFiltradas.length} nota{notasFiltradas.length !== 1 ? "s" : ""} encontrada{notasFiltradas.length !== 1 ? "s" : ""}</span>
-              <span style={{ fontWeight: 700, color: "#07170d" }}>Total: {fmt(totalFiltrado)}</span>
+              <span style={{ fontWeight: 700, color: "var(--ink)" }}>Total: {fmt(totalFiltrado)}</span>
             </div>
 
             {/* ── Tabela ── */}
@@ -384,9 +384,9 @@ export default function NotasFiscaisPage() {
                         : (n.destinatario_nome ?? fmtCnpj(n.destinatario_cnpj));
                       return (
                         <tr key={n.id} style={{ cursor: "pointer" }} onClick={() => setDetalhes(n)}>
-                          <TD><span style={{ fontWeight: 600 }}>{n.numero}</span>{n.serie ? <span style={{ color: "#6f8f7c", fontSize: "0.75rem" }}> /{n.serie}</span> : null}</TD>
-                          <TD><span style={{ background: "#f3f4f6", borderRadius: 4, padding: "2px 6px", fontSize: "0.73rem", fontWeight: 600 }}>{MODELO_LABEL[n.modelo]}</span></TD>
-                          <TD><span style={{ color: n.tipo === "emitida" ? "#166534" : "#92400e", fontWeight: 600, fontSize: "0.8rem" }}>{n.tipo === "emitida" ? "Emitida" : "Recebida"}</span></TD>
+                          <TD><span style={{ fontWeight: 600 }}>{n.numero}</span>{n.serie ? <span style={{ color: "var(--muted)", fontSize: "0.75rem" }}> /{n.serie}</span> : null}</TD>
+                          <TD><span style={{ background: "rgba(148,163,184,0.15)", borderRadius: 4, padding: "2px 6px", fontSize: "0.73rem", fontWeight: 600 }}>{MODELO_LABEL[n.modelo]}</span></TD>
+                          <TD><span style={{ color: n.tipo === "emitida" ? "#4ade80" : "#fbbf24", fontWeight: 600, fontSize: "0.8rem" }}>{n.tipo === "emitida" ? "Emitida" : "Recebida"}</span></TD>
                           <TD>{parceiro}</TD>
                           <TD muted>{fmtData(n.data_emissao)}</TD>
                           <TD right><span style={{ fontWeight: 600 }}>{fmt(n.valor_total)}</span></TD>
@@ -397,7 +397,7 @@ export default function NotasFiscaisPage() {
                               onClick={(e) => e.stopPropagation()}
                               onChange={(e) => mudarSituacao(n.id, e.target.value as SituacaoNota)}
                               value={n.situacao}
-                              style={{ padding: "4px 8px", border: "1px solid #dfece5", borderRadius: 6, fontSize: "0.75rem", background: "#fff", cursor: "pointer" }}
+                              style={{ padding: "4px 8px", border: "1px solid var(--border)", borderRadius: 6, fontSize: "0.75rem", background: "var(--panel)", cursor: "pointer" }}
                             >
                               <option value="pendente">Pendente</option>
                               <option value="escriturada">Escriturada</option>
@@ -424,15 +424,15 @@ export default function NotasFiscaisPage() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ background: "#fff", borderRadius: 14, width: "100%", maxWidth: 620, maxHeight: "85vh", overflow: "auto", padding: "2rem", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}
+            style={{ background: "var(--panel)", borderRadius: 14, width: "100%", maxWidth: 620, maxHeight: "85vh", overflow: "auto", padding: "2rem", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem" }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#07170d" }}>
+                <h3 style={{ margin: 0, fontSize: "1.1rem", color: "var(--ink)" }}>
                   {MODELO_LABEL[detalhes.modelo]} N.{detalhes.numero}
                   {detalhes.serie ? ` / Serie ${detalhes.serie}` : ""}
                 </h3>
-                <p style={{ margin: "4px 0 0", fontSize: "0.82rem", color: "#6f8f7c" }}>
+                <p style={{ margin: "4px 0 0", fontSize: "0.82rem", color: "var(--muted)" }}>
                   {detalhes.natureza_operacao ?? "Sem natureza informada"}
                 </p>
               </div>
@@ -450,7 +450,7 @@ export default function NotasFiscaisPage() {
               <InfoCard label="Destinatario" value={detalhes.destinatario_nome ?? "-"} sub={fmtCnpj(detalhes.destinatario_cnpj)} />
             </div>
 
-            <h4 style={{ margin: "0 0 0.75rem", fontSize: "0.85rem", color: "#07170d", fontWeight: 700 }}>Valores</h4>
+            <h4 style={{ margin: "0 0 0.75rem", fontSize: "0.85rem", color: "var(--ink)", fontWeight: 700 }}>Valores</h4>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.5rem", marginBottom: "1.5rem" }}>
               <ValorItem label="Total" valor={detalhes.valor_total} destaque />
               <ValorItem label="Produtos" valor={detalhes.valor_produtos} />
@@ -458,7 +458,7 @@ export default function NotasFiscaisPage() {
               <ValorItem label="Desconto" valor={detalhes.valor_desconto} />
             </div>
 
-            <h4 style={{ margin: "0 0 0.75rem", fontSize: "0.85rem", color: "#07170d", fontWeight: 700 }}>Impostos</h4>
+            <h4 style={{ margin: "0 0 0.75rem", fontSize: "0.85rem", color: "var(--ink)", fontWeight: 700 }}>Impostos</h4>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "0.5rem", marginBottom: "1.5rem" }}>
               <ValorItem label="ICMS" valor={detalhes.valor_icms} />
               <ValorItem label="IPI" valor={detalhes.valor_ipi} />
@@ -473,7 +473,7 @@ export default function NotasFiscaisPage() {
             </div>
 
             {detalhes.chave_acesso && (
-              <div style={{ marginTop: "1rem", padding: "0.75rem", background: "#f9fafb", borderRadius: 8, fontSize: "0.73rem", color: "#6f8f7c", wordBreak: "break-all" }}>
+              <div style={{ marginTop: "1rem", padding: "0.75rem", background: "var(--panel-2)", borderRadius: 8, fontSize: "0.73rem", color: "var(--muted)", wordBreak: "break-all" }}>
                 <strong>Chave de acesso:</strong> {detalhes.chave_acesso}
               </div>
             )}
@@ -488,43 +488,43 @@ export default function NotasFiscaisPage() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ background: "#fff", borderRadius: 14, width: "100%", maxWidth: 480, padding: "2rem", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}
+            style={{ background: "var(--panel)", borderRadius: 14, width: "100%", maxWidth: 480, padding: "2rem", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-              <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#07170d" }}>Sincronizar NFS-e Nacional</h3>
+              <h3 style={{ margin: 0, fontSize: "1.1rem", color: "var(--ink)" }}>Sincronizar NFS-e Nacional</h3>
               <button onClick={() => setShowSync(false)} style={{ background: "none", border: "none", fontSize: "1.5rem", color: "#9ca3af", cursor: "pointer" }} type="button">x</button>
             </div>
 
-            <div style={{ background: "#eef2ff", borderRadius: 8, padding: "0.75rem 1rem", marginBottom: "1.25rem", fontSize: "0.8rem", color: "#4338ca" }}>
+            <div style={{ background: "rgba(99,102,241,0.15)", borderRadius: 8, padding: "0.75rem 1rem", marginBottom: "1.25rem", fontSize: "0.8rem", color: "#a5b4fc" }}>
               Para MEI: acesse <strong>nfse.gov.br</strong> com sua conta gov.br (nivel Prata ou Ouro), copie o token de acesso da API e cole abaixo.
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
               <div>
-                <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Token de acesso</label>
+                <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", marginBottom: 4 }}>Token de acesso</label>
                 <input
                   onChange={(e) => setSyncToken(e.target.value)}
                   placeholder="Cole o token da API NFS-e Nacional"
-                  style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }}
+                  style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }}
                   type="password"
                   value={syncToken}
                 />
               </div>
               <div style={{ display: "flex", gap: "0.75rem" }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Data inicio</label>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", marginBottom: 4 }}>Data inicio</label>
                   <input
                     onChange={(e) => setSyncDataInicio(e.target.value)}
-                    style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }}
                     type="date"
                     value={syncDataInicio}
                   />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Data fim</label>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", marginBottom: 4 }}>Data fim</label>
                   <input
                     onChange={(e) => setSyncDataFim(e.target.value)}
-                    style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }}
                     type="date"
                     value={syncDataFim}
                   />
@@ -532,7 +532,7 @@ export default function NotasFiscaisPage() {
               </div>
 
               {syncResult && (
-                <div style={{ background: "#f0fdf4", borderRadius: 8, padding: "0.75rem 1rem", fontSize: "0.82rem", color: "#166534" }}>
+                <div style={{ background: "rgba(52,211,153,0.15)", borderRadius: 8, padding: "0.75rem 1rem", fontSize: "0.82rem", color: "#4ade80" }}>
                   {syncResult.inseridas} nota{syncResult.inseridas !== 1 ? "s" : ""} importada{syncResult.inseridas !== 1 ? "s" : ""} de {syncResult.total} encontrada{syncResult.total !== 1 ? "s" : ""}.
                 </div>
               )}
@@ -568,9 +568,9 @@ export default function NotasFiscaisPage() {
 
 function InfoCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div style={{ background: "#f9fafb", borderRadius: 8, padding: "0.75rem" }}>
-      <div style={{ fontSize: "0.7rem", color: "#6f8f7c", fontWeight: 600, textTransform: "uppercase", marginBottom: 2 }}>{label}</div>
-      <div style={{ fontSize: "0.875rem", color: "#07170d", fontWeight: 600 }}>{value}</div>
+    <div style={{ background: "var(--panel-2)", borderRadius: 8, padding: "0.75rem" }}>
+      <div style={{ fontSize: "0.7rem", color: "var(--muted)", fontWeight: 600, textTransform: "uppercase", marginBottom: 2 }}>{label}</div>
+      <div style={{ fontSize: "0.875rem", color: "var(--ink)", fontWeight: 600 }}>{value}</div>
       {sub && <div style={{ fontSize: "0.75rem", color: "#9ca3af", marginTop: 2 }}>{sub}</div>}
     </div>
   );
@@ -578,9 +578,9 @@ function InfoCard({ label, value, sub }: { label: string; value: string; sub?: s
 
 function ValorItem({ label, valor, destaque }: { label: string; valor: number; destaque?: boolean }) {
   return (
-    <div style={{ background: destaque ? "#eef2ff" : "#f9fafb", borderRadius: 8, padding: "0.6rem 0.75rem" }}>
-      <div style={{ fontSize: "0.65rem", color: "#6f8f7c", fontWeight: 600, textTransform: "uppercase" }}>{label}</div>
-      <div style={{ fontSize: destaque ? "1rem" : "0.85rem", color: destaque ? "#4f46e5" : "#07170d", fontWeight: 700, marginTop: 2 }}>
+    <div style={{ background: destaque ? "rgba(99,102,241,0.15)" : "var(--panel-2)", borderRadius: 8, padding: "0.6rem 0.75rem" }}>
+      <div style={{ fontSize: "0.65rem", color: "var(--muted)", fontWeight: 600, textTransform: "uppercase" }}>{label}</div>
+      <div style={{ fontSize: destaque ? "1rem" : "0.85rem", color: destaque ? "#4f46e5" : "var(--ink)", fontWeight: 700, marginTop: 2 }}>
         {valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
       </div>
     </div>

@@ -36,10 +36,10 @@ const STATUS_LABEL: Record<Empresa["status"], string> = {
 };
 
 const SETORES = [
-  { cor: "#065f46", emoji: "📄", label: "Fiscal", slug: "fiscal" },
-  { cor: "#1e40af", emoji: "📚", label: "Contábil", slug: "contabil" },
+  { cor: "#34d399", emoji: "📄", label: "Fiscal", slug: "fiscal" },
+  { cor: "#93c5fd", emoji: "📚", label: "Contábil", slug: "contabil" },
   { cor: "#6b21a8", emoji: "👥", label: "DP", slug: "dp" },
-  { cor: "#92400e", emoji: "🏛", label: "Societário", slug: "societario" },
+  { cor: "#fbbf24", emoji: "🏛", label: "Societário", slug: "societario" },
 ];
 
 const LINKS_EXTRAS = [
@@ -74,11 +74,11 @@ interface Tarefa {
 }
 
 const TAREFA_STATUS_LABELS: Record<string, { color: string; bg: string; label: string }> = {
-  nao_iniciado: { bg: "#f3f4f6", color: "#6b7280", label: "Não iniciado" },
-  em_andamento: { bg: "#ecfeff", color: "#0e7490", label: "Em andamento" },
-  revisao: { bg: "#fffbeb", color: "#92400e", label: "Revisão" },
-  concluido: { bg: "#f0fdf4", color: "#065f46", label: "Concluído" },
-  atrasado: { bg: "#fef2f2", color: "#dc2626", label: "Atrasado" },
+  nao_iniciado: { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: "Não iniciado" },
+  em_andamento: { bg: "#ecfeff", color: "#67e8f9", label: "Em andamento" },
+  revisao: { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Revisão" },
+  concluido: { bg: "rgba(52,211,153,0.15)", color: "#34d399", label: "Concluído" },
+  atrasado: { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Atrasado" },
 };
 
 interface Mensalidade {
@@ -91,9 +91,9 @@ interface Mensalidade {
 }
 
 const PAGAMENTO_STATUS_COLORS: Record<string, { color: string; bg: string }> = {
-  pago: { color: "#065f46", bg: "#f0fdf4" },
-  pendente: { color: "#92400e", bg: "#fffbeb" },
-  atrasado: { color: "#dc2626", bg: "#fef2f2" },
+  pago: { color: "#34d399", bg: "rgba(52,211,153,0.15)" },
+  pendente: { color: "#fbbf24", bg: "rgba(251,191,36,0.15)" },
+  atrasado: { color: "#f87171", bg: "rgba(248,113,113,0.15)" },
 };
 
 /* ── Inline style helpers ─────────────────────────────────────────── */
@@ -369,13 +369,13 @@ export default function EmpresaDetalhe() {
           <div className="empresa-header-actions">
             <Link
               href={`/empresas/${empresaId}/editar`}
-              style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 10, color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 600, padding: "8px 16px", display: "inline-block", textDecoration: "none" }}
+              style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 10, color: "#ffffff", cursor: "pointer", fontSize: 13, fontWeight: 600, padding: "8px 16px", display: "inline-block", textDecoration: "none" }}
             >
               Editar
             </Link>
             <Link
               href={`/portal/${empresaId}`}
-              style={{ background: "linear-gradient(135deg,#10b981,#059669)", border: "none", borderRadius: 10, color: "#fff", cursor: "pointer", display: "inline-block", fontSize: 13, fontWeight: 700, padding: "8px 16px", textDecoration: "none" }}
+              style={{ background: "linear-gradient(135deg,#10b981,#059669)", border: "none", borderRadius: 10, color: "#ffffff", cursor: "pointer", display: "inline-block", fontSize: 13, fontWeight: 700, padding: "8px 16px", textDecoration: "none" }}
             >
               Portal do Cliente
             </Link>
@@ -596,10 +596,10 @@ export default function EmpresaDetalhe() {
                   {/* KPI cards computed from real data */}
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
                     {[
-                      { label: "Pendentes", valor: String(tarefasPendentes), cor: "#92400e" },
-                      { label: "Em andamento", valor: String(tarefasAndamento), cor: "#0e7490" },
-                      { label: "Atrasadas", valor: String(tarefasAtrasadas), cor: "#dc2626" },
-                      { label: "Concluídas", valor: String(tarefasConcluidas), cor: "#065f46" },
+                      { label: "Pendentes", valor: String(tarefasPendentes), cor: "#fbbf24" },
+                      { label: "Em andamento", valor: String(tarefasAndamento), cor: "#67e8f9" },
+                      { label: "Atrasadas", valor: String(tarefasAtrasadas), cor: "#f87171" },
+                      { label: "Concluídas", valor: String(tarefasConcluidas), cor: "#34d399" },
                     ].map((kpi) => (
                       <div key={kpi.label} style={{ ...infoCard, textAlign: "center" as const }}>
                         <div style={{ ...infoLabel, marginBottom: 4 }}>{kpi.label}</div>
@@ -626,7 +626,7 @@ export default function EmpresaDetalhe() {
                         </thead>
                         <tbody>
                           {tarefas.map((t) => {
-                            const sc = TAREFA_STATUS_LABELS[t.status] ?? { color: "#6b7280", bg: "#f3f4f6", label: t.status };
+                            const sc = TAREFA_STATUS_LABELS[t.status] ?? { color: "var(--muted)", bg: "rgba(148,163,184,0.15)", label: t.status };
                             const isAtrasado = t.status === "atrasado";
                             return (
                               <tr key={t.id} style={{ borderBottom: "1px solid var(--border)" }}>
@@ -634,8 +634,8 @@ export default function EmpresaDetalhe() {
                                   {t.atividade}
                                   {isAtrasado && (
                                     <span style={{
-                                      background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 4,
-                                      color: "#dc2626", display: "inline-block", fontSize: 10, fontWeight: 700,
+                                      background: "rgba(248,113,113,0.15)", border: "1px solid rgba(248,113,113,0.35)", borderRadius: 4,
+                                      color: "#f87171", display: "inline-block", fontSize: 10, fontWeight: 700,
                                       marginLeft: 8, padding: "1px 6px",
                                     }}>
                                       ATRASADA
@@ -643,7 +643,7 @@ export default function EmpresaDetalhe() {
                                   )}
                                 </td>
                                 <td style={tdStyle}>{t.setor}</td>
-                                <td style={{ ...tdStyle, color: isAtrasado ? "#dc2626" : "var(--ink)", fontWeight: isAtrasado ? 700 : 400 }}>
+                                <td style={{ ...tdStyle, color: isAtrasado ? "#f87171" : "var(--ink)", fontWeight: isAtrasado ? 700 : 400 }}>
                                   {t.prazo ? new Date(t.prazo).toLocaleDateString("pt-BR") : "—"}
                                 </td>
                                 <td style={tdStyle}>{t.responsavel ?? "—"}</td>
@@ -697,7 +697,7 @@ export default function EmpresaDetalhe() {
                     style={{
                       border: `2px dashed ${dragOver ? "var(--green-500)" : "var(--border)"}`,
                       borderRadius: 12, padding: "28px 20px", textAlign: "center" as const,
-                      background: dragOver ? "#ecfdf5" : "var(--bg)", cursor: "pointer",
+                      background: dragOver ? "rgba(52,211,153,0.15)" : "var(--bg)", cursor: "pointer",
                       transition: "all 0.2s",
                     }}
                   >
@@ -737,14 +737,14 @@ export default function EmpresaDetalhe() {
                         <tbody>
                           {documentos.map((doc) => {
                             const statusColors: Record<string, { color: string; bg: string }> = {
-                              recebido: { color: "#0e7490", bg: "#ecfeff" },
-                              conferido: { color: "#065f46", bg: "#f0fdf4" },
+                              recebido: { color: "#67e8f9", bg: "#ecfeff" },
+                              conferido: { color: "#34d399", bg: "rgba(52,211,153,0.15)" },
                               processado: { color: "#6b21a8", bg: "#faf5ff" },
-                              pendente: { color: "#92400e", bg: "#fffbeb" },
-                              rejeitado: { color: "#dc2626", bg: "#fef2f2" },
-                              arquivado: { color: "#6b7280", bg: "#f3f4f6" },
+                              pendente: { color: "#fbbf24", bg: "rgba(251,191,36,0.15)" },
+                              rejeitado: { color: "#f87171", bg: "rgba(248,113,113,0.15)" },
+                              arquivado: { color: "var(--muted)", bg: "rgba(148,163,184,0.15)" },
                             };
-                            const sc = statusColors[doc.status] ?? { color: "#6b7280", bg: "#f3f4f6" };
+                            const sc = statusColors[doc.status] ?? { color: "var(--muted)", bg: "rgba(148,163,184,0.15)" };
                             return (
                               <tr key={doc.id} style={{ borderBottom: "1px solid var(--border)" }}>
                                 <td style={{ ...tdStyle, fontWeight: 600 }}>
@@ -808,8 +808,8 @@ export default function EmpresaDetalhe() {
                     ) : (
                       <>
                         <div style={{
-                          background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 10,
-                          padding: "12px 16px", fontSize: 13, fontWeight: 600, color: "#166534",
+                          background: "rgba(52,211,153,0.15)", border: "1px solid #86efac", borderRadius: 10,
+                          padding: "12px 16px", fontSize: 13, fontWeight: 600, color: "#4ade80",
                           display: "flex", alignItems: "center", gap: 8,
                         }}>
                           <span style={{ fontSize: 18 }}>✓</span> Portal configurado e ativo
@@ -834,7 +834,7 @@ export default function EmpresaDetalhe() {
                             {["empresa.read", "documento.read", "documento.upload", "guia.download", "solicitacao.create"].map(p => (
                               <span key={p} style={{
                                 padding: "4px 12px", borderRadius: 6, fontSize: 12, fontWeight: 500,
-                                background: "#065f4610", color: "#065f46", border: "1px solid #065f4625",
+                                background: "#065f4610", color: "#34d399", border: "1px solid #065f4625",
                               }}>{p}</span>
                             ))}
                           </div>
@@ -880,7 +880,7 @@ export default function EmpresaDetalhe() {
                           <tbody>
                             {mensalidades.map((m) => {
                               const statusKey = (m.status ?? "").toLowerCase();
-                              const sc = PAGAMENTO_STATUS_COLORS[statusKey] ?? { color: "#6b7280", bg: "#f3f4f6" };
+                              const sc = PAGAMENTO_STATUS_COLORS[statusKey] ?? { color: "var(--muted)", bg: "rgba(148,163,184,0.15)" };
                               return (
                                 <tr key={m.id} style={{ borderBottom: "1px solid var(--border)" }}>
                                   <td style={{ ...tdStyle, fontWeight: 600 }}>{m.competencia ?? "—"}</td>
@@ -984,9 +984,9 @@ export default function EmpresaDetalhe() {
       </div>
       {/* ── Modal de edicao completo ── */}
       {editando && (() => {
-        const lbl: React.CSSProperties = { display: "block", fontSize: "0.72rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 };
-        const inp: React.CSSProperties = { width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.85rem", outline: "none", boxSizing: "border-box" };
-        const sel: React.CSSProperties = { ...inp, background: "#fff", cursor: "pointer" };
+        const lbl: React.CSSProperties = { display: "block", fontSize: "0.72rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", marginBottom: 4 };
+        const inp: React.CSSProperties = { width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.85rem", outline: "none", boxSizing: "border-box" };
+        const sel: React.CSSProperties = { ...inp, background: "var(--panel)", cursor: "pointer" };
         const row2: React.CSSProperties = { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 };
         const row3: React.CSSProperties = { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 };
         const ef = editForm;
@@ -1005,18 +1005,18 @@ export default function EmpresaDetalhe() {
         ];
         return (
           <div onClick={() => setEditando(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999 }}>
-            <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", borderRadius: 14, width: "100%", maxWidth: 680, maxHeight: "88vh", overflow: "auto", padding: "1.75rem 2rem", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--panel)", borderRadius: 14, width: "100%", maxWidth: 680, maxHeight: "88vh", overflow: "auto", padding: "1.75rem 2rem", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                <h3 style={{ margin: 0, fontSize: "1.15rem", color: "#07170d", fontWeight: 800 }}>Editar empresa</h3>
+                <h3 style={{ margin: 0, fontSize: "1.15rem", color: "var(--ink)", fontWeight: 800 }}>Editar empresa</h3>
                 <button onClick={() => setEditando(false)} style={{ background: "none", border: "none", fontSize: "1.5rem", color: "#9ca3af", cursor: "pointer" }} type="button">x</button>
               </div>
 
               {/* Tabs */}
-              <div style={{ display: "flex", gap: 0, borderBottom: "2px solid #dfece5", marginBottom: "1.25rem" }}>
+              <div style={{ display: "flex", gap: 0, borderBottom: "2px solid var(--border)", marginBottom: "1.25rem" }}>
                 {EDIT_TABS.map(t => (
                   <button key={t.id} onClick={() => setEditTab(t.id)} type="button" style={{
                     padding: "0.55rem 1rem", fontSize: "0.78rem", fontWeight: editTab === t.id ? 800 : 500,
-                    color: editTab === t.id ? "#065f46" : "#6f8f7c", background: "transparent", border: "none",
+                    color: editTab === t.id ? "#34d399" : "var(--muted)", background: "transparent", border: "none",
                     borderBottom: editTab === t.id ? "2px solid #10b981" : "2px solid transparent",
                     marginBottom: -2, cursor: "pointer",
                   }}>{t.label}</button>
@@ -1071,7 +1071,7 @@ export default function EmpresaDetalhe() {
 
                 {/* ── ENDERECO ── */}
                 {editTab === "endereco" && (<>
-                  <h4 style={{ margin: "0 0 4px", fontSize: "0.85rem", color: "#07170d" }}>Endereco do responsavel</h4>
+                  <h4 style={{ margin: "0 0 4px", fontSize: "0.85rem", color: "var(--ink)" }}>Endereco do responsavel</h4>
                   <div style={row3}>
                     <F k="cep" label="CEP" placeholder="00000-000" />
                     <F k="logradouro" label="Logradouro" placeholder="Rua, Av..." />
@@ -1087,7 +1087,7 @@ export default function EmpresaDetalhe() {
                     <div />
                   </div>
 
-                  <h4 style={{ margin: "12px 0 4px", fontSize: "0.85rem", color: "#07170d", borderTop: "1px solid #dfece5", paddingTop: 12 }}>Endereco da empresa</h4>
+                  <h4 style={{ margin: "12px 0 4px", fontSize: "0.85rem", color: "var(--ink)", borderTop: "1px solid var(--border)", paddingTop: 12 }}>Endereco da empresa</h4>
                   <div style={row3}>
                     <F k="cep_empresa" label="CEP" placeholder="00000-000" />
                     <F k="logradouro_empresa" label="Logradouro" placeholder="Rua, Av..." />
@@ -1164,7 +1164,7 @@ export default function EmpresaDetalhe() {
                 <button
                   disabled={salvando || !editForm.nome_legal}
                   onClick={handleSalvar}
-                  style={{ width: "100%", padding: "0.7rem", background: !editForm.nome_legal ? "#d1d5db" : "linear-gradient(135deg, #065f46, #10b981)", color: "#fff", border: "none", borderRadius: 8, fontSize: "0.875rem", fontWeight: 700, cursor: !editForm.nome_legal ? "not-allowed" : "pointer", opacity: salvando ? 0.7 : 1, marginTop: 8 }}
+                  style={{ width: "100%", padding: "0.7rem", background: !editForm.nome_legal ? "#d1d5db" : "linear-gradient(135deg, #065f46, #10b981)", color: "#ffffff", border: "none", borderRadius: 8, fontSize: "0.875rem", fontWeight: 700, cursor: !editForm.nome_legal ? "not-allowed" : "pointer", opacity: salvando ? 0.7 : 1, marginTop: 8 }}
                   type="button"
                 >
                   {salvando ? "Salvando..." : "Salvar alteracoes"}

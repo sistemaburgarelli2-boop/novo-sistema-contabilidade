@@ -12,22 +12,22 @@ type Atividade = "Comercio" | "Servicos" | "Industria";
 /* ─── Estilos de status / etapa ──────────────────────────────── */
 
 const S_STATUS: Record<string, { bg: string; color: string }> = {
-  novo:           { bg: "#f3f4f6", color: "#6b7280" },
-  em_andamento:   { bg: "#eff6ff", color: "#1e40af" },
-  aguardando:     { bg: "#fffbeb", color: "#92400e" },
-  concluido:      { bg: "#f0fdf4", color: "#065f46" },
-  convertido:     { bg: "#f5f3ff", color: "#7c3aed" },
-  cancelado:      { bg: "#fef2f2", color: "#b91c1c" },
+  novo:           { bg: "rgba(148,163,184,0.15)", color: "var(--muted)" },
+  em_andamento:   { bg: "rgba(96,165,250,0.15)", color: "#93c5fd" },
+  aguardando:     { bg: "rgba(251,191,36,0.15)", color: "#fbbf24" },
+  concluido:      { bg: "rgba(52,211,153,0.15)", color: "#34d399" },
+  convertido:     { bg: "rgba(196,181,253,0.15)", color: "#c4b5fd" },
+  cancelado:      { bg: "rgba(248,113,113,0.15)", color: "#f87171" },
 };
 
 const S_ETAPA: Record<string, { bg: string; color: string }> = {
-  diagnostico:    { bg: "#fef3c7", color: "#92400e" },
-  planejamento:   { bg: "#dbeafe", color: "#1e40af" },
-  simulacao:      { bg: "#e0e7ff", color: "#4338ca" },
-  viabilidade:    { bg: "#d1fae5", color: "#065f46" },
+  diagnostico:    { bg: "rgba(251,191,36,0.18)", color: "#fbbf24" },
+  planejamento:   { bg: "rgba(96,165,250,0.18)", color: "#93c5fd" },
+  simulacao:      { bg: "rgba(99,102,241,0.35)", color: "#a5b4fc" },
+  viabilidade:    { bg: "rgba(52,211,153,0.2)", color: "#34d399" },
   plano:          { bg: "#fce7f3", color: "#9d174d" },
-  apresentacao:   { bg: "#ede9fe", color: "#6b21a8" },
-  aprovacao:      { bg: "#ccfbf1", color: "#0e7490" },
+  apresentacao:   { bg: "rgba(196,181,253,0.18)", color: "#6b21a8" },
+  aprovacao:      { bg: "#ccfbf1", color: "#67e8f9" },
 };
 
 /* ─── Helpers ────────────────────────────────────────────────── */
@@ -59,10 +59,10 @@ function TH({ children, right }: { children: React.ReactNode; right?: boolean })
         textAlign: right ? "right" : "left",
         fontSize: "0.75rem",
         fontWeight: 600,
-        color: "#64748b",
+        color: "var(--muted)",
         textTransform: "uppercase",
         letterSpacing: "0.04em",
-        borderBottom: "1px solid #e2e8f0",
+        borderBottom: "1px solid var(--border)",
       }}
     >
       {children}
@@ -76,7 +76,7 @@ function TD({ children, right }: { children: React.ReactNode; right?: boolean })
       style={{
         padding: "10px 14px",
         fontSize: "0.85rem",
-        borderBottom: "1px solid #f1f5f9",
+        borderBottom: "1px solid var(--panel-2)",
         textAlign: right ? "right" : "left",
       }}
     >
@@ -89,9 +89,9 @@ function Card({ children, style }: { children: React.ReactNode; style?: React.CS
   return (
     <div
       style={{
-        background: "#fff",
+        background: "var(--panel)",
         borderRadius: 12,
-        border: "1px solid #e2e8f0",
+        border: "1px solid var(--border)",
         padding: 20,
         ...style,
       }}
@@ -107,7 +107,7 @@ function EmptyState({ message }: { message: string }) {
       style={{
         textAlign: "center",
         padding: "60px 20px",
-        color: "#94a3b8",
+        color: "var(--muted)",
         fontSize: "0.95rem",
       }}
     >
@@ -143,20 +143,20 @@ function TabDashboard({ estudos, loading }: { estudos: EstudoRow[]; loading: boo
     <>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
         <Card>
-          <div style={{ fontSize: "0.78rem", color: "#64748b", fontWeight: 600, marginBottom: 4 }}>Total de estudos</div>
-          <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "#0f172a" }}>{loading ? "..." : total}</div>
+          <div style={{ fontSize: "0.78rem", color: "var(--muted)", fontWeight: 600, marginBottom: 4 }}>Total de estudos</div>
+          <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--ink)" }}>{loading ? "..." : total}</div>
         </Card>
         <Card>
-          <div style={{ fontSize: "0.78rem", color: "#64748b", fontWeight: 600, marginBottom: 4 }}>Em andamento</div>
-          <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "#1e40af" }}>{loading ? "..." : emAndamento}</div>
+          <div style={{ fontSize: "0.78rem", color: "var(--muted)", fontWeight: 600, marginBottom: 4 }}>Em andamento</div>
+          <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "#93c5fd" }}>{loading ? "..." : emAndamento}</div>
         </Card>
         <Card>
-          <div style={{ fontSize: "0.78rem", color: "#64748b", fontWeight: 600, marginBottom: 4 }}>Concluidos</div>
-          <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "#065f46" }}>{loading ? "..." : concluidos}</div>
+          <div style={{ fontSize: "0.78rem", color: "var(--muted)", fontWeight: 600, marginBottom: 4 }}>Concluidos</div>
+          <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "#34d399" }}>{loading ? "..." : concluidos}</div>
         </Card>
         <Card>
-          <div style={{ fontSize: "0.78rem", color: "#64748b", fontWeight: 600, marginBottom: 4 }}>Aguardando</div>
-          <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "#92400e" }}>{loading ? "..." : aguardando}</div>
+          <div style={{ fontSize: "0.78rem", color: "var(--muted)", fontWeight: 600, marginBottom: 4 }}>Aguardando</div>
+          <div style={{ fontSize: "1.5rem", fontWeight: 700, color: "#fbbf24" }}>{loading ? "..." : aguardando}</div>
         </Card>
       </div>
 
@@ -164,7 +164,7 @@ function TabDashboard({ estudos, loading }: { estudos: EstudoRow[]; loading: boo
         <h3 style={{ fontSize: "1rem", fontWeight: 700, margin: "0 0 14px" }}>Estudos recentes</h3>
 
         {loading ? (
-          <div style={{ textAlign: "center", padding: "40px 0", color: "#94a3b8" }}>Carregando...</div>
+          <div style={{ textAlign: "center", padding: "40px 0", color: "var(--muted)" }}>Carregando...</div>
         ) : estudos.length === 0 ? (
           <EmptyState message="Nenhum estudo cadastrado" />
         ) : (
@@ -181,8 +181,8 @@ function TabDashboard({ estudos, loading }: { estudos: EstudoRow[]; loading: boo
               </thead>
               <tbody>
                 {estudos.slice(0, 10).map((e) => {
-                  const st = S_STATUS[e.status] ?? { bg: "#f3f4f6", color: "#6b7280" };
-                  const et = S_ETAPA[e.etapa] ?? { bg: "#f3f4f6", color: "#6b7280" };
+                  const st = S_STATUS[e.status] ?? { bg: "rgba(148,163,184,0.15)", color: "var(--muted)" };
+                  const et = S_ETAPA[e.etapa] ?? { bg: "rgba(148,163,184,0.15)", color: "var(--muted)" };
                   return (
                     <tr key={e.id} style={{ cursor: "pointer" }}>
                       <TD><strong>{e.cliente ?? e.empresa ?? "—"}</strong></TD>
@@ -207,8 +207,8 @@ function TabDashboard({ estudos, loading }: { estudos: EstudoRow[]; loading: boo
 function TabTributario() {
   return (
     <>
-      <Card style={{ marginBottom: 16, background: "#f8fafc" }}>
-        <p style={{ margin: 0, fontSize: "0.9rem", color: "#64748b", fontWeight: 600 }}>
+      <Card style={{ marginBottom: 16, background: "var(--panel-2)" }}>
+        <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--muted)", fontWeight: 600 }}>
           Selecione um estudo para ver a comparacao tributaria
         </p>
       </Card>
@@ -228,8 +228,8 @@ function TabTributario() {
                       textAlign: "center",
                       fontSize: "0.82rem",
                       fontWeight: 700,
-                      color: "#0f172a",
-                      borderBottom: "1px solid #e2e8f0",
+                      color: "var(--ink)",
+                      borderBottom: "1px solid var(--border)",
                     }}
                   >
                     {nome}
@@ -248,7 +248,7 @@ function TabTributario() {
                 "Margem liquida",
               ].map((label) => (
                 <tr key={label}>
-                  <td style={{ padding: "10px 14px", fontSize: "0.82rem", fontWeight: 600, color: "#475569", borderBottom: "1px solid #f1f5f9" }}>
+                  <td style={{ padding: "10px 14px", fontSize: "0.82rem", fontWeight: 600, color: "var(--ink-2)", borderBottom: "1px solid var(--panel-2)" }}>
                     {label}
                   </td>
                   {[0, 1, 2, 3].map((i) => (
@@ -259,8 +259,8 @@ function TabTributario() {
                         textAlign: "center",
                         fontSize: "0.85rem",
                         fontWeight: 600,
-                        borderBottom: "1px solid #f1f5f9",
-                        color: "#94a3b8",
+                        borderBottom: "1px solid var(--panel-2)",
+                        color: "var(--muted)",
                       }}
                     >
                       —
@@ -339,7 +339,7 @@ function TabSimulacoes() {
         <h3 style={{ fontSize: "1rem", fontWeight: 700, margin: "0 0 16px" }}>Simulador de regimes tributarios</h3>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 16 }}>
           <div>
-            <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#64748b", marginBottom: 4 }}>
+            <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "var(--muted)", marginBottom: 4 }}>
               Faturamento mensal
             </label>
             <input
@@ -349,7 +349,7 @@ function TabSimulacoes() {
               style={{
                 width: "100%",
                 padding: "8px 12px",
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border)",
                 borderRadius: 8,
                 fontSize: "0.88rem",
                 boxSizing: "border-box",
@@ -357,7 +357,7 @@ function TabSimulacoes() {
             />
           </div>
           <div>
-            <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#64748b", marginBottom: 4 }}>
+            <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "var(--muted)", marginBottom: 4 }}>
               Numero funcionarios
             </label>
             <input
@@ -367,7 +367,7 @@ function TabSimulacoes() {
               style={{
                 width: "100%",
                 padding: "8px 12px",
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border)",
                 borderRadius: 8,
                 fontSize: "0.88rem",
                 boxSizing: "border-box",
@@ -375,7 +375,7 @@ function TabSimulacoes() {
             />
           </div>
           <div>
-            <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "#64748b", marginBottom: 4 }}>
+            <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, color: "var(--muted)", marginBottom: 4 }}>
               Pro-labore
             </label>
             <input
@@ -385,7 +385,7 @@ function TabSimulacoes() {
               style={{
                 width: "100%",
                 padding: "8px 12px",
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border)",
                 borderRadius: 8,
                 fontSize: "0.88rem",
                 boxSizing: "border-box",
@@ -396,7 +396,7 @@ function TabSimulacoes() {
 
         <div style={{ display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
           <div>
-            <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "#64748b", marginRight: 8 }}>Tipo atividade:</span>
+            <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--muted)", marginRight: 8 }}>Tipo atividade:</span>
             {(["Comercio", "Servicos", "Industria"] as Atividade[]).map((a) => (
               <label key={a} style={{ marginRight: 12, fontSize: "0.85rem", cursor: "pointer" }}>
                 <input
@@ -411,7 +411,7 @@ function TabSimulacoes() {
             ))}
           </div>
           <div>
-            <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "#64748b", marginRight: 8 }}>Tem socios:</span>
+            <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--muted)", marginRight: 8 }}>Tem socios:</span>
             <label style={{ marginRight: 12, fontSize: "0.85rem", cursor: "pointer" }}>
               <input type="radio" name="socios" checked={temSocios} onChange={() => setTemSocios(true)} style={{ marginRight: 4 }} />
               Sim
@@ -430,21 +430,21 @@ function TabSimulacoes() {
             key={r.nome}
             style={{
               opacity: r.disponivel ? 1 : 0.5,
-              borderColor: r.disponivel ? "#e2e8f0" : "#fecaca",
+              borderColor: r.disponivel ? "var(--border)" : "rgba(248,113,113,0.35)",
             }}
           >
             <h4 style={{ margin: "0 0 8px", fontSize: "0.95rem", fontWeight: 700 }}>{r.nome}</h4>
             {r.disponivel ? (
               <>
-                <div style={{ fontSize: "0.8rem", color: "#64748b", marginBottom: 4 }}>Impostos estimados</div>
-                <div style={{ fontSize: "1.2rem", fontWeight: 700, color: "#0f172a" }}>{fmt(r.imposto!)}</div>
-                <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 8 }}>Carga tributaria</div>
+                <div style={{ fontSize: "0.8rem", color: "var(--muted)", marginBottom: 4 }}>Impostos estimados</div>
+                <div style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--ink)" }}>{fmt(r.imposto!)}</div>
+                <div style={{ fontSize: "0.8rem", color: "var(--muted)", marginTop: 8 }}>Carga tributaria</div>
                 <div style={{ fontSize: "1rem", fontWeight: 700 }}>{r.carga}%</div>
-                <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: 8 }}>Custo total/mes</div>
-                <div style={{ fontSize: "1rem", fontWeight: 700, color: "#475569" }}>{fmt(r.custoTotal!)}</div>
+                <div style={{ fontSize: "0.8rem", color: "var(--muted)", marginTop: 8 }}>Custo total/mes</div>
+                <div style={{ fontSize: "1rem", fontWeight: 700, color: "var(--ink-2)" }}>{fmt(r.custoTotal!)}</div>
               </>
             ) : (
-              <div style={{ fontSize: "0.82rem", color: "#b91c1c", fontWeight: 600 }}>
+              <div style={{ fontSize: "0.82rem", color: "#f87171", fontWeight: 600 }}>
                 Indisponivel - faturamento excede R$ 6.750/mes
               </div>
             )}
@@ -459,15 +459,15 @@ function TabSimulacoes() {
             const barWidth = 100;
             const x = 50 + i * 140;
             const barHeight = r.disponivel && maxImposto > 0 ? ((r.imposto ?? 0) / maxImposto) * 140 : 0;
-            const colors = ["#94a3b8", "#3b82f6", "#f59e0b", "#ef4444"];
+            const colors = ["var(--muted)", "#3b82f6", "#f59e0b", "#ef4444"];
             return (
               <g key={r.nome}>
                 <rect x={x} y={170 - barHeight} width={barWidth} height={barHeight} rx={4} fill={colors[i]} opacity={r.disponivel ? 0.85 : 0.25} />
-                <text x={x + barWidth / 2} y={185} textAnchor="middle" fontSize="11" fill="#475569" fontWeight="600">
+                <text x={x + barWidth / 2} y={185} textAnchor="middle" fontSize="11" fill="var(--ink-2)" fontWeight="600">
                   {r.nome.length > 12 ? r.nome.slice(0, 12) + "..." : r.nome}
                 </text>
                 {r.disponivel && (
-                  <text x={x + barWidth / 2} y={165 - barHeight} textAnchor="middle" fontSize="10" fill="#0f172a" fontWeight="700">
+                  <text x={x + barWidth / 2} y={165 - barHeight} textAnchor="middle" fontSize="10" fill="var(--ink)" fontWeight="700">
                     {fmt(r.imposto!)}
                   </text>
                 )}
@@ -502,7 +502,7 @@ export default function ConsultoriaPage() {
         <section className="module-hero">
           <div>
             <h2 style={{ fontSize: "1.6rem", fontWeight: 700, margin: 0 }}>Consultoria Empresarial</h2>
-            <p style={{ color: "#64748b", margin: "4px 0 0", fontSize: "0.95rem" }}>
+            <p style={{ color: "var(--muted)", margin: "4px 0 0", fontSize: "0.95rem" }}>
               Diagnostico, planejamento tributario e viabilidade
             </p>
           </div>
@@ -512,7 +512,7 @@ export default function ConsultoriaPage() {
               display: "inline-flex",
               alignItems: "center",
               gap: 6,
-              background: "#0f172a",
+              background: "var(--green-500)",
               color: "#fff",
               border: "none",
               borderRadius: 8,
@@ -528,7 +528,7 @@ export default function ConsultoriaPage() {
         </section>
 
         {/* ── Tabs ─────────────────────────────────── */}
-        <div style={{ display: "flex", gap: 4, borderBottom: "1px solid #e2e8f0", marginBottom: 8, overflowX: "auto" }}>
+        <div style={{ display: "flex", gap: 4, borderBottom: "1px solid var(--border)", marginBottom: 8, overflowX: "auto" }}>
           {TABS.map((t) => (
             <button
               key={t.key}
@@ -537,10 +537,10 @@ export default function ConsultoriaPage() {
                 padding: "10px 18px",
                 fontSize: "0.85rem",
                 fontWeight: tab === t.key ? 700 : 500,
-                color: tab === t.key ? "#0f172a" : "#64748b",
+                color: tab === t.key ? "var(--ink)" : "var(--muted)",
                 background: "none",
                 border: "none",
-                borderBottom: tab === t.key ? "2px solid #0f172a" : "2px solid transparent",
+                borderBottom: tab === t.key ? "2px solid var(--green-400)" : "2px solid transparent",
                 cursor: "pointer",
                 transition: "all 0.15s",
                 whiteSpace: "nowrap",

@@ -155,7 +155,7 @@ export function CnaeSelect({ value, onChange }: Props) {
           top: "calc(100% + 4px)",
           left: 0,
           right: 0,
-          background: "#fff",
+          background: "var(--panel)",
           border: "1px solid #d1e7da",
           borderRadius: 12,
           boxShadow: "0 12px 40px rgba(6,23,13,0.15)",
@@ -165,7 +165,7 @@ export function CnaeSelect({ value, onChange }: Props) {
           overscrollBehavior: "contain",
         }}>
           {/* Cabeçalho */}
-          <div style={{ padding: "0.55rem 1rem", background: "linear-gradient(90deg,#f0fdf4,#f8fdfb)", borderBottom: "1px solid #e6f0ea", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ padding: "0.55rem 1rem", background: "var(--panel-2)", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "#10b981", letterSpacing: "1.5px", textTransform: "uppercase" }}>
               {isSearching ? `${totalResults} resultado${totalResults !== 1 ? "s" : ""} para "${query}"` : `${CNAE_LIST.length} CNAEs — 21 categorias`}
             </span>
@@ -185,19 +185,19 @@ export function CnaeSelect({ value, onChange }: Props) {
                       alignItems: "center",
                       gap: "0.6rem",
                       padding: "0.6rem 0.9rem",
-                      background: "#f3f8f5",
+                      background: "var(--bg)",
                       borderBottom: "1px solid #e6f0ea",
                       cursor: isSearching ? "default" : "pointer",
                       userSelect: "none",
                     }}
                   >
                     <span style={{ fontSize: "1rem", flexShrink: 0 }}>{row.emoji}</span>
-                    <span style={{ fontSize: "0.79rem", fontWeight: 800, color: "#065f46", flex: 1 }}>{row.label}</span>
-                    <span style={{ background: "#d1fae5", color: "#065f46", borderRadius: 999, padding: "1px 8px", fontSize: "0.68rem", fontWeight: 700, flexShrink: 0 }}>
+                    <span style={{ fontSize: "0.79rem", fontWeight: 800, color: "#34d399", flex: 1 }}>{row.label}</span>
+                    <span style={{ background: "rgba(52,211,153,0.2)", color: "#34d399", borderRadius: 999, padding: "1px 8px", fontSize: "0.68rem", fontWeight: 700, flexShrink: 0 }}>
                       {row.count}
                     </span>
                     {!isSearching && (
-                      <span style={{ fontSize: "0.7rem", color: "#6f8f7c", flexShrink: 0 }}>{isExpanded ? "▲" : "▼"}</span>
+                      <span style={{ fontSize: "0.7rem", color: "var(--muted)", flexShrink: 0 }}>{isExpanded ? "▲" : "▼"}</span>
                     )}
                   </li>
                 );
@@ -218,13 +218,13 @@ export function CnaeSelect({ value, onChange }: Props) {
                     padding: "0.55rem 0.9rem 0.55rem 2.2rem",
                     cursor: "pointer",
                     borderBottom: "1px solid #f5faf7",
-                    background: isHl ? "#f0fdf4" : "#fff",
+                    background: isHl ? "rgba(52,211,153,0.15)" : "var(--panel)",
                     transition: "background 0.08s",
                   }}
                 >
                   <span style={{
                     background: isHl ? "#10b981" : "#e6f0ea",
-                    color: isHl ? "#fff" : "#065f46",
+                    color: isHl ? "#fff" : "#34d399",
                     borderRadius: 6,
                     padding: "2px 8px",
                     fontSize: "0.73rem",
@@ -235,7 +235,7 @@ export function CnaeSelect({ value, onChange }: Props) {
                   }}>
                     {row.code}
                   </span>
-                  <span style={{ fontSize: "0.8rem", color: isHl ? "#065f46" : "#374151", fontWeight: isHl ? 600 : 400 }}>
+                  <span style={{ fontSize: "0.8rem", color: isHl ? "#34d399" : "#374151", fontWeight: isHl ? 600 : 400 }}>
                     {row.description}
                   </span>
                 </li>

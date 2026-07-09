@@ -21,21 +21,21 @@ type Tarefa = {
 /* ─── Configuracoes de estilo ────────────────────────────────── */
 
 const S_STATUS: Record<string, { bg: string; color: string; label: string }> = {
-  nao_iniciado: { bg: "#f3f4f6", color: "#6b7280", label: "Nao iniciado" },
-  em_andamento: { bg: "#ecfeff", color: "#0e7490", label: "Em andamento" },
-  revisao:      { bg: "#fffbeb", color: "#92400e", label: "Revisao" },
-  concluido:    { bg: "#f0fdf4", color: "#065f46", label: "Concluido" },
-  atrasado:     { bg: "#fef2f2", color: "#b91c1c", label: "Atrasado" },
+  nao_iniciado: { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: "Nao iniciado" },
+  em_andamento: { bg: "#ecfeff", color: "#67e8f9", label: "Em andamento" },
+  revisao:      { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Revisao" },
+  concluido:    { bg: "rgba(52,211,153,0.15)", color: "#34d399", label: "Concluido" },
+  atrasado:     { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Atrasado" },
 };
 
 const S_SETOR: Record<string, { bg: string; color: string }> = {
-  Fiscal:      { bg: "#f0fdf4", color: "#065f46" },
-  "Contabil":  { bg: "#eff6ff", color: "#1e40af" },
-  DP:          { bg: "#f5f3ff", color: "#6b21a8" },
-  "Societario": { bg: "#fffbeb", color: "#92400e" },
+  Fiscal:      { bg: "rgba(52,211,153,0.15)", color: "#34d399" },
+  "Contabil":  { bg: "rgba(96,165,250,0.15)", color: "#93c5fd" },
+  DP:          { bg: "rgba(196,181,253,0.15)", color: "#6b21a8" },
+  "Societario": { bg: "rgba(251,191,36,0.15)", color: "#fbbf24" },
 };
 
-const SETOR_DEFAULT = { bg: "#f3f4f6", color: "#6b7280" };
+const SETOR_DEFAULT = { bg: "rgba(148,163,184,0.15)", color: "var(--muted)" };
 
 /* ─── Helpers ────────────────────────────────────────────────── */
 
@@ -68,13 +68,13 @@ function TH({ children, right }: { children: React.ReactNode; right?: boolean })
       style={{
         textAlign: right ? "right" : "left",
         padding: "0.7rem 0.875rem",
-        color: "#4b5eaa",
+        color: "#a5b4fc",
         fontWeight: 700,
         fontSize: "0.72rem",
         textTransform: "uppercase",
         letterSpacing: "0.5px",
-        borderBottom: "1px solid #e0e7ff",
-        background: "#eef2ff",
+        borderBottom: "1px solid rgba(99,102,241,0.35)",
+        background: "rgba(99,102,241,0.15)",
       }}
     >
       {children}
@@ -88,9 +88,9 @@ function TD({ children, right, muted, bold, color }: { children: React.ReactNode
       style={{
         padding: "0.75rem 0.875rem",
         textAlign: right ? "right" : "left",
-        color: color ?? (muted ? "#9ca3af" : "#07170d"),
+        color: color ?? (muted ? "#9ca3af" : "var(--ink)"),
         fontSize: "0.85rem",
-        borderBottom: "1px solid #f5f7ff",
+        borderBottom: "1px solid rgba(99,102,241,0.12)",
         fontWeight: bold ? 700 : 400,
       }}
     >
@@ -145,7 +145,7 @@ export default function TarefasPage() {
       {/* ── Hero Header ── */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem" }}>
         <div>
-          <h1 style={{ margin: "0 0 4px", fontSize: "1.4rem", fontWeight: 900, color: "#07170d" }}>
+          <h1 style={{ margin: "0 0 4px", fontSize: "1.4rem", fontWeight: 900, color: "var(--ink)" }}>
             Central de Tarefas
           </h1>
           <p style={{ margin: 0, fontSize: "0.82rem", color: "#9ca3af" }}>
@@ -157,10 +157,10 @@ export default function TarefasPage() {
       {/* ── KPI Cards ── */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: "1.5rem" }}>
         {[
-          { label: "Total tarefas",   value: totalTarefas, suffix: "tarefas cadastradas",    color: "#4338ca", bg: "#eef2ff" },
-          { label: "Em andamento",    value: emAndamento,  suffix: "em execucao agora",       color: "#0e7490", bg: "#ecfeff" },
-          { label: "Atrasadas",       value: atrasadas,    suffix: "requerem atencao",        color: "#b91c1c", bg: "#fef2f2" },
-          { label: "Concluidas",      value: concluidas,   suffix: "finalizadas",             color: "#065f46", bg: "#f0fdf4" },
+          { label: "Total tarefas",   value: totalTarefas, suffix: "tarefas cadastradas",    color: "#a5b4fc", bg: "rgba(99,102,241,0.15)" },
+          { label: "Em andamento",    value: emAndamento,  suffix: "em execucao agora",       color: "#67e8f9", bg: "#ecfeff" },
+          { label: "Atrasadas",       value: atrasadas,    suffix: "requerem atencao",        color: "#f87171", bg: "rgba(248,113,113,0.15)" },
+          { label: "Concluidas",      value: concluidas,   suffix: "finalizadas",             color: "#34d399", bg: "rgba(52,211,153,0.15)" },
         ].map((k) => (
           <div
             key={k.label}
@@ -191,8 +191,8 @@ export default function TarefasPage() {
           flexWrap: "wrap",
           alignItems: "center",
           marginBottom: "1rem",
-          background: "#fff",
-          border: "1px solid #e0e7ff",
+          background: "var(--panel)",
+          border: "1px solid rgba(99,102,241,0.35)",
           borderRadius: 12,
           padding: "0.75rem 1rem",
         }}
@@ -230,8 +230,8 @@ export default function TarefasPage() {
       {/* ── Tabela de Tarefas ── */}
       <div
         style={{
-          background: "#fff",
-          border: "1px solid #e0e7ff",
+          background: "var(--panel)",
+          border: "1px solid rgba(99,102,241,0.35)",
           borderRadius: 12,
           overflow: "hidden",
         }}
@@ -242,11 +242,11 @@ export default function TarefasPage() {
             justifyContent: "space-between",
             alignItems: "center",
             padding: "1rem 1.25rem",
-            borderBottom: "1px solid #e0e7ff",
+            borderBottom: "1px solid rgba(99,102,241,0.35)",
           }}
         >
           <div>
-            <h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800, color: "#07170d" }}>Tarefas</h2>
+            <h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800, color: "var(--ink)" }}>Tarefas</h2>
             <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "#9ca3af" }}>
               {loading ? "Carregando..." : `${tarefasFiltradas.length} tarefa${tarefasFiltradas.length !== 1 ? "s" : ""} encontrada${tarefasFiltradas.length !== 1 ? "s" : ""}`}
             </p>
@@ -283,7 +283,7 @@ export default function TarefasPage() {
                         <Badge bg={se.bg} color={se.color} label={t.setor ?? "—"} />
                       </TD>
                       <TD>{t.atividade}</TD>
-                      <TD color={isAtrasado ? "#b91c1c" : undefined}>
+                      <TD color={isAtrasado ? "#f87171" : undefined}>
                         <span style={{ fontWeight: isAtrasado ? 700 : 400 }}>
                           {t.prazo ? new Date(t.prazo).toLocaleDateString("pt-BR") : "—"}
                         </span>
@@ -323,21 +323,21 @@ export default function TarefasPage() {
               justifyContent: "space-between",
               alignItems: "center",
               padding: "0.75rem 1.25rem",
-              borderTop: "1px solid #e0e7ff",
-              background: "#f9fafb",
+              borderTop: "1px solid rgba(99,102,241,0.35)",
+              background: "var(--panel-2)",
               fontSize: "0.78rem",
-              color: "#6b7280",
+              color: "var(--muted)",
             }}
           >
             <span>
-              Total: <strong style={{ color: "#07170d" }}>{tarefasFiltradas.length}</strong> tarefa{tarefasFiltradas.length !== 1 ? "s" : ""}
+              Total: <strong style={{ color: "var(--ink)" }}>{tarefasFiltradas.length}</strong> tarefa{tarefasFiltradas.length !== 1 ? "s" : ""}
             </span>
             <span>
-              Atrasadas: <strong style={{ color: "#b91c1c" }}>{tarefasFiltradas.filter((t) => t.status === "atrasado").length}</strong>
+              Atrasadas: <strong style={{ color: "#f87171" }}>{tarefasFiltradas.filter((t) => t.status === "atrasado").length}</strong>
               {" | "}
-              Em andamento: <strong style={{ color: "#0e7490" }}>{tarefasFiltradas.filter((t) => t.status === "em_andamento").length}</strong>
+              Em andamento: <strong style={{ color: "#67e8f9" }}>{tarefasFiltradas.filter((t) => t.status === "em_andamento").length}</strong>
               {" | "}
-              Concluidas: <strong style={{ color: "#065f46" }}>{tarefasFiltradas.filter((t) => t.status === "concluido").length}</strong>
+              Concluidas: <strong style={{ color: "#34d399" }}>{tarefasFiltradas.filter((t) => t.status === "concluido").length}</strong>
             </span>
           </div>
         )}

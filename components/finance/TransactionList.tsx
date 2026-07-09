@@ -41,7 +41,7 @@ export function TransactionList({ transactions }: TransactionListProps) {
               <td>{new Date(`${transaction.transaction_date}T00:00:00`).toLocaleDateString("pt-BR")}</td>
               <td><span className="badge">{transaction.type === "income" ? "Entrada" : "Saída"}</span></td>
               <td>
-                <strong style={{ color: transaction.type === "income" ? "#047857" : "#b91c1c" }}>
+                <strong style={{ color: transaction.type === "income" ? "#34d399" : "#f87171" }}>
                   {currency.format(Number(transaction.amount))}
                 </strong>
               </td>

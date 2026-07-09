@@ -59,7 +59,7 @@ const PASSOS = [
    STYLES
    ═══════════════════════════════════════════════════════════════════ */
 
-const pageWrap: React.CSSProperties = { minHeight: "100vh", fontFamily: "'Inter', 'Segoe UI', sans-serif", background: "#f8fafb" };
+const pageWrap: React.CSSProperties = { minHeight: "100vh", fontFamily: "'Inter', 'Segoe UI', sans-serif", background: "var(--bg)" };
 
 const topBar: React.CSSProperties = {
   display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -76,7 +76,7 @@ const logoText: React.CSSProperties = { color: "#fff", fontWeight: 700, fontSize
 
 const loginBtn: React.CSSProperties = {
   padding: "8px 22px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.25)",
-  background: "transparent", color: "#fff", fontSize: 14, fontWeight: 600,
+  background: "transparent", color: "#ffffff", fontSize: 14, fontWeight: 600,
   cursor: "pointer", transition: "background 0.15s",
 };
 
@@ -113,15 +113,15 @@ const pillRow: React.CSSProperties = {
 const pill = (active: boolean): React.CSSProperties => ({
   padding: "8px 18px", borderRadius: 999, fontSize: 13, fontWeight: 600,
   border: "none", cursor: "pointer", transition: "background 0.15s, color 0.15s",
-  background: active ? "#065f46" : "#e5e7eb",
+  background: active ? "#34d399" : "rgba(148,163,184,0.2)",
   color: active ? "#fff" : "#374151",
 });
 
 const gridStyle: React.CSSProperties = { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 };
 
 const card = (cor: string): React.CSSProperties => ({
-  background: "#fff", borderRadius: 14, overflow: "hidden",
-  border: "1px solid #e5e7eb", transition: "box-shadow 0.2s, transform 0.2s",
+  background: "var(--panel)", borderRadius: 14, overflow: "hidden",
+  border: "1px solid rgba(148,163,184,0.2)", transition: "box-shadow 0.2s, transform 0.2s",
   cursor: "pointer", position: "relative",
 });
 
@@ -130,21 +130,21 @@ const cardBar = (cor: string): React.CSSProperties => ({ height: 5, background: 
 const cardBody: React.CSSProperties = { padding: "20px 22px 18px" };
 const cardEmoji: React.CSSProperties = { fontSize: 28, marginBottom: 8 };
 const cardNome: React.CSSProperties = { fontSize: 15, fontWeight: 700, color: "#111827", marginBottom: 6 };
-const cardDesc: React.CSSProperties = { fontSize: 13, color: "#6b7280", lineHeight: 1.5, marginBottom: 14, minHeight: 40 };
+const cardDesc: React.CSSProperties = { fontSize: 13, color: "var(--muted)", lineHeight: 1.5, marginBottom: 14, minHeight: 40 };
 
 const cardFooter: React.CSSProperties = {
   display: "flex", alignItems: "center", justifyContent: "space-between",
-  borderTop: "1px solid #f3f4f6", padding: "12px 22px",
+  borderTop: "1px solid rgba(148,163,184,0.15)", padding: "12px 22px",
 };
 
-const cardPreco: React.CSSProperties = { fontSize: 18, fontWeight: 700, color: "#065f46" };
+const cardPreco: React.CSSProperties = { fontSize: 18, fontWeight: 700, color: "#34d399" };
 const cardMeta: React.CSSProperties = { fontSize: 12, color: "#9ca3af" };
 
 const cardRating: React.CSSProperties = { fontSize: 12, color: "#d4ae4a", fontWeight: 600 };
 
 const gerarBtn: React.CSSProperties = {
   padding: "8px 18px", borderRadius: 8, border: "none",
-  background: "#10b981", color: "#fff", fontSize: 13, fontWeight: 600,
+  background: "#10b981", color: "#ffffff", fontSize: 13, fontWeight: 600,
   cursor: "pointer", transition: "background 0.15s",
 };
 
@@ -153,7 +153,7 @@ const sectionTitle: React.CSSProperties = {
 };
 
 const sectionSub: React.CSSProperties = {
-  fontSize: 15, color: "#6b7280", textAlign: "center", marginBottom: 32,
+  fontSize: 15, color: "var(--muted)", textAlign: "center", marginBottom: 32,
 };
 
 const destGrid: React.CSSProperties = {
@@ -172,18 +172,18 @@ const destRating: React.CSSProperties = { fontSize: 12, color: "rgba(255,255,255
 const stepsGrid: React.CSSProperties = { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24 };
 
 const stepCard: React.CSSProperties = {
-  background: "#fff", borderRadius: 14, padding: 28, textAlign: "center",
-  border: "1px solid #e5e7eb",
+  background: "var(--panel)", borderRadius: 14, padding: 28, textAlign: "center",
+  border: "1px solid rgba(148,163,184,0.2)",
 };
 
 const stepNum: React.CSSProperties = {
-  width: 44, height: 44, borderRadius: "50%", background: "#d1fae5", color: "#065f46",
+  width: 44, height: 44, borderRadius: "50%", background: "rgba(52,211,153,0.2)", color: "#34d399",
   display: "inline-flex", alignItems: "center", justifyContent: "center",
   fontSize: 18, fontWeight: 800, marginBottom: 14,
 };
 
 const stepTitle: React.CSSProperties = { fontSize: 16, fontWeight: 700, color: "#111827", marginBottom: 6 };
-const stepDesc: React.CSSProperties = { fontSize: 13, color: "#6b7280", lineHeight: 1.5 };
+const stepDesc: React.CSSProperties = { fontSize: 13, color: "var(--muted)", lineHeight: 1.5 };
 
 const footerStyle: React.CSSProperties = {
   background: "#06170d", padding: "48px 32px 24px", color: "rgba(255,255,255,0.6)",
@@ -303,7 +303,7 @@ export default function CatalogoContratosPage() {
       </div>
 
       {/* ── Mais Vendidos ── */}
-      <div style={{ background: "#f0fdf4", padding: "48px 32px" }}>
+      <div style={{ background: "rgba(52,211,153,0.15)", padding: "48px 32px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <h2 style={sectionTitle}>Mais Vendidos</h2>
           <p style={sectionSub}>Os contratos preferidos dos nossos clientes.</p>
@@ -318,7 +318,7 @@ export default function CatalogoContratosPage() {
                   <button
                     style={{
                       marginTop: 14, padding: "8px 18px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.3)",
-                      background: "rgba(255,255,255,0.15)", color: "#fff", fontSize: 13, fontWeight: 600,
+                      background: "rgba(255,255,255,0.15)", color: "#ffffff", fontSize: 13, fontWeight: 600,
                       cursor: "pointer", transition: "background 0.15s",
                     }}
                   >
@@ -332,7 +332,7 @@ export default function CatalogoContratosPage() {
       </div>
 
       {/* ── Como Funciona ── */}
-      <div style={{ padding: "56px 32px", background: "#f8fafb" }}>
+      <div style={{ padding: "56px 32px", background: "var(--bg)" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <h2 style={sectionTitle}>Como Funciona</h2>
           <p style={sectionSub}>Em 4 passos simples você tem seu contrato pronto.</p>

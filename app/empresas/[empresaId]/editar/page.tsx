@@ -8,9 +8,9 @@ import type { Empresa } from "@/modules/empresas/empresas.types";
 
 /* ─── CSS Variables ──────────────────────────────────────────── */
 const V = {
-  bg: "#f3f8f5", panel: "#ffffff", ink: "#07170d", muted: "#6f8f7c",
-  green700: "#075f3c", green500: "#10b981", green400: "#18d19b",
-  gold: "#d4ae4a", border: "#dfece5", danger: "#ef445f",
+  bg: "var(--bg)", panel: "var(--panel)", ink: "var(--ink)", muted: "var(--muted)",
+  green700: "#2ee58f", green500: "#10b981", green400: "#18d19b",
+  gold: "#d4ae4a", border: "var(--border)", danger: "#ef445f",
 };
 
 /* ─── Constantes ─────────────────────────────────────────────── */
@@ -406,7 +406,7 @@ export default function EditarEmpresaPage() {
     maxHeight: "calc(100vh - 80px)", overflowY: "auto",
   };
   const btnPrimary: React.CSSProperties = {
-    padding: "10px 28px", background: V.green700, color: "#fff",
+    padding: "10px 28px", background: V.green700, color: "#ffffff",
     border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600,
     cursor: "pointer", transition: "opacity .2s",
   };
@@ -820,7 +820,7 @@ export default function EditarEmpresaPage() {
             <button style={step === 1 ? { ...btnSecondary, opacity: 0.4, cursor: "default" } : btnSecondary} onClick={goPrev} disabled={step === 1}>Anterior</button>
             <div style={{ fontSize: 13, color: V.muted }}>Etapa {step} de {STEPS.length}</div>
             {erroSalvar && step === 7 && (
-              <div style={{ position: "absolute", bottom: "100%", right: 0, marginBottom: 8, background: "#fef2f2", color: "#b91c1c", padding: "8px 14px", borderRadius: 8, fontSize: "0.8rem", fontWeight: 600 }}>{erroSalvar}</div>
+              <div style={{ position: "absolute", bottom: "100%", right: 0, marginBottom: 8, background: "rgba(248,113,113,0.15)", color: "#f87171", padding: "8px 14px", borderRadius: 8, fontSize: "0.8rem", fontWeight: 600 }}>{erroSalvar}</div>
             )}
             {step === 7 ? (
               <button style={{ ...btnPrimary, opacity: salvando ? 0.7 : 1 }} onClick={goNext} disabled={salvando}>

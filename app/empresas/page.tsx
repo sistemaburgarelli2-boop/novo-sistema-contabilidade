@@ -161,7 +161,7 @@ function StatusSel({ value, name, onChange }: {
 }
 
 function Divider() {
-  return <div style={{ height: 1, background: "#dfece5", margin: "0.25rem 0" }} />;
+  return <div style={{ height: 1, background: "var(--border)", margin: "0.25rem 0" }} />;
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
@@ -190,13 +190,13 @@ function avatarGradient(name: string): string {
 }
 
 const REGIME_BADGE_STYLES: Record<string, { bg: string; color: string; border: string }> = {
-  simples_nacional: { bg: "#ecfdf5", color: "#047857", border: "#a7f3d0" },
-  lucro_presumido: { bg: "#eff6ff", color: "#1d4ed8", border: "#bfdbfe" },
-  lucro_real: { bg: "#f5f3ff", color: "#6d28d9", border: "#ddd6fe" },
-  mei: { bg: "#fffbeb", color: "#b45309", border: "#fde68a" },
+  simples_nacional: { bg: "rgba(52,211,153,0.15)", color: "#34d399", border: "rgba(52,211,153,0.35)" },
+  lucro_presumido: { bg: "rgba(96,165,250,0.15)", color: "#93c5fd", border: "rgba(96,165,250,0.35)" },
+  lucro_real: { bg: "rgba(196,181,253,0.15)", color: "#c4b5fd", border: "#ddd6fe" },
+  mei: { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", border: "rgba(251,191,36,0.35)" },
 };
 
-const REGIME_BADGE_DEFAULT = { bg: "#f3f8f5", color: "#3a5c47", border: "#dfece5" };
+const REGIME_BADGE_DEFAULT = { bg: "var(--bg)", color: "#3a5c47", border: "var(--border)" };
 
 function getResponsavel(emp: Empresa): string {
   const r = emp.metadata?.responsavel;
@@ -204,10 +204,10 @@ function getResponsavel(emp: Empresa): string {
 }
 
 const STATUS_BADGE_STYLES: Record<Empresa["status"], { bg: string; color: string }> = {
-  ativa: { bg: "#f0fdf4", color: "#065f46" },
-  suspensa: { bg: "#fffbeb", color: "#92400e" },
-  cancelada: { bg: "#fef2f2", color: "#b91c1c" },
-  encerrada: { bg: "#f3f4f6", color: "#6b7280" },
+  ativa: { bg: "rgba(52,211,153,0.15)", color: "#34d399" },
+  suspensa: { bg: "rgba(251,191,36,0.15)", color: "#fbbf24" },
+  cancelada: { bg: "rgba(248,113,113,0.15)", color: "#f87171" },
+  encerrada: { bg: "rgba(148,163,184,0.15)", color: "var(--muted)" },
 };
 
 function EmpresaStatusBadge({ status }: { status: Empresa["status"] }) {
@@ -419,10 +419,10 @@ export default function EmpresasPage() {
 
   /* ── KPIs ── */
   const kpis = [
-    { label: "Empresas Ativas", value: empresas.filter((e) => e.status === "ativa").length, color: "#065f46", bg: "#f0fdf4", border: "#bbf7d0" },
-    { label: "Suspensas", value: empresas.filter((e) => e.status === "suspensa").length, color: "#92400e", bg: "#fffbeb", border: "#fde68a" },
-    { label: "Encerradas", value: empresas.filter((e) => e.status === "encerrada" || e.status === "cancelada").length, color: "#6b7280", bg: "#f3f4f6", border: "#e5e7eb" },
-    { label: "Total cadastradas", value: empresas.length, color: "#0e7490", bg: "#ecfeff", border: "#a5f3fc" },
+    { label: "Empresas Ativas", value: empresas.filter((e) => e.status === "ativa").length, color: "#34d399", bg: "rgba(52,211,153,0.15)", border: "rgba(74,222,128,0.25)" },
+    { label: "Suspensas", value: empresas.filter((e) => e.status === "suspensa").length, color: "#fbbf24", bg: "rgba(251,191,36,0.15)", border: "rgba(251,191,36,0.35)" },
+    { label: "Encerradas", value: empresas.filter((e) => e.status === "encerrada" || e.status === "cancelada").length, color: "var(--muted)", bg: "rgba(148,163,184,0.15)", border: "rgba(148,163,184,0.2)" },
+    { label: "Total cadastradas", value: empresas.length, color: "#67e8f9", bg: "#ecfeff", border: "#a5f3fc" },
   ];
 
   /* ── Side tab counts ── */
@@ -447,7 +447,7 @@ export default function EmpresasPage() {
           </div>
           <a
             href="/empresas/novo"
-            style={{ position: "relative", zIndex: 1, display: "inline-flex", alignItems: "center", gap: 6, background: "linear-gradient(135deg, #10b981, #059669)", color: "#fff", border: "none", borderRadius: 10, padding: "0.65rem 1.4rem", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", textDecoration: "none", boxShadow: "0 4px 16px rgba(16,185,129,0.25)" }}
+            style={{ position: "relative", zIndex: 1, display: "inline-flex", alignItems: "center", gap: 6, background: "linear-gradient(135deg, #10b981, #059669)", color: "#ffffff", border: "none", borderRadius: 10, padding: "0.65rem 1.4rem", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", textDecoration: "none", boxShadow: "0 4px 16px rgba(16,185,129,0.25)" }}
           >
             + Novo Cliente
           </a>
@@ -468,9 +468,9 @@ export default function EmpresasPage() {
 
           {/* Side Tabs */}
           <div style={{ width: 200, flexShrink: 0 }}>
-            <div style={{ background: "#ffffff", border: "1px solid #e6f0ea", borderRadius: 12, overflow: "hidden" }}>
+            <div style={{ background: "var(--panel)", border: "1px solid #e6f0ea", borderRadius: 12, overflow: "hidden" }}>
               <div style={{ padding: "0.85rem 1rem 0.5rem", borderBottom: "1px solid #e6f0ea" }}>
-                <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "#6f8f7c", textTransform: "uppercase", letterSpacing: "1px" }}>Filtrar por status</span>
+                <span style={{ fontSize: "0.7rem", fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px" }}>Filtrar por status</span>
               </div>
               {(Object.keys(sideTabCounts) as SideTab[]).map((label) => {
                 const isActive = activeTab === label;
@@ -482,9 +482,9 @@ export default function EmpresasPage() {
                     style={{
                       display: "flex", alignItems: "center", justifyContent: "space-between",
                       width: "100%", padding: "0.7rem 1rem", border: "none",
-                      background: isActive ? "#f0fdf4" : "transparent",
+                      background: isActive ? "rgba(52,211,153,0.15)" : "transparent",
                       borderLeft: isActive ? "3px solid #10b981" : "3px solid transparent",
-                      color: isActive ? "#065f46" : "#4b6358",
+                      color: isActive ? "#34d399" : "#4b6358",
                       fontWeight: isActive ? 700 : 500, fontSize: "0.82rem",
                       cursor: "pointer", textAlign: "left", transition: "all 0.15s",
                     }}
@@ -492,8 +492,8 @@ export default function EmpresasPage() {
                   >
                     <span>{label}</span>
                     <span style={{
-                      background: isActive ? "#d1fae5" : "#f3f4f6",
-                      color: isActive ? "#065f46" : "#6b7280",
+                      background: isActive ? "rgba(52,211,153,0.2)" : "rgba(148,163,184,0.15)",
+                      color: isActive ? "#34d399" : "var(--muted)",
                       borderRadius: 999, padding: "1px 8px", fontSize: "0.72rem", fontWeight: 700,
                       minWidth: 22, textAlign: "center",
                     }}>{count}</span>
@@ -543,11 +543,11 @@ export default function EmpresasPage() {
             )}
 
             {/* Main Table */}
-            <div style={{ background: "#ffffff", border: "1px solid #e6f0ea", borderRadius: 12, overflow: "hidden" }}>
+            <div style={{ background: "var(--panel)", border: "1px solid #e6f0ea", borderRadius: 12, overflow: "hidden" }}>
               <div style={{ padding: "1rem 1.5rem", borderBottom: "1px solid #e6f0ea", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div>
                   <h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800, color: "#06170d" }}>Empresas cadastradas</h2>
-                  <p style={{ margin: "0.15rem 0 0", fontSize: "0.78rem", color: "#6f8f7c" }}>
+                  <p style={{ margin: "0.15rem 0 0", fontSize: "0.78rem", color: "var(--muted)" }}>
                     {loading ? "Carregando..." : `${filteredRows.length} empresa${filteredRows.length !== 1 ? "s" : ""}${temFiltro ? " filtrada" + (filteredRows.length !== 1 ? "s" : "") : ""}`}
                   </p>
                 </div>
@@ -564,7 +564,7 @@ export default function EmpresasPage() {
                           style={{
                             textAlign: i === 7 ? "right" : "left",
                             padding: "0.75rem 0.75rem",
-                            color: "#6f8f7c",
+                            color: "var(--muted)",
                             fontWeight: 700,
                             fontSize: "0.72rem",
                             textTransform: "uppercase",
@@ -582,7 +582,7 @@ export default function EmpresasPage() {
                       <tr
                         key={emp.id}
                         style={{ borderBottom: "1px solid #f0f4f2", transition: "background 0.1s" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.background = "#fafcfb")}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = "var(--panel-2)")}
                         onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                       >
                         {/* Empresa */}
@@ -598,7 +598,7 @@ export default function EmpresasPage() {
                             </div>
                             <div>
                               <div style={{ fontWeight: 700, color: "#06170d", fontSize: "0.84rem", lineHeight: 1.25 }}>{emp.nome_legal}</div>
-                              {emp.nome_fantasia && <div style={{ color: "#6f8f7c", fontSize: "0.75rem" }}>{emp.nome_fantasia}</div>}
+                              {emp.nome_fantasia && <div style={{ color: "var(--muted)", fontSize: "0.75rem" }}>{emp.nome_fantasia}</div>}
                             </div>
                           </div>
                         </td>
@@ -634,7 +634,7 @@ export default function EmpresasPage() {
                           })()}
                         </td>
                         {/* Cidade/UF */}
-                        <td style={{ padding: "0.75rem", color: "#6f8f7c", fontSize: "0.8rem", whiteSpace: "nowrap" }}>
+                        <td style={{ padding: "0.75rem", color: "var(--muted)", fontSize: "0.8rem", whiteSpace: "nowrap" }}>
                           {emp.cidade && emp.estado ? `${emp.cidade}/${emp.estado}` : emp.cidade || emp.estado || "—"}
                         </td>
                         {/* Status */}
@@ -642,7 +642,7 @@ export default function EmpresasPage() {
                           <EmpresaStatusBadge status={emp.status} />
                         </td>
                         {/* Ultima atualizacao */}
-                        <td style={{ padding: "0.75rem", color: "#6f8f7c", fontSize: "0.78rem" }}>
+                        <td style={{ padding: "0.75rem", color: "var(--muted)", fontSize: "0.78rem" }}>
                           {emp.updated_at ? new Date(emp.updated_at).toLocaleDateString("pt-BR") : "—"}
                         </td>
                         {/* Acoes */}
@@ -650,26 +650,26 @@ export default function EmpresasPage() {
                           <div style={{ display: "flex", gap: 4, justifyContent: "flex-end", flexWrap: "nowrap" }}>
                             <a
                               href={`/empresas/${emp.id}`}
-                              style={{ minHeight: 28, border: "1px solid #10b981", background: "#ecfdf5", color: "#065f46", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center" }}
+                              style={{ minHeight: 28, border: "1px solid #10b981", background: "rgba(52,211,153,0.15)", color: "#34d399", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center" }}
                             >
                               Abrir
                             </a>
                             <a
                               href={`/portal/${emp.id}`}
-                              style={{ minHeight: 28, border: "1px solid #c4b5fd", background: "#f5f3ff", color: "#7c3aed", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600, textDecoration: "none", display: "inline-flex", alignItems: "center" }}
+                              style={{ minHeight: 28, border: "1px solid #c4b5fd", background: "rgba(196,181,253,0.15)", color: "#c4b5fd", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600, textDecoration: "none", display: "inline-flex", alignItems: "center" }}
                             >
                               Portal
                             </a>
                             <button
                               onClick={() => setConfirmandoArquivar(emp)}
-                              style={{ minHeight: 28, border: "1px solid #e5e7eb", background: "#f9fafb", color: "#374151", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600 }}
+                              style={{ minHeight: 28, border: "1px solid rgba(148,163,184,0.2)", background: "var(--panel-2)", color: "#374151", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600 }}
                               type="button"
                             >
                               Arquivar
                             </button>
                             <button
                               onClick={() => setConfirmandoExcluir(emp)}
-                              style={{ minHeight: 28, border: "1px solid #fecaca", background: "#fef2f2", color: "#b91c1c", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600 }}
+                              style={{ minHeight: 28, border: "1px solid rgba(248,113,113,0.35)", background: "rgba(248,113,113,0.15)", color: "#f87171", borderRadius: 6, padding: "0 8px", fontSize: "0.72rem", cursor: "pointer", fontWeight: 600 }}
                               type="button"
                             >
                               Excluir
@@ -685,13 +685,13 @@ export default function EmpresasPage() {
               {/* Empty state */}
               {filteredRows.length === 0 && !loading && (
                 <div style={{ padding: "3rem", textAlign: "center" }}>
-                  <p style={{ color: "#6f8f7c", fontSize: "0.95rem", marginBottom: "1rem" }}>
+                  <p style={{ color: "var(--muted)", fontSize: "0.95rem", marginBottom: "1rem" }}>
                     {temFiltro ? "Nenhuma empresa encontrada com os filtros aplicados." : "Nenhuma empresa cadastrada"}
                   </p>
                   {!temFiltro && (
                     <a
                       href="/empresas/novo"
-                      style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "linear-gradient(135deg, #10b981, #059669)", color: "#fff", border: "none", borderRadius: 10, padding: "0.65rem 1.4rem", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", textDecoration: "none" }}
+                      style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "linear-gradient(135deg, #10b981, #059669)", color: "#ffffff", border: "none", borderRadius: 10, padding: "0.65rem 1.4rem", fontWeight: 700, fontSize: "0.88rem", cursor: "pointer", textDecoration: "none" }}
                     >
                       + Novo Cliente
                     </a>
@@ -709,28 +709,28 @@ export default function EmpresasPage() {
         <>
           <div onClick={fecharModal} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.65)", zIndex: 40 }} />
           <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem", pointerEvents: "none" }}>
-            <div style={{ width: "100%", maxWidth: 760, maxHeight: "90vh", background: "#ffffff", borderRadius: 14, border: "1px solid #dfece5", boxShadow: "0 24px 80px rgba(7,23,13,0.18)", display: "flex", flexDirection: "column", overflow: "hidden", pointerEvents: "auto" }}>
-              <div style={{ padding: "1.4rem 1.75rem", borderBottom: "1px solid #dfece5", background: "#f3f8f5", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ width: "100%", maxWidth: 760, maxHeight: "90vh", background: "var(--panel)", borderRadius: 14, border: "1px solid var(--border)", boxShadow: "0 24px 80px rgba(7,23,13,0.18)", display: "flex", flexDirection: "column", overflow: "hidden", pointerEvents: "auto" }}>
+              <div style={{ padding: "1.4rem 1.75rem", borderBottom: "1px solid var(--border)", background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div>
                   <h2 style={{ margin: 0, fontSize: "1.05rem", color: "#06170d" }}>{editingId ? "Editar rascunho" : "Nova empresa"}</h2>
-                  <p style={{ margin: "0.2rem 0 0", fontSize: "0.78rem", color: "#6f8f7c" }}>Etapa {step} de 3 — {STEPS[step - 1].title}</p>
+                  <p style={{ margin: "0.2rem 0 0", fontSize: "0.78rem", color: "var(--muted)" }}>Etapa {step} de 3 — {STEPS[step - 1].title}</p>
                 </div>
-                <button onClick={fecharModal} style={{ background: "none", border: "none", color: "#6f8f7c", fontSize: "1.5rem", cursor: "pointer", lineHeight: 1, padding: "0 4px" }} type="button">×</button>
+                <button onClick={fecharModal} style={{ background: "none", border: "none", color: "var(--muted)", fontSize: "1.5rem", cursor: "pointer", lineHeight: 1, padding: "0 4px" }} type="button">×</button>
               </div>
-              <div style={{ display: "flex", borderBottom: "1px solid #dfece5", background: "#ffffff" }}>
+              <div style={{ display: "flex", borderBottom: "1px solid var(--border)", background: "var(--panel)" }}>
                 {STEPS.map((s) => (
                   <button
                     key={s.number}
                     onClick={() => { setErroForm(null); setStep(s.number); }}
-                    style={{ flex: 1, padding: "0.85rem 0.5rem", background: "none", border: "none", borderBottom: step === s.number ? "2px solid #10b981" : "2px solid transparent", color: step === s.number ? "#075f3c" : "#6f8f7c", fontWeight: step === s.number ? 700 : 500, fontSize: "0.77rem", cursor: "pointer", textAlign: "center" }}
+                    style={{ flex: 1, padding: "0.85rem 0.5rem", background: "none", border: "none", borderBottom: step === s.number ? "2px solid #10b981" : "2px solid transparent", color: step === s.number ? "#2ee58f" : "var(--muted)", fontWeight: step === s.number ? 700 : 500, fontSize: "0.77rem", cursor: "pointer", textAlign: "center" }}
                     type="button"
                   >
-                    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 18, height: 18, borderRadius: "50%", background: step === s.number ? "#10b981" : "#dfece5", color: step === s.number ? "#ffffff" : "#6f8f7c", fontSize: "0.68rem", fontWeight: 700, marginRight: "0.4rem" }}>{s.number}</span>
+                    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 18, height: 18, borderRadius: "50%", background: step === s.number ? "#10b981" : "var(--border)", color: step === s.number ? "var(--panel)" : "var(--muted)", fontSize: "0.68rem", fontWeight: 700, marginRight: "0.4rem" }}>{s.number}</span>
                     {s.title}
                   </button>
                 ))}
               </div>
-              <div style={{ flex: 1, overflowY: "auto", padding: "1.5rem 1.75rem", background: "#fafcfb" }}>
+              <div style={{ flex: 1, overflowY: "auto", padding: "1.5rem 1.75rem", background: "var(--panel-2)" }}>
                 {erroForm && <p className="error-alert" style={{ marginBottom: "1rem" }}>{erroForm}</p>}
                 {step === 1 && (
                   <div style={{ display: "grid", gap: "1rem" }}>
@@ -843,7 +843,7 @@ export default function EmpresasPage() {
                   </div>
                 )}
               </div>
-              <div style={{ padding: "1.1rem 1.75rem", borderTop: "1px solid #dfece5", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f3f8f5", gap: "0.75rem" }}>
+              <div style={{ padding: "1.1rem 1.75rem", borderTop: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--bg)", gap: "0.75rem" }}>
                 <button className="small-action" disabled={step === 1} onClick={voltar} style={{ opacity: step === 1 ? 0.4 : 1 }} type="button">Anterior</button>
                 <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                   {STEPS.map((s) => <div key={s.number} style={{ width: 7, height: 7, borderRadius: "50%", background: step === s.number ? "#10b981" : "#c9dbd1" }} />)}
@@ -851,7 +851,7 @@ export default function EmpresasPage() {
                 <div style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
                   <button
                     onClick={handleSalvarRascunho}
-                    style={{ background: rascunhoSalvo ? "#ecfdf5" : "#ffffff", border: `1px solid ${rascunhoSalvo ? "#a7f3d0" : "#b9d3c6"}`, color: rascunhoSalvo ? "#047857" : "#0b6040", borderRadius: 8, padding: "0.45rem 1rem", fontSize: "0.82rem", cursor: "pointer", fontWeight: 600, transition: "all 0.2s", minHeight: 36 }}
+                    style={{ background: rascunhoSalvo ? "rgba(52,211,153,0.15)" : "var(--panel)", border: `1px solid ${rascunhoSalvo ? "rgba(52,211,153,0.35)" : "#b9d3c6"}`, color: rascunhoSalvo ? "#34d399" : "#0b6040", borderRadius: 8, padding: "0.45rem 1rem", fontSize: "0.82rem", cursor: "pointer", fontWeight: 600, transition: "all 0.2s", minHeight: 36 }}
                     type="button"
                   >
                     {rascunhoSalvo ? "Salvo" : "Salvar rascunho"}
@@ -874,23 +874,23 @@ export default function EmpresasPage() {
         const initials = visualizando.nome_legal.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase();
         const regimeLabel = REGIMES.find((r) => r.value === visualizando.regime_tributario)?.label ?? visualizando.regime_tributario;
         const statusColors: Record<Empresa["status"], { bg: string; cor: string; dot: string }> = {
-          ativa: { bg: "#ecfdf5", cor: "#065f46", dot: "#10b981" },
-          suspensa: { bg: "#fffbeb", cor: "#92400e", dot: "#f59e0b" },
-          cancelada: { bg: "#fef2f2", cor: "#b91c1c", dot: "#ef4444" },
-          encerrada: { bg: "#f3f4f6", cor: "#374151", dot: "#9ca3af" },
+          ativa: { bg: "rgba(52,211,153,0.15)", cor: "#34d399", dot: "#10b981" },
+          suspensa: { bg: "rgba(251,191,36,0.15)", cor: "#fbbf24", dot: "#f59e0b" },
+          cancelada: { bg: "rgba(248,113,113,0.15)", cor: "#f87171", dot: "#ef4444" },
+          encerrada: { bg: "rgba(148,163,184,0.15)", cor: "#374151", dot: "#9ca3af" },
         };
         const sc = statusColors[visualizando.status];
         return (
           <>
             <div onClick={() => setVisualizando(null)} style={{ position: "fixed", inset: 0, background: "rgba(6,23,13,0.6)", backdropFilter: "blur(2px)", zIndex: 40 }} />
             <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem", pointerEvents: "none" }}>
-              <div style={{ width: "100%", maxWidth: 640, background: "#fff", borderRadius: 18, boxShadow: "0 32px 100px rgba(6,23,13,0.22)", display: "flex", flexDirection: "column", overflow: "hidden", pointerEvents: "auto" }}>
+              <div style={{ width: "100%", maxWidth: 640, background: "var(--panel)", borderRadius: 18, boxShadow: "0 32px 100px rgba(6,23,13,0.22)", display: "flex", flexDirection: "column", overflow: "hidden", pointerEvents: "auto" }}>
                 <div style={{ background: "linear-gradient(120deg, #06170d 0%, #0b2e18 70%, #0f3d20 100%)", padding: "2rem 2rem 1.75rem", position: "relative", overflow: "hidden" }}>
                   <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 85% 40%, rgba(16,185,129,0.12) 0%, transparent 60%)", pointerEvents: "none" }} />
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "linear-gradient(90deg, #10b981, #34d399, #6ee7b7)" }} />
                   <button onClick={() => setVisualizando(null)} style={{ position: "absolute", top: "1.1rem", right: "1.25rem", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", color: "#a7c4b4", borderRadius: 8, width: 32, height: 32, cursor: "pointer", fontSize: "1rem", display: "flex", alignItems: "center", justifyContent: "center" }} type="button">x</button>
                   <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
-                    <div style={{ width: 60, height: 60, borderRadius: 16, background: "linear-gradient(135deg, #10b981, #065f46)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.3rem", fontWeight: 900, flexShrink: 0, border: "2px solid rgba(255,255,255,0.15)" }}>{initials}</div>
+                    <div style={{ width: 60, height: 60, borderRadius: 16, background: "linear-gradient(135deg, #10b981, #065f46)", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.3rem", fontWeight: 900, flexShrink: 0, border: "2px solid rgba(255,255,255,0.15)" }}>{initials}</div>
                     <div>
                       <p style={{ margin: "0 0 0.2rem", fontSize: "0.68rem", fontWeight: 800, color: "#34d399", letterSpacing: "2px", textTransform: "uppercase" }}>Empresa</p>
                       <h2 style={{ margin: "0 0 0.35rem", color: "#fff", fontSize: "1.2rem", fontWeight: 800, lineHeight: 1.2 }}>{visualizando.nome_legal}</h2>
@@ -910,8 +910,8 @@ export default function EmpresasPage() {
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                       {[{ label: "CNPJ", value: visualizando.cnpj }, { label: "Regime Tributário", value: regimeLabel }].map((item) => (
                         <div key={item.label} style={{ background: "#f8fdfb", border: "1px solid #e6f0ea", borderRadius: 10, padding: "0.85rem 1rem" }}>
-                          <p style={{ margin: "0 0 0.3rem", fontSize: "0.68rem", fontWeight: 800, color: "#6f8f7c", textTransform: "uppercase", letterSpacing: "1px" }}>{item.label}</p>
-                          <p style={{ margin: 0, fontSize: "0.9rem", fontWeight: 700, color: "#07170d" }}>{item.value || "—"}</p>
+                          <p style={{ margin: "0 0 0.3rem", fontSize: "0.68rem", fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px" }}>{item.label}</p>
+                          <p style={{ margin: 0, fontSize: "0.9rem", fontWeight: 700, color: "var(--ink)" }}>{item.value || "—"}</p>
                         </div>
                       ))}
                     </div>
@@ -919,7 +919,7 @@ export default function EmpresasPage() {
                   <div>
                     <p style={{ margin: "0 0 0.75rem", fontSize: "0.68rem", fontWeight: 900, color: "#10b981", letterSpacing: "2px", textTransform: "uppercase" }}>Localização</p>
                     <div style={{ background: "#f8fdfb", border: "1px solid #e6f0ea", borderRadius: 10, padding: "0.85rem 1rem" }}>
-                      <span style={{ fontSize: "0.9rem", fontWeight: 600, color: "#07170d" }}>
+                      <span style={{ fontSize: "0.9rem", fontWeight: 600, color: "var(--ink)" }}>
                         {visualizando.cidade && visualizando.estado ? `${visualizando.cidade} — ${visualizando.estado}` : visualizando.cidade || visualizando.estado || "—"}
                       </span>
                     </div>
@@ -930,7 +930,7 @@ export default function EmpresasPage() {
                       { label: "Atualizado em", value: new Date(visualizando.updated_at).toLocaleString("pt-BR") },
                     ].map((item) => (
                       <div key={item.label} style={{ background: "#f8fdfb", border: "1px solid #e6f0ea", borderRadius: 10, padding: "0.75rem 1rem" }}>
-                        <p style={{ margin: "0 0 0.25rem", fontSize: "0.68rem", fontWeight: 800, color: "#6f8f7c", textTransform: "uppercase", letterSpacing: "1px" }}>{item.label}</p>
+                        <p style={{ margin: "0 0 0.25rem", fontSize: "0.68rem", fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px" }}>{item.label}</p>
                         <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#4b6358" }}>{item.value}</p>
                       </div>
                     ))}
@@ -939,7 +939,7 @@ export default function EmpresasPage() {
                 <div style={{ padding: "1rem 2rem 1.5rem", display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
                   <button className="small-action" onClick={() => { setVisualizando(null); window.location.href = `/empresas/${visualizando.id}`; }} type="button">Ver detalhes</button>
                   <button className="small-action" onClick={() => { setVisualizando(null); abrirEditar(visualizando); }} type="button">Editar</button>
-                  <button onClick={() => setVisualizando(null)} style={{ background: "linear-gradient(135deg, #10b981, #059669)", color: "#fff", border: "none", borderRadius: 8, padding: "0.55rem 1.4rem", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }} type="button">Fechar</button>
+                  <button onClick={() => setVisualizando(null)} style={{ background: "linear-gradient(135deg, #10b981, #059669)", color: "#ffffff", border: "none", borderRadius: 8, padding: "0.55rem 1.4rem", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }} type="button">Fechar</button>
                 </div>
               </div>
             </div>
@@ -952,15 +952,15 @@ export default function EmpresasPage() {
         <>
           <div onClick={() => setEditandoEmpresa(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 40 }} />
           <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem", pointerEvents: "none" }}>
-            <div style={{ width: "100%", maxWidth: 680, maxHeight: "85vh", background: "#fff", borderRadius: 14, border: "1px solid #dfece5", boxShadow: "0 24px 80px rgba(7,23,13,0.15)", display: "flex", flexDirection: "column", overflow: "hidden", pointerEvents: "auto" }}>
-              <div style={{ padding: "1.25rem 1.75rem", borderBottom: "1px solid #dfece5", background: "#f3f8f5", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ width: "100%", maxWidth: 680, maxHeight: "85vh", background: "var(--panel)", borderRadius: 14, border: "1px solid var(--border)", boxShadow: "0 24px 80px rgba(7,23,13,0.15)", display: "flex", flexDirection: "column", overflow: "hidden", pointerEvents: "auto" }}>
+              <div style={{ padding: "1.25rem 1.75rem", borderBottom: "1px solid var(--border)", background: "var(--bg)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
                   <h2 style={{ margin: 0, fontSize: "1rem", color: "#06170d" }}>Editar empresa</h2>
-                  <p style={{ margin: "0.2rem 0 0", fontSize: "0.78rem", color: "#6f8f7c" }}>{editandoEmpresa.nome_legal}</p>
+                  <p style={{ margin: "0.2rem 0 0", fontSize: "0.78rem", color: "var(--muted)" }}>{editandoEmpresa.nome_legal}</p>
                 </div>
-                <button onClick={() => setEditandoEmpresa(null)} style={{ background: "none", border: "none", color: "#6f8f7c", fontSize: "1.4rem", cursor: "pointer" }} type="button">x</button>
+                <button onClick={() => setEditandoEmpresa(null)} style={{ background: "none", border: "none", color: "var(--muted)", fontSize: "1.4rem", cursor: "pointer" }} type="button">x</button>
               </div>
-              <div style={{ overflowY: "auto", padding: "1.5rem 1.75rem", display: "grid", gap: "1rem", background: "#fafcfb" }}>
+              <div style={{ overflowY: "auto", padding: "1.5rem 1.75rem", display: "grid", gap: "1rem", background: "var(--panel-2)" }}>
                 {erroEdicao && <p className="error-alert">{erroEdicao}</p>}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                   <Field label="Razão social" required>
@@ -989,7 +989,7 @@ export default function EmpresasPage() {
                   </Field>
                 </div>
               </div>
-              <div style={{ padding: "1rem 1.75rem", borderTop: "1px solid #dfece5", background: "#f3f8f5", display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
+              <div style={{ padding: "1rem 1.75rem", borderTop: "1px solid var(--border)", background: "var(--bg)", display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
                 <button className="small-action" onClick={() => setEditandoEmpresa(null)} type="button">Cancelar</button>
                 <button disabled={salvandoEdicao} onClick={handleSalvarEdicao} type="button">{salvandoEdicao ? "Salvando..." : "Salvar alterações"}</button>
               </div>
@@ -1003,21 +1003,21 @@ export default function EmpresasPage() {
         <>
           <div onClick={() => setConfirmandoArquivar(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(3px)", zIndex: 40 }} />
           <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem", pointerEvents: "none" }}>
-            <div style={{ width: "100%", maxWidth: 440, background: "#fff", borderRadius: 16, border: "1px solid #e5e7eb", boxShadow: "0 32px 80px rgba(0,0,0,0.18)", overflow: "hidden", pointerEvents: "auto" }}>
+            <div style={{ width: "100%", maxWidth: 440, background: "var(--panel)", borderRadius: 16, border: "1px solid rgba(148,163,184,0.2)", boxShadow: "0 32px 80px rgba(0,0,0,0.18)", overflow: "hidden", pointerEvents: "auto" }}>
               <div style={{ padding: "1.5rem 1.75rem 1.25rem", display: "flex", gap: "1rem", alignItems: "flex-start" }}>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.4rem", flexShrink: 0 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: "rgba(148,163,184,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.4rem", flexShrink: 0 }}>
                   A
                 </div>
                 <div>
                   <h2 style={{ margin: "0 0 0.3rem", fontSize: "1rem", fontWeight: 800, color: "#111827" }}>Arquivar empresa</h2>
-                  <p style={{ margin: 0, fontSize: "0.875rem", color: "#6b7280", lineHeight: 1.5 }}>
+                  <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--muted)", lineHeight: 1.5 }}>
                     A empresa <strong style={{ color: "#111827" }}>{confirmandoArquivar.nome_legal}</strong> será marcada como <strong style={{ color: "#374151" }}>encerrada</strong> e ficará oculta nas listas ativas.
                   </p>
                 </div>
               </div>
-              <div style={{ margin: "0 1.75rem 1.25rem", background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 10, padding: "0.75rem 1rem", display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
+              <div style={{ margin: "0 1.75rem 1.25rem", background: "var(--panel-2)", border: "1px solid rgba(148,163,184,0.2)", borderRadius: 10, padding: "0.75rem 1rem", display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
                 <span style={{ fontSize: "0.9rem", flexShrink: 0 }}>i</span>
-                <p style={{ margin: 0, fontSize: "0.8rem", color: "#6b7280", lineHeight: 1.45 }}>
+                <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--muted)", lineHeight: 1.45 }}>
                   Esta ação pode ser revertida editando o status da empresa posteriormente.
                 </p>
               </div>
@@ -1026,7 +1026,7 @@ export default function EmpresasPage() {
                 <button
                   disabled={arquivando}
                   onClick={handleArquivarConfirmado}
-                  style={{ background: "linear-gradient(135deg, #4b5563, #374151)", color: "#fff", border: "none", borderRadius: 8, padding: "0.55rem 1.4rem", fontWeight: 700, fontSize: "0.85rem", cursor: arquivando ? "not-allowed" : "pointer", opacity: arquivando ? 0.7 : 1, display: "flex", alignItems: "center", gap: "0.4rem" }}
+                  style={{ background: "linear-gradient(135deg, #4b5563, #374151)", color: "#ffffff", border: "none", borderRadius: 8, padding: "0.55rem 1.4rem", fontWeight: 700, fontSize: "0.85rem", cursor: arquivando ? "not-allowed" : "pointer", opacity: arquivando ? 0.7 : 1, display: "flex", alignItems: "center", gap: "0.4rem" }}
                   type="button"
                 >
                   {arquivando ? "Arquivando..." : "Arquivar empresa"}
@@ -1042,16 +1042,16 @@ export default function EmpresasPage() {
         <>
           <div onClick={() => setConfirmandoExcluir(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 40 }} />
           <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem", pointerEvents: "none" }}>
-            <div style={{ width: "100%", maxWidth: 460, background: "#fff", borderRadius: 14, border: "1px solid #fecaca", boxShadow: "0 24px 80px rgba(7,23,13,0.15)", overflow: "hidden", pointerEvents: "auto" }}>
-              <div style={{ padding: "1.5rem 1.75rem", borderBottom: "1px solid #fecaca", background: "#fff5f5" }}>
-                <h2 style={{ margin: 0, fontSize: "1rem", color: "#b91c1c" }}>Excluir empresa</h2>
+            <div style={{ width: "100%", maxWidth: 460, background: "var(--panel)", borderRadius: 14, border: "1px solid rgba(248,113,113,0.35)", boxShadow: "0 24px 80px rgba(7,23,13,0.15)", overflow: "hidden", pointerEvents: "auto" }}>
+              <div style={{ padding: "1.5rem 1.75rem", borderBottom: "1px solid rgba(248,113,113,0.35)", background: "#fff5f5" }}>
+                <h2 style={{ margin: 0, fontSize: "1rem", color: "#f87171" }}>Excluir empresa</h2>
               </div>
               <div style={{ padding: "1.5rem 1.75rem" }}>
                 <p style={{ margin: 0, color: "#374151", fontSize: "0.9rem" }}>
                   Tem certeza que deseja excluir <strong>{confirmandoExcluir.nome_legal}</strong>? Esta ação não pode ser desfeita.
                 </p>
               </div>
-              <div style={{ padding: "1rem 1.75rem", borderTop: "1px solid #fecaca", background: "#fff5f5", display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
+              <div style={{ padding: "1rem 1.75rem", borderTop: "1px solid rgba(248,113,113,0.35)", background: "#fff5f5", display: "flex", justifyContent: "flex-end", gap: "0.6rem" }}>
                 <button className="small-action" onClick={() => setConfirmandoExcluir(null)} type="button">Cancelar</button>
                 <button disabled={excluindo} onClick={handleExcluir} style={{ background: "linear-gradient(100deg,#dc2626,#b91c1c)" }} type="button">
                   {excluindo ? "Excluindo..." : "Sim, excluir"}

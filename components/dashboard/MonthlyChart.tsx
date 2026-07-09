@@ -23,7 +23,7 @@ export function MonthlyChart({ data }: { data: MonthlyDashboardItem[] }) {
       </div>
       <ResponsiveContainer height="82%" width="100%">
         <BarChart data={data}>
-          <CartesianGrid stroke="#dfece5" strokeDasharray="3 3" />
+          <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
           <XAxis dataKey="month" />
           <YAxis />
           <Tooltip />
