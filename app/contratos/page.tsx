@@ -177,6 +177,12 @@ export default function ContratosPage() {
   const [catFiltro, setCatFiltro] = useState<CategoriaContrato | "Todos">("Todos");
   const [contratos, setContratos] = useState<ContratoRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [novoSignal, setNovoSignal] = useState(0);
+
+  const abrirNovoContrato = () => {
+    setTab("gerador");
+    setNovoSignal((s) => s + 1);
+  };
 
   useEffect(() => {
     fetch("/api/contratos")
@@ -206,8 +212,8 @@ export default function ContratosPage() {
               Geracao, gestao e venda de contratos
             </p>
           </div>
-          <Link
-            href="/contratos/gerar"
+          <button
+            onClick={abrirNovoContrato}
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -224,7 +230,7 @@ export default function ContratosPage() {
             }}
           >
             + Novo Contrato
-          </Link>
+          </button>
         </section>
 
         {/* ── Tabs ─────────────────────────────────── */}
@@ -252,7 +258,7 @@ export default function ContratosPage() {
 
         {/* ── Conteudo da tab ──────────────────────── */}
         {tab === "dashboard" && <TabDashboard contratos={contratos} loading={loading} />}
-        {tab === "gerador" && <GeradorContratos />}
+        {tab === "gerador" && <GeradorContratos abrirNovoSignal={novoSignal} />}
         {tab === "catalogo" && (
           <TabCatalogo
             categorias={categorias}

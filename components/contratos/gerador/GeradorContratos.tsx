@@ -173,7 +173,7 @@ function regraAtende(regra: Regra, dados: Record<string, string>): boolean {
 
 /* ═══ COMPONENTE PRINCIPAL ════════════════════════════════════ */
 
-export function GeradorContratos() {
+export function GeradorContratos({ abrirNovoSignal }: { abrirNovoSignal?: number } = {}) {
   const [guia, setGuia] = useState<GuiaGerador>("dashboard");
   const [pronto, setPronto] = useState(false);
 
@@ -205,6 +205,14 @@ export function GeradorContratos() {
     setContratoEmEdicao(c);
     setGuia("novo");
   };
+
+  // botão "+ Novo Contrato" do topo (fora do gerador) abre o passo "novo"
+  useEffect(() => {
+    if (abrirNovoSignal && abrirNovoSignal > 0) {
+      setContratoEmEdicao(null);
+      setGuia("novo");
+    }
+  }, [abrirNovoSignal]);
 
   if (!pronto) {
     return <div style={{ textAlign: "center", padding: 60, color: "#94a3b8" }}>Carregando gerador...</div>;
