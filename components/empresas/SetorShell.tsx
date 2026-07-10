@@ -33,12 +33,12 @@ export function SetorShell({
     <AppShell>
       <div className="page-stack">
         {/* Breadcrumb */}
-        <nav style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", color: "var(--muted)", marginBottom: -8 }}>
+        <nav style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", color: "#6f8f7c", marginBottom: -8 }}>
           <Link href="/empresas" style={{ color: "#10b981", fontWeight: 600 }}>Empresas</Link>
           <span>›</span>
           <span style={{ color: "#0b6040", fontWeight: 600, maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{empresaNome}</span>
           <span>›</span>
-          <span style={{ color: "var(--ink)", fontWeight: 700 }}>{setorNome}</span>
+          <span style={{ color: "#07170d", fontWeight: 700 }}>{setorNome}</span>
         </nav>
 
         {/* Hero do setor */}
@@ -71,7 +71,7 @@ export function SetorShell({
                 <p style={{ margin: "0.3rem 0 0", color: "#7fb89a", fontSize: "0.83rem" }}>{setorResumo}</p>
               </div>
             </div>
-            <Link href={`/empresas/${empresaId}`} style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(52,211,153,0.2)", borderRadius: 8, padding: "0.45rem 1rem", fontSize: "0.78rem", fontWeight: 600, textDecoration: "none" }}>
+            <Link href={`/empresas/${empresaId}`} style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "#d1fae5", borderRadius: 8, padding: "0.45rem 1rem", fontSize: "0.78rem", fontWeight: 600, textDecoration: "none" }}>
               ← Voltar para empresa
             </Link>
           </div>

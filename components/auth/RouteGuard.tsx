@@ -95,7 +95,7 @@ export function RouteGuard({ children }: { children: ReactNode }) {
 
   if (checking && !authorized) {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", color: "var(--muted)", fontSize: "0.875rem" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", color: "#6b7280", fontSize: "0.875rem" }}>
         Verificando acesso...
       </div>
     );

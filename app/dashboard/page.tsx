@@ -55,21 +55,21 @@ export default function Dashboard() {
   }
 
   const statusLabel: Record<string, { text: string; bg: string; color: string }> = {
-    ativa: { text: "Ativa", bg: "rgba(52,211,153,0.2)", color: "#34d399" },
-    suspensa: { text: "Suspensa", bg: "rgba(251,191,36,0.18)", color: "#fbbf24" },
-    cancelada: { text: "Cancelada", bg: "rgba(248,113,113,0.15)", color: "#f87171" },
-    encerrada: { text: "Encerrada", bg: "rgba(148,163,184,0.15)", color: "var(--muted)" },
+    ativa: { text: "Ativa", bg: "#d1fae5", color: "#065f46" },
+    suspensa: { text: "Suspensa", bg: "#fef3c7", color: "#92400e" },
+    cancelada: { text: "Cancelada", bg: "#fef2f2", color: "#b91c1c" },
+    encerrada: { text: "Encerrada", bg: "#f3f4f6", color: "#6b7280" },
   };
 
   const kpis = [
-    { label: "Empresas ativas", value: String(ativas), color: "#34d399", bg: "rgba(52,211,153,0.15)" },
-    { label: "Total de empresas", value: String(total), color: "#67e8f9", bg: "#ecfeff" },
-    { label: "Pendentes", value: String(pendentes), color: "#fbbf24", bg: "rgba(251,191,36,0.15)" },
+    { label: "Empresas ativas", value: String(ativas), color: "#065f46", bg: "#ecfdf5" },
+    { label: "Total de empresas", value: String(total), color: "#0e7490", bg: "#ecfeff" },
+    { label: "Pendentes", value: String(pendentes), color: "#92400e", bg: "#fffbeb" },
     {
       label: "Ultima atualizacao",
       value: ultimaAtualizacao ? formatDate(ultimaAtualizacao) : "—",
-      color: "var(--muted)",
-      bg: "var(--panel-2)",
+      color: "#6b7280",
+      bg: "#f9fafb",
     },
   ];
 
@@ -89,7 +89,7 @@ export default function Dashboard() {
               <p>Painel de controle do escritorio contabil</p>
             </div>
           </div>
-          <div style={{ textAlign: "center", padding: "80px 20px", color: "var(--muted)" }}>
+          <div style={{ textAlign: "center", padding: "80px 20px", color: "#6b7280" }}>
             <p style={{ fontSize: "16px" }}>Carregando...</p>
           </div>
         </div>
@@ -109,7 +109,7 @@ export default function Dashboard() {
               <p>Painel de controle do escritorio contabil</p>
             </div>
           </div>
-          <div style={{ textAlign: "center", padding: "80px 20px", color: "#f87171" }}>
+          <div style={{ textAlign: "center", padding: "80px 20px", color: "#b91c1c" }}>
             <p style={{ fontSize: "16px" }}>Erro ao carregar dados: {error}</p>
             <button
               onClick={() => window.location.reload()}
@@ -137,10 +137,10 @@ export default function Dashboard() {
             </div>
           </div>
           <div style={{ textAlign: "center", padding: "80px 20px" }}>
-            <h2 style={{ fontSize: "24px", color: "#34d399", marginBottom: "8px" }}>
+            <h2 style={{ fontSize: "24px", color: "#065f46", marginBottom: "8px" }}>
               Bem-vindo ao Fatturati Burgarelli
             </h2>
-            <p style={{ fontSize: "15px", color: "var(--muted)", marginBottom: "24px" }}>
+            <p style={{ fontSize: "15px", color: "#6b7280", marginBottom: "24px" }}>
               Cadastre sua primeira empresa para comecar
             </p>
             <a
@@ -149,7 +149,7 @@ export default function Dashboard() {
                 display: "inline-block",
                 padding: "10px 28px",
                 borderRadius: "8px",
-                background: "#34d399",
+                background: "#065f46",
                 color: "#fff",
                 fontWeight: 600,
                 fontSize: "14px",
@@ -217,14 +217,14 @@ export default function Dashboard() {
                     alignItems: "center",
                     justifyContent: "space-between",
                     padding: "14px 20px",
-                    borderBottom: i < recentes.length - 1 ? "1px solid rgba(148,163,184,0.15)" : "none",
+                    borderBottom: i < recentes.length - 1 ? "1px solid #f3f4f6" : "none",
                   }}
                 >
                   <div style={{ minWidth: 0 }}>
                     <strong style={{ fontSize: "14px", color: "#111827", display: "block" }}>
                       {emp.nome_legal}
                     </strong>
-                    <span style={{ fontSize: "12px", color: "var(--muted)" }}>
+                    <span style={{ fontSize: "12px", color: "#6b7280" }}>
                       CNPJ: {formatCnpj(emp.cnpj)}
                     </span>
                   </div>

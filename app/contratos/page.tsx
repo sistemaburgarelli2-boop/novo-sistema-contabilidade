@@ -31,25 +31,25 @@ type ContratoTipo = {
 /* ─── Estilos ─────────────────────────────────────────────────── */
 
 const S_STATUS: Record<string, { bg: string; color: string; label: string }> = {
-  rascunho:              { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: "Rascunho" },
-  aguardando_pagamento:  { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Aguardando Pagamento" },
-  pago:                  { bg: "rgba(96,165,250,0.15)", color: "#93c5fd", label: "Pago" },
-  pendente_assinatura:   { bg: "rgba(196,181,253,0.15)", color: "#c4b5fd", label: "Pendente Assinatura" },
-  assinado:              { bg: "rgba(52,211,153,0.15)", color: "#34d399", label: "Assinado" },
-  ativo:                 { bg: "rgba(52,211,153,0.15)", color: "#34d399", label: "Ativo" },
-  concluido:             { bg: "rgba(74,222,128,0.15)", color: "#4ade80", label: "Concluido" },
-  cancelado:             { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Cancelado" },
+  rascunho:              { bg: "#f3f4f6", color: "#6b7280", label: "Rascunho" },
+  aguardando_pagamento:  { bg: "#fffbeb", color: "#92400e", label: "Aguardando Pagamento" },
+  pago:                  { bg: "#eff6ff", color: "#1e40af", label: "Pago" },
+  pendente_assinatura:   { bg: "#f5f3ff", color: "#7c3aed", label: "Pendente Assinatura" },
+  assinado:              { bg: "#f0fdf4", color: "#065f46", label: "Assinado" },
+  ativo:                 { bg: "#ecfdf5", color: "#047857", label: "Ativo" },
+  concluido:             { bg: "#e8f5e9", color: "#1b5e20", label: "Concluido" },
+  cancelado:             { bg: "#fef2f2", color: "#b91c1c", label: "Cancelado" },
 };
 
 const CATEGORIA_CORES: Record<CategoriaContrato, string> = {
-  Empresarial:     "#34d399",
-  Civil:           "#93c5fd",
-  "Imobiliário":   "#fbbf24",
-  Trabalhista:     "#c4b5fd",
-  Administrativo:  "#67e8f9",
-  "Societário":    "#fbbf24",
-  "Contábil":      "#34d399",
-  Comercial:       "#f87171",
+  Empresarial:     "#065f46",
+  Civil:           "#1e40af",
+  "Imobiliário":   "#92400e",
+  Trabalhista:     "#7c3aed",
+  Administrativo:  "#0e7490",
+  "Societário":    "#b45309",
+  "Contábil":      "#059669",
+  Comercial:       "#dc2626",
 };
 
 /* ─── Catálogo de tipos (dados de referência) ─────────────────── */
@@ -107,10 +107,10 @@ function TH({ children, right }: { children: React.ReactNode; right?: boolean })
         textAlign: right ? "right" : "left",
         fontSize: "0.75rem",
         fontWeight: 600,
-        color: "var(--muted)",
+        color: "#64748b",
         textTransform: "uppercase",
         letterSpacing: "0.04em",
-        borderBottom: "1px solid var(--border)",
+        borderBottom: "1px solid #e2e8f0",
       }}
     >
       {children}
@@ -124,8 +124,8 @@ function TD({ children, right, mono }: { children: React.ReactNode; right?: bool
       style={{
         padding: "10px 14px",
         fontSize: "0.85rem",
-        color: "var(--ink-2)",
-        borderBottom: "1px solid var(--panel-2)",
+        color: "#334155",
+        borderBottom: "1px solid #f1f5f9",
         textAlign: right ? "right" : "left",
         fontFamily: mono ? "var(--font-mono, monospace)" : "inherit",
       }}
@@ -141,7 +141,7 @@ function EmptyState({ message }: { message: string }) {
       style={{
         textAlign: "center",
         padding: "60px 20px",
-        color: "var(--muted)",
+        color: "#94a3b8",
         fontSize: "0.95rem",
       }}
     >
@@ -202,7 +202,7 @@ export default function ContratosPage() {
         <section className="module-hero">
           <div>
             <h2 style={{ fontSize: "1.6rem", fontWeight: 700, margin: 0 }}>Contratos</h2>
-            <p style={{ color: "var(--muted)", margin: "4px 0 0", fontSize: "0.95rem" }}>
+            <p style={{ color: "#64748b", margin: "4px 0 0", fontSize: "0.95rem" }}>
               Geracao, gestao e venda de contratos
             </p>
           </div>
@@ -212,7 +212,7 @@ export default function ContratosPage() {
               display: "inline-flex",
               alignItems: "center",
               gap: 6,
-              background: "var(--green-500)",
+              background: "#0f172a",
               color: "#fff",
               border: "none",
               borderRadius: 8,
@@ -228,7 +228,7 @@ export default function ContratosPage() {
         </section>
 
         {/* ── Tabs ─────────────────────────────────── */}
-        <div style={{ display: "flex", gap: 4, borderBottom: "1px solid var(--border)", marginBottom: 8 }}>
+        <div style={{ display: "flex", gap: 4, borderBottom: "1px solid #e2e8f0", marginBottom: 8 }}>
           {TABS.map((t) => (
             <button
               key={t.key}
@@ -237,10 +237,10 @@ export default function ContratosPage() {
                 padding: "10px 18px",
                 fontSize: "0.85rem",
                 fontWeight: tab === t.key ? 700 : 500,
-                color: tab === t.key ? "var(--ink)" : "var(--muted)",
+                color: tab === t.key ? "#0f172a" : "#64748b",
                 background: "none",
                 border: "none",
-                borderBottom: tab === t.key ? "2px solid var(--green-400)" : "2px solid transparent",
+                borderBottom: tab === t.key ? "2px solid #0f172a" : "2px solid transparent",
                 cursor: "pointer",
                 transition: "all 0.15s",
               }}
@@ -282,20 +282,20 @@ function TabDashboard({ contratos, loading }: { contratos: ContratoRow[]; loadin
     <>
       <div className="kpi-strip">
         <div className="metric-card">
-          <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Total de contratos</span>
+          <span style={{ fontSize: "0.78rem", color: "#64748b" }}>Total de contratos</span>
           <strong style={{ fontSize: "1.6rem" }}>{loading ? "..." : total}</strong>
         </div>
         <div className="metric-card">
-          <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Pendentes assinatura</span>
-          <strong style={{ fontSize: "1.6rem", color: "#c4b5fd" }}>{loading ? "..." : pendentes}</strong>
+          <span style={{ fontSize: "0.78rem", color: "#64748b" }}>Pendentes assinatura</span>
+          <strong style={{ fontSize: "1.6rem", color: "#7c3aed" }}>{loading ? "..." : pendentes}</strong>
         </div>
         <div className="metric-card">
-          <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Ativos</span>
-          <strong style={{ fontSize: "1.6rem", color: "#34d399" }}>{loading ? "..." : ativos}</strong>
+          <span style={{ fontSize: "0.78rem", color: "#64748b" }}>Ativos</span>
+          <strong style={{ fontSize: "1.6rem", color: "#059669" }}>{loading ? "..." : ativos}</strong>
         </div>
         <div className="metric-card">
-          <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>Receita</span>
-          <strong style={{ fontSize: "1.6rem", color: "#34d399" }}>
+          <span style={{ fontSize: "0.78rem", color: "#64748b" }}>Receita</span>
+          <strong style={{ fontSize: "1.6rem", color: "#059669" }}>
             {loading ? "..." : formatCurrency(receita)}
           </strong>
         </div>
@@ -304,13 +304,13 @@ function TabDashboard({ contratos, loading }: { contratos: ContratoRow[]; loadin
       <div className="list-panel">
         <div className="list-panel-header">
           <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 700 }}>Contratos recentes</h3>
-          <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
+          <span style={{ fontSize: "0.78rem", color: "#64748b" }}>
             {total > 0 ? `Ultimos ${Math.min(total, 10)} contratos` : ""}
           </span>
         </div>
 
         {loading ? (
-          <div style={{ textAlign: "center", padding: "40px 0", color: "var(--muted)" }}>Carregando...</div>
+          <div style={{ textAlign: "center", padding: "40px 0", color: "#94a3b8" }}>Carregando...</div>
         ) : contratos.length === 0 ? (
           <EmptyState message="Nenhum contrato cadastrado" />
         ) : (
@@ -327,7 +327,7 @@ function TabDashboard({ contratos, loading }: { contratos: ContratoRow[]; loadin
               </thead>
               <tbody>
                 {contratos.slice(0, 10).map((c) => {
-                  const st = S_STATUS[c.status] ?? { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: c.status };
+                  const st = S_STATUS[c.status] ?? { bg: "#f3f4f6", color: "#6b7280", label: c.status };
                   return (
                     <tr key={c.id} style={{ transition: "background 0.1s" }}>
                       <TD>{c.tipo_contrato ?? c.tipo ?? "—"}</TD>
@@ -371,9 +371,9 @@ function TabCatalogo({
           style={{
             padding: "6px 14px",
             borderRadius: 999,
-            border: "1px solid var(--border)",
-            background: catFiltro === "Todos" ? "var(--green-500)" : "var(--panel)",
-            color: catFiltro === "Todos" ? "#fff" : "var(--ink-2)",
+            border: "1px solid #e2e8f0",
+            background: catFiltro === "Todos" ? "#0f172a" : "#fff",
+            color: catFiltro === "Todos" ? "#fff" : "#334155",
             fontSize: "0.8rem",
             fontWeight: 600,
             cursor: "pointer",
@@ -388,8 +388,8 @@ function TabCatalogo({
             style={{
               padding: "6px 14px",
               borderRadius: 999,
-              border: "1px solid var(--border)",
-              background: catFiltro === cat ? CATEGORIA_CORES[cat] : "var(--panel)",
+              border: "1px solid #e2e8f0",
+              background: catFiltro === cat ? CATEGORIA_CORES[cat] : "#fff",
               color: catFiltro === cat ? "#fff" : CATEGORIA_CORES[cat],
               fontSize: "0.8rem",
               fontWeight: 600,
@@ -413,9 +413,9 @@ function TabCatalogo({
           <div
             key={item.slug}
             style={{
-              background: "var(--panel)",
+              background: "#fff",
               borderRadius: 10,
-              border: "1px solid var(--border)",
+              border: "1px solid #e2e8f0",
               overflow: "hidden",
               display: "flex",
               flexDirection: "column",
@@ -427,18 +427,18 @@ function TabCatalogo({
             <div style={{ padding: "16px 16px 14px", flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: "1.3rem" }}>{item.emoji}</span>
-                <strong style={{ fontSize: "0.92rem", color: "var(--ink)" }}>{item.nome}</strong>
+                <strong style={{ fontSize: "0.92rem", color: "#0f172a" }}>{item.nome}</strong>
               </div>
 
-              <p style={{ fontSize: "0.78rem", color: "var(--muted)", margin: 0, lineHeight: 1.45, flex: 1 }}>
+              <p style={{ fontSize: "0.78rem", color: "#64748b", margin: 0, lineHeight: 1.45, flex: 1 }}>
                 {item.descricao}
               </p>
 
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontWeight: 700, fontSize: "0.95rem", color: item.preco === 0 ? "#34d399" : "var(--ink)" }}>
+                <span style={{ fontWeight: 700, fontSize: "0.95rem", color: item.preco === 0 ? "#059669" : "#0f172a" }}>
                   {formatCurrency(item.preco)}
                 </span>
-                <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>~15 min</span>
+                <span style={{ fontSize: "0.72rem", color: "#94a3b8" }}>~15 min</span>
               </div>
 
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 4 }}>
@@ -448,12 +448,12 @@ function TabCatalogo({
                   style={{
                     fontSize: "0.78rem",
                     fontWeight: 600,
-                    color: "var(--ink)",
+                    color: "#0f172a",
                     textDecoration: "none",
                     padding: "5px 12px",
                     borderRadius: 6,
-                    border: "1px solid var(--border)",
-                    background: "var(--panel-2)",
+                    border: "1px solid #e2e8f0",
+                    background: "#f8fafc",
                     cursor: "pointer",
                   }}
                 >

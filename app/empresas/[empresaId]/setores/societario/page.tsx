@@ -101,37 +101,37 @@ const TIPO_LABEL: Record<TipoProcesso, string> = {
 };
 
 const KANBAN_COLS: { id: StatusKanban; label: string; cor: string; bg: string }[] = [
-  { id: "solicitado",   label: "Solicitado",   cor: "var(--muted)", bg: "rgba(148,163,184,0.15)" },
-  { id: "documentacao", label: "Documentação", cor: "#93c5fd", bg: "rgba(96,165,250,0.15)" },
-  { id: "preparacao",   label: "Preparação",   cor: "#c4b5fd", bg: "rgba(196,181,253,0.15)" },
-  { id: "protocolo",    label: "Protocolo",    cor: "#fbbf24", bg: "rgba(251,191,36,0.15)" },
-  { id: "em_analise",   label: "Em análise",   cor: "#67e8f9", bg: "#ecfeff" },
-  { id: "concluido",    label: "Concluído",    cor: "#34d399", bg: "rgba(52,211,153,0.15)" },
+  { id: "solicitado",   label: "Solicitado",   cor: "#6b7280", bg: "#f3f4f6" },
+  { id: "documentacao", label: "Documentação", cor: "#1d4ed8", bg: "#eff6ff" },
+  { id: "preparacao",   label: "Preparação",   cor: "#7c3aed", bg: "#f5f3ff" },
+  { id: "protocolo",    label: "Protocolo",    cor: "#92400e", bg: "#fffbeb" },
+  { id: "em_analise",   label: "Em análise",   cor: "#0e7490", bg: "#ecfeff" },
+  { id: "concluido",    label: "Concluído",    cor: "#065f46", bg: "#f0fdf4" },
 ];
 
 const S_KANBAN: Record<StatusKanban, { bg: string; color: string; label: string }> = {
-  solicitado:   { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: "Solicitado" },
-  documentacao: { bg: "rgba(96,165,250,0.15)", color: "#93c5fd", label: "Documentação" },
-  preparacao:   { bg: "rgba(196,181,253,0.15)", color: "#c4b5fd", label: "Preparação" },
-  protocolo:    { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Protocolo" },
-  em_analise:   { bg: "#ecfeff", color: "#67e8f9", label: "Em análise" },
-  concluido:    { bg: "rgba(52,211,153,0.15)", color: "#34d399", label: "Concluído" },
-  cancelado:    { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Cancelado" },
+  solicitado:   { bg: "#f3f4f6", color: "#6b7280", label: "Solicitado" },
+  documentacao: { bg: "#eff6ff", color: "#1d4ed8", label: "Documentação" },
+  preparacao:   { bg: "#f5f3ff", color: "#7c3aed", label: "Preparação" },
+  protocolo:    { bg: "#fffbeb", color: "#92400e", label: "Protocolo" },
+  em_analise:   { bg: "#ecfeff", color: "#0e7490", label: "Em análise" },
+  concluido:    { bg: "#f0fdf4", color: "#065f46", label: "Concluído" },
+  cancelado:    { bg: "#fef2f2", color: "#b91c1c", label: "Cancelado" },
 };
 
 const S_ALVARA: Record<StatusAlvara, { bg: string; color: string; label: string }> = {
-  valido:      { bg: "rgba(52,211,153,0.15)", color: "#34d399", label: "Válido" },
-  vencendo:    { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Vencendo" },
-  vencido:     { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Vencido" },
-  em_processo: { bg: "rgba(96,165,250,0.15)", color: "#93c5fd", label: "Em processo" },
-  pendente:    { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: "Pendente" },
+  valido:      { bg: "#f0fdf4", color: "#065f46", label: "Válido" },
+  vencendo:    { bg: "#fffbeb", color: "#92400e", label: "Vencendo" },
+  vencido:     { bg: "#fef2f2", color: "#b91c1c", label: "Vencido" },
+  em_processo: { bg: "#eff6ff", color: "#1d4ed8", label: "Em processo" },
+  pendente:    { bg: "#f3f4f6", color: "#6b7280", label: "Pendente" },
 };
 
 const S_CERTIDAO: Record<string, { bg: string; color: string; label: string }> = {
-  valida:     { bg: "rgba(52,211,153,0.15)", color: "#34d399", label: "Válida" },
-  vencendo:   { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Vencendo" },
-  vencida:    { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Vencida" },
-  solicitada: { bg: "rgba(96,165,250,0.15)", color: "#93c5fd", label: "Solicitada" },
+  valida:     { bg: "#f0fdf4", color: "#065f46", label: "Válida" },
+  vencendo:   { bg: "#fffbeb", color: "#92400e", label: "Vencendo" },
+  vencida:    { bg: "#fef2f2", color: "#b91c1c", label: "Vencida" },
+  solicitada: { bg: "#eff6ff", color: "#1d4ed8", label: "Solicitada" },
 };
 
 const TIPOS_CERTIDAO = [
@@ -141,15 +141,15 @@ const TIPOS_CERTIDAO = [
 ];
 
 const S_MARCA: Record<StatusMarca, { bg: string; color: string; label: string }> = {
-  em_preparacao:    { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: "Em preparação" },
-  protocolo_pendente: { bg: "rgba(250,204,21,0.15)", color: "#fbbf24", label: "Protocolo pendente" },
-  depositada:       { bg: "rgba(96,165,250,0.15)", color: "#93c5fd", label: "Depositada" },
-  em_exame:         { bg: "#ecfeff", color: "#67e8f9", label: "Em exame" },
-  oposicao:         { bg: "rgba(251,146,60,0.15)", color: "#fb923c", label: "Oposição" },
-  deferida:         { bg: "rgba(52,211,153,0.15)", color: "#4ade80", label: "Deferida" },
-  registrada:       { bg: "rgba(74,222,128,0.15)", color: "#34d399", label: "Registrada ✓" },
-  arquivada:        { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: "Arquivada" },
-  indeferida:       { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Indeferida" },
+  em_preparacao:    { bg: "#f3f4f6", color: "#6b7280", label: "Em preparação" },
+  protocolo_pendente: { bg: "#fef9c3", color: "#854d0e", label: "Protocolo pendente" },
+  depositada:       { bg: "#eff6ff", color: "#1d4ed8", label: "Depositada" },
+  em_exame:         { bg: "#ecfeff", color: "#0e7490", label: "Em exame" },
+  oposicao:         { bg: "#fff7ed", color: "#c2410c", label: "Oposição" },
+  deferida:         { bg: "#f0fdf4", color: "#15803d", label: "Deferida" },
+  registrada:       { bg: "#dcfce7", color: "#065f46", label: "Registrada ✓" },
+  arquivada:        { bg: "#f3f4f6", color: "#6b7280", label: "Arquivada" },
+  indeferida:       { bg: "#fef2f2", color: "#b91c1c", label: "Indeferida" },
 };
 
 const CLASSES_NCL_COMUNS = [
@@ -186,11 +186,11 @@ function Badge({ bg, color, label }: { bg: string; color: string; label: string 
 }
 
 function TH({ children, right }: { children: React.ReactNode; right?: boolean }) {
-  return <th style={{ textAlign: right ? "right" : "left", padding: "0.7rem 0.875rem", color: "#6b5a3e", fontWeight: 700, fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.5px", borderBottom: "1px solid rgba(251,191,36,0.35)", background: "rgba(251,191,36,0.15)" }}>{children}</th>;
+  return <th style={{ textAlign: right ? "right" : "left", padding: "0.7rem 0.875rem", color: "#6b5a3e", fontWeight: 700, fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.5px", borderBottom: "1px solid #fde68a", background: "#fffbeb" }}>{children}</th>;
 }
 
 function TD({ children, right, muted, bold }: { children: React.ReactNode; right?: boolean; muted?: boolean; bold?: boolean }) {
-  return <td style={{ padding: "0.75rem 0.875rem", textAlign: right ? "right" : "left", color: muted ? "#9ca3af" : "var(--ink)", fontSize: "0.85rem", borderBottom: "1px solid #fef9ec", fontWeight: bold ? 700 : 400 }}>{children}</td>;
+  return <td style={{ padding: "0.75rem 0.875rem", textAlign: right ? "right" : "left", color: muted ? "#9ca3af" : "#07170d", fontSize: "0.85rem", borderBottom: "1px solid #fef9ec", fontWeight: bold ? 700 : 400 }}>{children}</td>;
 }
 
 function diasParaVencer(validade: string): number {
@@ -339,8 +339,8 @@ export default function SocietarioPage() {
   /* ── Loading ── */
   if (loading) {
     return (
-      <SetorShell borda="#fcd34d" cor="#fbbf24" empresaId={empresaId} empresaNome="Empresa" fundo="rgba(251,191,36,0.15)" icone={ICONE} setorNome="Setor Societário" setorResumo="Carregando..." stats={[]}>
-        <div style={{ padding: "3rem", textAlign: "center", color: "#fbbf24", fontSize: "1rem", fontWeight: 700 }}>Carregando...</div>
+      <SetorShell borda="#fcd34d" cor="#92400e" empresaId={empresaId} empresaNome="Empresa" fundo="#fffbeb" icone={ICONE} setorNome="Setor Societário" setorResumo="Carregando..." stats={[]}>
+        <div style={{ padding: "3rem", textAlign: "center", color: "#92400e", fontSize: "1rem", fontWeight: 700 }}>Carregando...</div>
       </SetorShell>
     );
   }
@@ -349,10 +349,10 @@ export default function SocietarioPage() {
   return (
     <SetorShell
       borda="#fcd34d"
-      cor="#fbbf24"
+      cor="#92400e"
       empresaId={empresaId}
       empresaNome="Empresa"
-      fundo="rgba(251,191,36,0.15)"
+      fundo="#fffbeb"
       icone={ICONE}
       setorNome="Setor Societário"
       setorResumo="Processos paralegal: constituição, alterações, encerramento, alvarás e certidões"
@@ -364,7 +364,7 @@ export default function SocietarioPage() {
       ]}
     >
       {/* ── Tabs ── */}
-      <div style={{ background: "var(--panel)", borderRadius: "12px 12px 0 0", border: "1px solid rgba(251,191,36,0.35)", borderBottom: "none" }}>
+      <div style={{ background: "#fff", borderRadius: "12px 12px 0 0", border: "1px solid #fde68a", borderBottom: "none" }}>
         <div style={{ display: "flex", overflowX: "auto", padding: "0 6px" }}>
           {TABS_SOC.map((t) => (
             <button
@@ -372,8 +372,8 @@ export default function SocietarioPage() {
               onClick={() => setTab(t.id)}
               style={{
                 background: "none", border: "none", cursor: "pointer",
-                borderBottom: tab === t.id ? "2px solid #fbbf24" : "2px solid transparent",
-                color: tab === t.id ? "#fbbf24" : "#9ca3af",
+                borderBottom: tab === t.id ? "2px solid #92400e" : "2px solid transparent",
+                color: tab === t.id ? "#92400e" : "#9ca3af",
                 fontWeight: tab === t.id ? 800 : 500,
                 fontSize: "0.8rem", padding: "0.85rem 0.875rem",
                 whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: "0.35rem",
@@ -388,17 +388,17 @@ export default function SocietarioPage() {
         </div>
       </div>
 
-      <div style={{ background: "var(--panel)", border: "1px solid rgba(251,191,36,0.35)", borderTop: "none", borderRadius: "0 0 12px 12px", padding: "1.5rem" }}>
+      <div style={{ background: "#fff", border: "1px solid #fde68a", borderTop: "none", borderRadius: "0 0 12px 12px", padding: "1.5rem" }}>
 
         {/* ════════════ DASHBOARD ════════════ */}
         {tab === "dashboard" && (
           <div style={{ display: "grid", gap: "1.5rem" }}>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
               {[
-                { label: "Processos ativos",    value: processosAtivos,   color: "#fbbf24", bg: "rgba(251,191,36,0.15)" },
-                { label: "Sócios ativos",       value: socios.filter(s => s.status === "ativo").length, color: "#c4b5fd", bg: "rgba(196,181,253,0.15)" },
-                { label: "Certidões",           value: certidoes.length,  color: "#93c5fd", bg: "rgba(96,165,250,0.15)" },
-                { label: "Concluídos",          value: concluidos,        color: "#34d399", bg: "rgba(52,211,153,0.15)" },
+                { label: "Processos ativos",    value: processosAtivos,   color: "#92400e", bg: "#fffbeb" },
+                { label: "Sócios ativos",       value: socios.filter(s => s.status === "ativo").length, color: "#7c3aed", bg: "#f5f3ff" },
+                { label: "Certidões",           value: certidoes.length,  color: "#1d4ed8", bg: "#eff6ff" },
+                { label: "Concluídos",          value: concluidos,        color: "#065f46", bg: "#f0fdf4" },
               ].map((k) => (
                 <div key={k.label} style={{ background: k.bg, border: `1px solid ${k.color}22`, borderTop: `3px solid ${k.color}`, borderRadius: 12, padding: "0.875rem 1rem" }}>
                   <p style={{ margin: "0 0 4px", fontSize: "0.65rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase" }}>{k.label}</p>
@@ -410,7 +410,7 @@ export default function SocietarioPage() {
             {/* Kanban */}
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.875rem" }}>
-                <h2 style={{ margin: 0, fontSize: "0.95rem", fontWeight: 800, color: "var(--ink)" }}>Kanban — Processos</h2>
+                <h2 style={{ margin: 0, fontSize: "0.95rem", fontWeight: 800, color: "#07170d" }}>Kanban — Processos</h2>
                 <button onClick={() => setTab("constituicao")} type="button">+ Novo processo</button>
               </div>
               {processos.length === 0 ? (
@@ -427,8 +427,8 @@ export default function SocietarioPage() {
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                           {itens.map((p) => (
-                            <div key={p.id} onClick={() => setTab("processos")} style={{ background: "var(--panel)", borderRadius: 8, padding: "9px 10px", boxShadow: "0 1px 3px rgba(0,0,0,0.07)", border: "1px solid rgba(148,163,184,0.15)", cursor: "pointer" }}>
-                              <p style={{ margin: "0 0 3px", fontSize: "0.78rem", fontWeight: 700, color: "var(--ink)", lineHeight: 1.3 }}>{p.empresa}</p>
+                            <div key={p.id} onClick={() => setTab("processos")} style={{ background: "#fff", borderRadius: 8, padding: "9px 10px", boxShadow: "0 1px 3px rgba(0,0,0,0.07)", border: "1px solid #f3f4f6", cursor: "pointer" }}>
+                              <p style={{ margin: "0 0 3px", fontSize: "0.78rem", fontWeight: 700, color: "#07170d", lineHeight: 1.3 }}>{p.empresa}</p>
                               <p style={{ margin: 0, fontSize: "0.7rem", color: "#9ca3af" }}>{TIPO_ICONE[p.tipo]} {TIPO_LABEL[p.tipo]}</p>
                             </div>
                           ))}
@@ -448,8 +448,8 @@ export default function SocietarioPage() {
                     <p style={{ textAlign: "center", color: "#9ca3af", padding: "1rem", fontSize: "0.85rem" }}>Nenhum evento registrado</p>
                   ) : log.slice(0, 5).map((entry) => (
                     <div key={entry.id} style={{ padding: "7px 1rem", borderBottom: "1px solid #fef9ec" }}>
-                      <p style={{ margin: "0 0 1px", fontSize: "0.8rem", fontWeight: 700, color: "var(--ink)" }}>{entry.acao}</p>
-                      <p style={{ margin: "0 0 1px", fontSize: "0.75rem", color: "var(--muted)" }}>{entry.detalhe}</p>
+                      <p style={{ margin: "0 0 1px", fontSize: "0.8rem", fontWeight: 700, color: "#07170d" }}>{entry.acao}</p>
+                      <p style={{ margin: "0 0 1px", fontSize: "0.75rem", color: "#6b7280" }}>{entry.detalhe}</p>
                       <p style={{ margin: 0, fontSize: "0.68rem", color: "#9ca3af" }}>{new Date(entry.data).toLocaleString("pt-BR")} - {entry.usuario}</p>
                     </div>
                   ))}
@@ -462,7 +462,7 @@ export default function SocietarioPage() {
                     <p style={{ textAlign: "center", color: "#9ca3af", padding: "1rem", fontSize: "0.85rem" }}>Nenhum documento cadastrado</p>
                   ) : docs.slice(0, 5).map((d) => (
                     <div key={d.id} style={{ padding: "7px 1rem", borderBottom: "1px solid #fef9ec" }}>
-                      <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 700, color: "var(--ink)" }}>{d.nome}</p>
+                      <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 700, color: "#07170d" }}>{d.nome}</p>
                       <p style={{ margin: 0, fontSize: "0.72rem", color: "#9ca3af" }}>{d.tipo}</p>
                     </div>
                   ))}
@@ -504,7 +504,7 @@ export default function SocietarioPage() {
                         <TD><span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: "0.82rem" }}><span>{TIPO_ICONE[p.tipo]}</span><span>{TIPO_LABEL[p.tipo]}</span></span></TD>
                         <TD muted><span style={{ fontFamily: "monospace", fontSize: "0.8rem" }}>{p.protocolo}</span></TD>
                         <TD muted>{p.responsavel}</TD>
-                        <TD>{p.prazo ? <span style={{ fontWeight: 600, color: vencido ? "#f87171" : "#374151", fontSize: "0.82rem" }}>{new Date(p.prazo).toLocaleDateString("pt-BR")}</span> : <span style={{ color: "#9ca3af" }}>—</span>}</TD>
+                        <TD>{p.prazo ? <span style={{ fontWeight: 600, color: vencido ? "#b91c1c" : "#374151", fontSize: "0.82rem" }}>{new Date(p.prazo).toLocaleDateString("pt-BR")}</span> : <span style={{ color: "#9ca3af" }}>—</span>}</TD>
                         <TD><Badge {...S_KANBAN[p.status]} /></TD>
                         <TD right>
                           <select className="input" disabled={p.status === "concluido" || p.status === "cancelado"} onChange={(e) => moverProcesso(p.id, e.target.value as StatusKanban)} style={{ fontSize: "0.73rem", padding: "3px 6px", minWidth: 120, opacity: (p.status === "concluido" || p.status === "cancelado") ? 0.5 : 1 }} value={p.status}>
@@ -531,15 +531,15 @@ export default function SocietarioPage() {
                 return (
                   <div key={etapa} style={{ display: "flex", alignItems: "center", flex: 1, minWidth: 0 }}>
                     <button onClick={() => setConstStep(i + 1)} style={{ flex: 1, textAlign: "center", padding: "0 4px", background: "none", border: "none", cursor: "pointer" }} type="button">
-                      <div style={{ width: 38, height: 38, borderRadius: "50%", margin: "0 auto 5px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.9rem", fontWeight: 800, background: ok ? "#fbbf24" : ativo ? "rgba(251,191,36,0.15)" : "rgba(148,163,184,0.15)", color: ok ? "var(--panel)" : ativo ? "#fbbf24" : "#9ca3af", border: `2px solid ${ok || ativo ? "#fbbf24" : "rgba(148,163,184,0.2)"}` }}>{ok ? "✓" : i + 1}</div>
-                      <span style={{ fontSize: "0.68rem", fontWeight: ativo ? 800 : 400, color: ativo ? "#fbbf24" : "#9ca3af" }}>{etapa}</span>
+                      <div style={{ width: 38, height: 38, borderRadius: "50%", margin: "0 auto 5px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.9rem", fontWeight: 800, background: ok ? "#92400e" : ativo ? "#fffbeb" : "#f3f4f6", color: ok ? "#fff" : ativo ? "#92400e" : "#9ca3af", border: `2px solid ${ok || ativo ? "#92400e" : "#e5e7eb"}` }}>{ok ? "✓" : i + 1}</div>
+                      <span style={{ fontSize: "0.68rem", fontWeight: ativo ? 800 : 400, color: ativo ? "#92400e" : "#9ca3af" }}>{etapa}</span>
                     </button>
-                    {i < 4 && <div style={{ height: 2, width: 20, flex: "0 0 20px", background: ok ? "#fbbf24" : "rgba(148,163,184,0.2)" }} />}
+                    {i < 4 && <div style={{ height: 2, width: 20, flex: "0 0 20px", background: ok ? "#92400e" : "#e5e7eb" }} />}
                   </div>
                 );
               })}
             </div>
-            <div style={{ background: "rgba(251,191,36,0.15)", border: "1px solid rgba(251,191,36,0.35)", borderRadius: 12, padding: "1.5rem" }}>
+            <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 12, padding: "1.5rem" }}>
               {constStep === 1 && !constFinalizado && (
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
                   <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>Nome empresarial *<input className="input" onChange={(e) => setConstNome(e.target.value)} placeholder="Ex: Alfa Comércio Ltda" value={constNome} /></label>
@@ -552,7 +552,7 @@ export default function SocietarioPage() {
               {constStep === 2 && !constFinalizado && (
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                    <p style={{ margin: 0, fontWeight: 800, fontSize: "0.875rem", color: "#fbbf24" }}>Quadro de Sócios</p>
+                    <p style={{ margin: 0, fontWeight: 800, fontSize: "0.875rem", color: "#92400e" }}>Quadro de Sócios</p>
                     <button className="small-action" onClick={() => setConstSocios((prev) => [...prev, { nome: "", cpf: "", quota: "" }])} type="button">+ Sócio</button>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -561,7 +561,7 @@ export default function SocietarioPage() {
                         <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>Nome<input className="input" onChange={(e) => setConstSocios((prev) => prev.map((x, i) => i === idx ? { ...x, nome: e.target.value } : x))} value={s.nome} /></label>
                         <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>CPF<input className="input" onChange={(e) => setConstSocios((prev) => prev.map((x, i) => i === idx ? { ...x, cpf: e.target.value } : x))} value={s.cpf} /></label>
                         <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>Quota %<input className="input" onChange={(e) => setConstSocios((prev) => prev.map((x, i) => i === idx ? { ...x, quota: e.target.value } : x))} value={s.quota} /></label>
-                        <button disabled={constSocios.length <= 1} onClick={() => setConstSocios((prev) => prev.filter((_, i) => i !== idx))} style={{ height: 38, background: "rgba(248,113,113,0.15)", color: "#f87171", border: "1px solid #fca5a5", borderRadius: 8, cursor: "pointer", fontWeight: 800, opacity: constSocios.length <= 1 ? 0.4 : 1 }} type="button">✕</button>
+                        <button disabled={constSocios.length <= 1} onClick={() => setConstSocios((prev) => prev.filter((_, i) => i !== idx))} style={{ height: 38, background: "#fef2f2", color: "#b91c1c", border: "1px solid #fca5a5", borderRadius: 8, cursor: "pointer", fontWeight: 800, opacity: constSocios.length <= 1 ? 0.4 : 1 }} type="button">✕</button>
                       </div>
                     ))}
                   </div>
@@ -576,7 +576,7 @@ export default function SocietarioPage() {
               {constStep === 4 && !constFinalizado && (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
                   {["MEI", "Simples Nacional", "Lucro Presumido", "Lucro Real"].map((r) => (
-                    <button key={r} onClick={() => setConstRegime(r)} style={{ background: constRegime === r ? "#fbbf24" : "var(--panel)", color: constRegime === r ? "var(--panel)" : "#374151", border: `2px solid ${constRegime === r ? "#fbbf24" : "rgba(251,191,36,0.35)"}`, borderRadius: 10, padding: "1rem 0.875rem", cursor: "pointer", fontWeight: 700, fontSize: "0.85rem" }} type="button">{r}</button>
+                    <button key={r} onClick={() => setConstRegime(r)} style={{ background: constRegime === r ? "#92400e" : "#fff", color: constRegime === r ? "#fff" : "#374151", border: `2px solid ${constRegime === r ? "#92400e" : "#fde68a"}`, borderRadius: 10, padding: "1rem 0.875rem", cursor: "pointer", fontWeight: 700, fontSize: "0.85rem" }} type="button">{r}</button>
                   ))}
                 </div>
               )}
@@ -586,18 +586,18 @@ export default function SocietarioPage() {
                     <div>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: "1.25rem" }}>
                         {[{ label: "Nome", value: constNome || "—" }, { label: "Tipo", value: constTipo }, { label: "CNAE", value: constCnae || "—" }, { label: "Capital", value: constCapital ? `R$ ${parseFloat(constCapital).toLocaleString("pt-BR")}` : "—" }, { label: "Regime", value: constRegime }].map((item) => (
-                          <div key={item.label} style={{ padding: "10px 14px", background: "var(--panel)", borderRadius: 8, border: "1px solid rgba(251,191,36,0.35)" }}>
-                            <p style={{ margin: "0 0 2px", fontSize: "0.68rem", fontWeight: 700, color: "#fbbf24", textTransform: "uppercase" }}>{item.label}</p>
-                            <p style={{ margin: 0, fontWeight: 700, fontSize: "0.9rem", color: "#fbbf24" }}>{item.value}</p>
+                          <div key={item.label} style={{ padding: "10px 14px", background: "#fff", borderRadius: 8, border: "1px solid #fde68a" }}>
+                            <p style={{ margin: "0 0 2px", fontSize: "0.68rem", fontWeight: 700, color: "#a16207", textTransform: "uppercase" }}>{item.label}</p>
+                            <p style={{ margin: 0, fontWeight: 700, fontSize: "0.9rem", color: "#92400e" }}>{item.value}</p>
                           </div>
                         ))}
                       </div>
-                      <button disabled={!constNome} onClick={finalizarConst} style={{ opacity: !constNome ? 0.5 : 1, background: "linear-gradient(135deg, #92400e, #b45309)", color: "#ffffff", border: "none", borderRadius: 10, padding: "10px 20px", cursor: "pointer", fontWeight: 800, fontSize: "0.875rem" }} type="button">Iniciar processo de abertura</button>
+                      <button disabled={!constNome} onClick={finalizarConst} style={{ opacity: !constNome ? 0.5 : 1, background: "linear-gradient(135deg, #92400e, #b45309)", color: "#fff", border: "none", borderRadius: 10, padding: "10px 20px", cursor: "pointer", fontWeight: 800, fontSize: "0.875rem" }} type="button">Iniciar processo de abertura</button>
                     </div>
                   ) : (
-                    <div style={{ padding: "1.25rem", background: "rgba(52,211,153,0.15)", border: "1px solid rgba(74,222,128,0.25)", borderRadius: 10 }}>
-                      <strong style={{ color: "#34d399" }}>Processo criado com sucesso!</strong>
-                      <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "var(--muted)" }}>Empresa <strong>{constNome}</strong> adicionada ao kanban.</p>
+                    <div style={{ padding: "1.25rem", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 10 }}>
+                      <strong style={{ color: "#065f46" }}>Processo criado com sucesso!</strong>
+                      <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#6b7280" }}>Empresa <strong>{constNome}</strong> adicionada ao kanban.</p>
                       <button className="small-action" onClick={() => setTab("processos")} style={{ marginTop: 10 }} type="button">→ Ver em Processos</button>
                     </div>
                   )}
@@ -618,7 +618,7 @@ export default function SocietarioPage() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: "1.5rem" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
               <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Nova Alteração Contratual</h2></div>
-              <div style={{ background: "rgba(251,191,36,0.15)", border: "1px solid rgba(251,191,36,0.35)", borderRadius: 12, padding: "1.25rem", display: "flex", flexDirection: "column", gap: 12 }}>
+              <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 12, padding: "1.25rem", display: "flex", flexDirection: "column", gap: 12 }}>
                 <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>Empresa *
                   <select className="input" onChange={(e) => setAltEmp(e.target.value)} value={altEmp}><option value="">Selecione...</option>{[...new Set(processos.map((p) => p.empresa))].map((e) => <option key={e}>{e}</option>)}</select>
                 </label>
@@ -653,15 +653,15 @@ export default function SocietarioPage() {
         {tab === "encerramento" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
             <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Processo de Encerramento</h2></div>
-            <div style={{ background: "rgba(248,113,113,0.15)", border: "1px solid #fca5a5", borderRadius: 12, padding: "1.5rem" }}>
+            <div style={{ background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 12, padding: "1.5rem" }}>
               <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#7f1d1d" }}>Empresa a encerrar *
                 <select className="input" onChange={(e) => setEncerrEmp(e.target.value)} value={encerrEmp}><option value="">Selecione...</option>{[...new Set(processos.map((p) => p.empresa))].map((e) => <option key={e}>{e}</option>)}</select>
               </label>
-              <div style={{ padding: "10px 14px", background: "var(--panel)", border: "1px solid #fca5a5", borderRadius: 8, marginTop: 12 }}>
-                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 700, color: "#f87171" }}>Atenção</p>
+              <div style={{ padding: "10px 14px", background: "#fff", border: "1px solid #fca5a5", borderRadius: 8, marginTop: 12 }}>
+                <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 700, color: "#b91c1c" }}>Atenção</p>
                 <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "#7f1d1d" }}>O processo de encerramento é irreversível após o registro na Junta Comercial.</p>
               </div>
-              <button disabled={!encerrEmp} onClick={() => { novoProcesso("baixa", encerrEmp); audit("Processo de baixa criado", "Encerramento", encerrEmp); }} style={{ marginTop: 12, opacity: !encerrEmp ? 0.5 : 1, background: "linear-gradient(135deg, #b91c1c, #dc2626)", color: "#ffffff", border: "none", borderRadius: 10, padding: "10px 20px", cursor: "pointer", fontWeight: 800 }} type="button">Iniciar baixa</button>
+              <button disabled={!encerrEmp} onClick={() => { novoProcesso("baixa", encerrEmp); audit("Processo de baixa criado", "Encerramento", encerrEmp); }} style={{ marginTop: 12, opacity: !encerrEmp ? 0.5 : 1, background: "linear-gradient(135deg, #b91c1c, #dc2626)", color: "#fff", border: "none", borderRadius: 10, padding: "10px 20px", cursor: "pointer", fontWeight: 800 }} type="button">Iniciar baixa</button>
             </div>
           </div>
         )}
@@ -684,7 +684,7 @@ export default function SocietarioPage() {
                       <TD bold>{a.empresa}</TD><TD>{a.tipo}</TD>
                       <TD muted><span style={{ fontFamily: "monospace", fontSize: "0.78rem" }}>{a.numero}</span></TD>
                       <TD muted>{a.orgao}</TD>
-                      <TD>{a.validade !== "—" ? <span style={{ fontWeight: 600, color: diasParaVencer(a.validade) <= 30 ? "#f87171" : "#374151", fontSize: "0.82rem" }}>{new Date(a.validade).toLocaleDateString("pt-BR")}</span> : <span style={{ color: "#9ca3af" }}>—</span>}</TD>
+                      <TD>{a.validade !== "—" ? <span style={{ fontWeight: 600, color: diasParaVencer(a.validade) <= 30 ? "#b91c1c" : "#374151", fontSize: "0.82rem" }}>{new Date(a.validade).toLocaleDateString("pt-BR")}</span> : <span style={{ color: "#9ca3af" }}>—</span>}</TD>
                       <TD><Badge {...S_ALVARA[a.status]} /></TD>
                       <TD right><button className="small-action" onClick={() => audit("Renovação solicitada", "Alvarás", `${a.tipo} — ${a.empresa}`)} type="button">Renovar</button></TD>
                     </tr>
@@ -704,8 +704,8 @@ export default function SocietarioPage() {
             </div>
 
             {/* Formulário nova certidão */}
-            <div style={{ background: "rgba(251,191,36,0.15)", border: "1px solid rgba(251,191,36,0.35)", borderRadius: 12, padding: "1.25rem" }}>
-              <p style={{ margin: "0 0 12px", fontWeight: 800, fontSize: "0.875rem", color: "#fbbf24" }}>Registrar certidão</p>
+            <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 12, padding: "1.25rem" }}>
+              <p style={{ margin: "0 0 12px", fontWeight: 800, fontSize: "0.875rem", color: "#92400e" }}>Registrar certidão</p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10 }}>
                 <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>Tipo *
                   <select className="input" value={novaCertTipo} onChange={e => setNovaCertTipo(e.target.value)}>{TIPOS_CERTIDAO.map(t => <option key={t}>{t}</option>)}</select>
@@ -748,7 +748,7 @@ export default function SocietarioPage() {
                         <TD bold>{c.tipo}</TD><TD muted>{c.orgao}</TD>
                         <TD muted><span style={{ fontFamily: "monospace", fontSize: "0.78rem" }}>{c.numero}</span></TD>
                         <TD muted>{c.emissao !== "—" ? new Date(c.emissao).toLocaleDateString("pt-BR") : "—"}</TD>
-                        <TD>{c.validade !== "—" ? <span style={{ fontWeight: 600, color: dias <= 0 ? "#f87171" : dias <= 30 ? "#fbbf24" : "#374151" }}>{new Date(c.validade).toLocaleDateString("pt-BR")}{dias > 0 && dias <= 60 && <span style={{ fontSize: "0.7rem", color: "#9ca3af" }}> ({dias}d)</span>}</span> : "—"}</TD>
+                        <TD>{c.validade !== "—" ? <span style={{ fontWeight: 600, color: dias <= 0 ? "#b91c1c" : dias <= 30 ? "#92400e" : "#374151" }}>{new Date(c.validade).toLocaleDateString("pt-BR")}{dias > 0 && dias <= 60 && <span style={{ fontSize: "0.7rem", color: "#9ca3af" }}> ({dias}d)</span>}</span> : "—"}</TD>
                         <TD><Badge {...(S_CERTIDAO[c.status] ?? S_CERTIDAO.solicitada)} /></TD>
                         <TD right>
                           <button className="small-action" onClick={() => { audit("Renovação solicitada", "Certidões", c.tipo); setCertidoes(prev => prev.map(x => x.id === c.id ? { ...x, status: "solicitada" } : x)); }} type="button">Renovar</button>
@@ -770,17 +770,17 @@ export default function SocietarioPage() {
 
             {/* KPIs */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
-              <div style={{ background: "rgba(251,191,36,0.15)", border: "1px solid rgba(251,191,36,0.35)", borderTop: "3px solid #fbbf24", borderRadius: 12, padding: "0.875rem 1rem" }}>
+              <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderTop: "3px solid #92400e", borderRadius: 12, padding: "0.875rem 1rem" }}>
                 <p style={{ margin: "0 0 4px", fontSize: "0.65rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase" }}>Sócios ativos</p>
-                <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: 900, color: "#fbbf24" }}>{socios.filter(s => s.status === "ativo").length}</p>
+                <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: 900, color: "#92400e" }}>{socios.filter(s => s.status === "ativo").length}</p>
               </div>
-              <div style={{ background: "rgba(52,211,153,0.15)", border: "1px solid #86efac", borderTop: "3px solid #34d399", borderRadius: 12, padding: "0.875rem 1rem" }}>
+              <div style={{ background: "#f0fdf4", border: "1px solid #86efac", borderTop: "3px solid #065f46", borderRadius: 12, padding: "0.875rem 1rem" }}>
                 <p style={{ margin: "0 0 4px", fontSize: "0.65rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase" }}>Administradores</p>
-                <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: 900, color: "#34d399" }}>{socios.filter(s => s.status === "ativo" && s.administrador).length}</p>
+                <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: 900, color: "#065f46" }}>{socios.filter(s => s.status === "ativo" && s.administrador).length}</p>
               </div>
-              <div style={{ background: "rgba(96,165,250,0.15)", border: "1px solid #93c5fd", borderTop: "3px solid #93c5fd", borderRadius: 12, padding: "0.875rem 1rem" }}>
+              <div style={{ background: "#eff6ff", border: "1px solid #93c5fd", borderTop: "3px solid #1d4ed8", borderRadius: 12, padding: "0.875rem 1rem" }}>
                 <p style={{ margin: "0 0 4px", fontSize: "0.65rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase" }}>Participação total</p>
-                <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: 900, color: "#93c5fd" }}>{socios.filter(s => s.status === "ativo").reduce((s, x) => s + x.participacao, 0).toFixed(1)}%</p>
+                <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: 900, color: "#1d4ed8" }}>{socios.filter(s => s.status === "ativo").reduce((s, x) => s + x.participacao, 0).toFixed(1)}%</p>
               </div>
             </div>
 
@@ -792,10 +792,10 @@ export default function SocietarioPage() {
                   {socios.map(s => (
                     <tr key={s.id}>
                       <TD bold>{s.nome}</TD><TD muted>{s.cpf}</TD>
-                      <TD right><span style={{ fontWeight: 800, fontSize: "1rem", color: "#fbbf24" }}>{s.participacao}%</span></TD>
-                      <TD>{s.administrador ? <Badge bg="rgba(52,211,153,0.15)" color="#34d399" label="Sim" /> : <span style={{ color: "#9ca3af", fontSize: "0.82rem" }}>Não</span>}</TD>
+                      <TD right><span style={{ fontWeight: 800, fontSize: "1rem", color: "#92400e" }}>{s.participacao}%</span></TD>
+                      <TD>{s.administrador ? <Badge bg="#f0fdf4" color="#065f46" label="Sim" /> : <span style={{ color: "#9ca3af", fontSize: "0.82rem" }}>Não</span>}</TD>
                       <TD muted>{s.dataEntrada ? new Date(s.dataEntrada).toLocaleDateString("pt-BR") : "—"}</TD>
-                      <TD><Badge {...(s.status === "ativo" ? { bg: "rgba(52,211,153,0.15)", color: "#34d399", label: "Ativo" } : { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: "Retirado" })} /></TD>
+                      <TD><Badge {...(s.status === "ativo" ? { bg: "#f0fdf4", color: "#065f46", label: "Ativo" } : { bg: "#f3f4f6", color: "#6b7280", label: "Retirado" })} /></TD>
                       <TD right>
                         {s.status === "ativo" && <button className="small-action" onClick={() => { setSocios(prev => prev.map(x => x.id === s.id ? { ...x, status: "retirado" } : x)); audit("Sócio retirado", "Quadro Societário", s.nome); }} type="button">Retirar</button>}
                       </TD>
@@ -806,8 +806,8 @@ export default function SocietarioPage() {
             )}
 
             {/* Adicionar sócio */}
-            <div style={{ background: "rgba(251,191,36,0.15)", border: "1px solid rgba(251,191,36,0.35)", borderRadius: 12, padding: "1.25rem" }}>
-              <p style={{ margin: "0 0 12px", fontWeight: 800, fontSize: "0.875rem", color: "#fbbf24" }}>Adicionar novo sócio</p>
+            <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 12, padding: "1.25rem" }}>
+              <p style={{ margin: "0 0 12px", fontWeight: 800, fontSize: "0.875rem", color: "#92400e" }}>Adicionar novo sócio</p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 160px 100px auto", gap: 10, alignItems: "end" }}>
                 <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>Nome *<input className="input" value={novoSocNome} onChange={e => setNovoSocNome(e.target.value)} placeholder="Nome completo" /></label>
                 <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>CPF *<input className="input" value={novoSocCpf} onChange={e => setNovoSocCpf(e.target.value)} placeholder="000.000.000-00" /></label>
@@ -832,8 +832,8 @@ export default function SocietarioPage() {
             <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#9ca3af" }}>{procuracoes.filter(p => p.status === "ativa").length} ativa(s) · {procuracoes.length} total</p></div>
 
             {/* Nova procuração */}
-            <div style={{ background: "rgba(251,191,36,0.15)", border: "1px solid rgba(251,191,36,0.35)", borderRadius: 12, padding: "1.25rem" }}>
-              <p style={{ margin: "0 0 12px", fontWeight: 800, fontSize: "0.875rem", color: "#fbbf24" }}>Nova procuração</p>
+            <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 12, padding: "1.25rem" }}>
+              <p style={{ margin: "0 0 12px", fontWeight: 800, fontSize: "0.875rem", color: "#92400e" }}>Nova procuração</p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
                 <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>Outorgado (procurador) *<input className="input" value={novaProcOutorgado} onChange={e => setNovaProcOutorgado(e.target.value)} placeholder="Nome do procurador" /></label>
                 <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: "0.75rem", fontWeight: 700, color: "#6b5a3e" }}>Tipo
@@ -871,8 +871,8 @@ export default function SocietarioPage() {
                         <TD bold>{p.outorgado}</TD><TD muted>{p.tipo}</TD>
                         <TD muted><span style={{ fontSize: "0.78rem", maxWidth: 200, display: "inline-block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.poderes}</span></TD>
                         <TD muted>{new Date(p.dataInicio).toLocaleDateString("pt-BR")}</TD>
-                        <TD>{p.dataFim ? <span style={{ fontWeight: 600, color: vencida ? "#f87171" : "#374151" }}>{new Date(p.dataFim).toLocaleDateString("pt-BR")}</span> : <span style={{ color: "#9ca3af" }}>Indeterminada</span>}</TD>
-                        <TD><Badge {...(statusReal === "ativa" ? { bg: "rgba(52,211,153,0.15)", color: "#34d399", label: "Ativa" } : statusReal === "vencida" ? { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Vencida" } : { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: "Revogada" })} /></TD>
+                        <TD>{p.dataFim ? <span style={{ fontWeight: 600, color: vencida ? "#b91c1c" : "#374151" }}>{new Date(p.dataFim).toLocaleDateString("pt-BR")}</span> : <span style={{ color: "#9ca3af" }}>Indeterminada</span>}</TD>
+                        <TD><Badge {...(statusReal === "ativa" ? { bg: "#f0fdf4", color: "#065f46", label: "Ativa" } : statusReal === "vencida" ? { bg: "#fef2f2", color: "#b91c1c", label: "Vencida" } : { bg: "#f3f4f6", color: "#6b7280", label: "Revogada" })} /></TD>
                         <TD right>
                           {statusReal === "ativa" && <button className="small-action" onClick={() => { setProcuracoes(prev => prev.map(x => x.id === p.id ? { ...x, status: "revogada" } : x)); audit("Procuração revogada", "Procurações", p.outorgado); }} type="button">Revogar</button>}
                         </TD>
@@ -890,7 +890,7 @@ export default function SocietarioPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Documentos Societários</h2><p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#9ca3af" }}>{docs.length} documentos</p></div>
-              <label style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "0.5rem 1rem", background: "linear-gradient(135deg, #92400e, #b45309)", color: "#ffffff", borderRadius: 8, fontSize: "0.82rem", fontWeight: 700, cursor: "pointer" }}>
+              <label style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "0.5rem 1rem", background: "linear-gradient(135deg, #92400e, #b45309)", color: "#fff", borderRadius: 8, fontSize: "0.82rem", fontWeight: 700, cursor: "pointer" }}>
                 Enviar documento
                 <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xml,.zip" style={{ display: "none" }} onChange={e => {
                   Array.from(e.target.files ?? []).forEach(f => {
@@ -910,16 +910,16 @@ export default function SocietarioPage() {
 
             {/* Drag-and-drop */}
             <div
-              onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#fbbf24"; }}
-              onDragLeave={e => { e.currentTarget.style.borderColor = "rgba(251,191,36,0.35)"; }}
-              onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor = "rgba(251,191,36,0.35)"; Array.from(e.dataTransfer.files).forEach(f => {
+              onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#92400e"; }}
+              onDragLeave={e => { e.currentTarget.style.borderColor = "#fde68a"; }}
+              onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#fde68a"; Array.from(e.dataTransfer.files).forEach(f => {
                 setDocumentos(prev => [...prev, { id: crypto.randomUUID(), nome: f.name, tipo: f.name.split(".").pop()?.toUpperCase() || "PDF", processoId: "", upload: new Date().toISOString().slice(0, 10), tamanho: `${(f.size / 1024).toFixed(0)} KB`, status: "ok", fileName: f.name, file: f }]);
                 audit("Documento enviado", "Documentos", f.name);
               }); }}
               onClick={() => { const inp = document.createElement("input"); inp.type = "file"; inp.multiple = true; inp.accept = ".pdf,.jpg,.jpeg,.png,.doc,.docx,.xml,.zip"; inp.onchange = (ev) => { Array.from((ev.target as HTMLInputElement).files ?? []).forEach(f => { setDocumentos(prev => [...prev, { id: crypto.randomUUID(), nome: f.name, tipo: f.name.split(".").pop()?.toUpperCase() || "PDF", processoId: "", upload: new Date().toISOString().slice(0, 10), tamanho: `${(f.size / 1024).toFixed(0)} KB`, status: "ok", fileName: f.name, file: f }]); audit("Documento enviado", "Documentos", f.name); }); }; inp.click(); }}
-              style={{ border: "2px dashed rgba(251,191,36,0.35)", borderRadius: 10, padding: 24, textAlign: "center", cursor: "pointer", background: "rgba(251,191,36,0.15)", transition: "border-color 0.2s" }}
+              style={{ border: "2px dashed #fde68a", borderRadius: 10, padding: 24, textAlign: "center", cursor: "pointer", background: "#fffbeb", transition: "border-color 0.2s" }}
             >
-              <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#fbbf24", marginBottom: 4 }}>Arraste documentos aqui ou clique para selecionar</div>
+              <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#92400e", marginBottom: 4 }}>Arraste documentos aqui ou clique para selecionar</div>
               <div style={{ fontSize: "0.72rem", color: "#9ca3af" }}>Contrato social, atas, procurações, certidões — PDF, imagens, Word</div>
             </div>
 
@@ -934,7 +934,7 @@ export default function SocietarioPage() {
                       <TD bold>{d.nome}</TD><TD muted>{d.tipo}</TD>
                       <TD muted>{d.upload !== "—" ? new Date(d.upload).toLocaleDateString("pt-BR") : "Aguardando"}</TD>
                       <TD muted>{d.tamanho}</TD>
-                      <TD><Badge {...(d.status === "ok" ? { bg: "rgba(52,211,153,0.15)", color: "#34d399", label: "OK" } : d.status === "pendente" ? { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Pendente" } : { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Revisão" })} /></TD>
+                      <TD><Badge {...(d.status === "ok" ? { bg: "#f0fdf4", color: "#065f46", label: "OK" } : d.status === "pendente" ? { bg: "#fffbeb", color: "#92400e", label: "Pendente" } : { bg: "#fef2f2", color: "#b91c1c", label: "Revisão" })} /></TD>
                       <TD right><button className="small-action" onClick={() => { setDocumentos(prev => prev.filter(x => x.id !== d.id)); audit("Documento removido", "Documentos", d.nome); }} type="button">Remover</button></TD>
                     </tr>
                   ))}
@@ -951,12 +951,12 @@ export default function SocietarioPage() {
             {/* Header */}
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
               <div>
-                <h2 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 800, color: "var(--ink)" }}>Marcas INPI</h2>
+                <h2 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 800, color: "#07170d" }}>Marcas INPI</h2>
                 <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#9ca3af" }}>Registro e acompanhamento de marcas junto ao Instituto Nacional da Propriedade Industrial</p>
               </div>
               <button
                 onClick={() => setShowFormMarca(true)}
-                style={{ background: "#34d399", color: "#ffffff", border: "none", borderRadius: 8, padding: "0.55rem 1.2rem", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem" }}
+                style={{ background: "#065f46", color: "#fff", border: "none", borderRadius: 8, padding: "0.55rem 1.2rem", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem" }}
                 type="button"
               >
                 + Nova Marca
@@ -966,21 +966,21 @@ export default function SocietarioPage() {
             {/* KPIs */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
               {[
-                { label: "Total",        value: marcas.length,                                                                    color: "#374151", bg: "var(--panel-2)" },
-                { label: "Registradas",  value: marcas.filter(m => m.status === "registrada").length,                            color: "#34d399", bg: "rgba(52,211,153,0.15)" },
-                { label: "Em andamento", value: marcas.filter(m => ["depositada","em_exame","deferida"].includes(m.status)).length, color: "#93c5fd", bg: "rgba(96,165,250,0.15)" },
-                { label: "Atenção",      value: marcas.filter(m => ["oposicao","indeferida"].includes(m.status)).length,          color: "#f87171", bg: "rgba(248,113,113,0.15)" },
+                { label: "Total",        value: marcas.length,                                                                    color: "#374151", bg: "#f9fafb" },
+                { label: "Registradas",  value: marcas.filter(m => m.status === "registrada").length,                            color: "#065f46", bg: "#f0fdf4" },
+                { label: "Em andamento", value: marcas.filter(m => ["depositada","em_exame","deferida"].includes(m.status)).length, color: "#1d4ed8", bg: "#eff6ff" },
+                { label: "Atenção",      value: marcas.filter(m => ["oposicao","indeferida"].includes(m.status)).length,          color: "#b91c1c", bg: "#fef2f2" },
               ].map((k) => (
                 <div key={k.label} style={{ background: k.bg, border: `1px solid ${k.color}22`, borderRadius: 10, padding: "0.9rem 1rem" }}>
                   <div style={{ fontSize: "1.6rem", fontWeight: 800, color: k.color }}>{k.value}</div>
-                  <div style={{ fontSize: "0.72rem", color: "var(--muted)", marginTop: 2 }}>{k.label}</div>
+                  <div style={{ fontSize: "0.72rem", color: "#6b7280", marginTop: 2 }}>{k.label}</div>
                 </div>
               ))}
             </div>
 
             {/* Formulário nova marca */}
             {showFormMarca && (
-              <div style={{ background: "var(--panel-2)", border: "1px solid rgba(148,163,184,0.2)", borderRadius: 12, padding: "1.5rem" }}>
+              <div style={{ background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 12, padding: "1.5rem" }}>
                 <h3 style={{ margin: "0 0 1rem", fontSize: "0.95rem", fontWeight: 800 }}>Registrar nova marca</h3>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.875rem" }}>
                   <div style={{ gridColumn: "1/-1" }}>
@@ -1029,7 +1029,7 @@ export default function SocietarioPage() {
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.25rem", justifyContent: "flex-end" }}>
-                  <button onClick={() => setShowFormMarca(false)} style={{ background: "rgba(148,163,184,0.15)", color: "#374151", border: "none", borderRadius: 8, padding: "0.55rem 1.2rem", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }} type="button">Cancelar</button>
+                  <button onClick={() => setShowFormMarca(false)} style={{ background: "#f3f4f6", color: "#374151", border: "none", borderRadius: 8, padding: "0.55rem 1.2rem", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }} type="button">Cancelar</button>
                   <button
                     onClick={() => {
                       if (!novaMarcaNome.trim()) return alert("Informe o nome da marca.");
@@ -1057,7 +1057,7 @@ export default function SocietarioPage() {
                       setNovaMarcaDeposito(""); setNovaMarcaPedido(""); setNovaMarcaObs("");
                       setShowFormMarca(false);
                     }}
-                    style={{ background: "#34d399", color: "#ffffff", border: "none", borderRadius: 8, padding: "0.55rem 1.4rem", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
+                    style={{ background: "#065f46", color: "#fff", border: "none", borderRadius: 8, padding: "0.55rem 1.4rem", fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}
                     type="button"
                   >
                     Salvar marca
@@ -1068,13 +1068,13 @@ export default function SocietarioPage() {
 
             {/* Tabela de marcas */}
             {marcas.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "3rem 2rem", background: "var(--panel-2)", borderRadius: 12, border: "2px dashed rgba(148,163,184,0.2)" }}>
+              <div style={{ textAlign: "center", padding: "3rem 2rem", background: "#f9fafb", borderRadius: 12, border: "2px dashed #e5e7eb" }}>
                 <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>™</div>
                 <div style={{ fontWeight: 700, color: "#374151", marginBottom: 4 }}>Nenhuma marca registrada</div>
                 <div style={{ fontSize: "0.82rem", color: "#9ca3af" }}>Clique em "Nova Marca" para iniciar o acompanhamento de um pedido junto ao INPI.</div>
               </div>
             ) : (
-              <div style={{ overflowX: "auto", borderRadius: 10, border: "1px solid rgba(251,191,36,0.35)" }}>
+              <div style={{ overflowX: "auto", borderRadius: 10, border: "1px solid #fde68a" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
                   <thead>
                     <tr>
@@ -1112,7 +1112,7 @@ export default function SocietarioPage() {
                                 setMarcas(prev => prev.map(x => x.id === m.id ? { ...x, status: prox } : x));
                                 audit("Status atualizado", "Marcas INPI", `${m.nome}: ${S_MARCA[m.status].label} → ${S_MARCA[prox].label}`);
                               }}
-                              style={{ background: "rgba(52,211,153,0.15)", color: "#34d399", border: "1px solid rgba(74,222,128,0.25)", borderRadius: 6, padding: "3px 10px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", marginRight: 6 }}
+                              style={{ background: "#f0fdf4", color: "#065f46", border: "1px solid #bbf7d0", borderRadius: 6, padding: "3px 10px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", marginRight: 6 }}
                               title="Avançar para próxima etapa"
                               type="button"
                             >
@@ -1126,7 +1126,7 @@ export default function SocietarioPage() {
                                 audit("Marca removida", "Marcas INPI", m.nome);
                               }
                             }}
-                            style={{ background: "rgba(248,113,113,0.15)", color: "#f87171", border: "1px solid rgba(248,113,113,0.35)", borderRadius: 6, padding: "3px 10px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer" }}
+                            style={{ background: "#fef2f2", color: "#b91c1c", border: "1px solid #fecaca", borderRadius: 6, padding: "3px 10px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer" }}
                             type="button"
                           >
                             Remover
@@ -1140,9 +1140,9 @@ export default function SocietarioPage() {
             )}
 
             {/* Informativo INPI */}
-            <div style={{ background: "rgba(96,165,250,0.15)", border: "1px solid rgba(96,165,250,0.35)", borderRadius: 10, padding: "1rem 1.25rem" }}>
-              <div style={{ fontWeight: 700, fontSize: "0.83rem", color: "#93c5fd", marginBottom: "0.4rem" }}>ℹ️ Sobre o registro de marcas no Brasil</div>
-              <div style={{ fontSize: "0.78rem", color: "#93c5fd", lineHeight: 1.65 }}>
+            <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 10, padding: "1rem 1.25rem" }}>
+              <div style={{ fontWeight: 700, fontSize: "0.83rem", color: "#1d4ed8", marginBottom: "0.4rem" }}>ℹ️ Sobre o registro de marcas no Brasil</div>
+              <div style={{ fontSize: "0.78rem", color: "#1e40af", lineHeight: 1.65 }}>
                 O prazo médio de análise pelo INPI é de <strong>18 a 36 meses</strong>. O registro concedido tem validade de <strong>10 anos</strong>, renovável por igual período.
                 Após o depósito, a marca entra em exame formal e técnico. Caso não haja oposição de terceiros na fase de publicação,
                 o pedido é deferido e o certificado emitido. Acompanhe regularmente a Revista da Propriedade Industrial (RPI).
@@ -1166,8 +1166,8 @@ export default function SocietarioPage() {
                     <tr key={entry.id}>
                       <TD muted><span style={{ fontFamily: "monospace", fontSize: "0.78rem" }}>{new Date(entry.data).toLocaleString("pt-BR")}</span></TD>
                       <TD><span style={{ fontSize: "0.82rem", fontWeight: 600 }}>{entry.usuario}</span></TD>
-                      <TD><span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#fbbf24" }}>{entry.acao}</span></TD>
-                      <TD muted><span style={{ fontSize: "0.72rem", fontWeight: 700, background: "rgba(251,191,36,0.15)", color: "#fbbf24", borderRadius: 999, padding: "2px 8px" }}>{entry.modulo}</span></TD>
+                      <TD><span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#92400e" }}>{entry.acao}</span></TD>
+                      <TD muted><span style={{ fontSize: "0.72rem", fontWeight: 700, background: "#fffbeb", color: "#92400e", borderRadius: 999, padding: "2px 8px" }}>{entry.modulo}</span></TD>
                       <TD muted>{entry.detalhe}</TD>
                     </tr>
                   ))}

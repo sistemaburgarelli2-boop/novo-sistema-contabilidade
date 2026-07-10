@@ -54,31 +54,31 @@ const ICONE = (
 /* ─── Configurações visuais ───────────────────────────────────── */
 
 const S_FUNC: Record<StatusFunc, { bg: string; color: string; label: string }> = {
-  ativo:     { bg: "rgba(52,211,153,0.15)", color: "#4ade80", label: "Ativo" },
-  ferias:    { bg: "rgba(96,165,250,0.15)", color: "#93c5fd", label: "Férias" },
-  afastado:  { bg: "rgba(251,146,60,0.15)", color: "#fb923c", label: "Afastado" },
-  desligado: { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Desligado" },
+  ativo:     { bg: "#f0fdf4", color: "#166534", label: "Ativo" },
+  ferias:    { bg: "#eff6ff", color: "#1d4ed8", label: "Férias" },
+  afastado:  { bg: "#fff7ed", color: "#c2410c", label: "Afastado" },
+  desligado: { bg: "#fef2f2", color: "#b91c1c", label: "Desligado" },
 };
 
 const S_FERIAS: Record<StatusFerias, { bg: string; color: string; label: string }> = {
-  solicitada: { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Solicitada" },
-  aprovada:   { bg: "rgba(96,165,250,0.15)", color: "#93c5fd", label: "Aprovada" },
-  programada: { bg: "rgba(232,121,249,0.15)", color: "#7e22ce", label: "Programada" },
-  concluida:  { bg: "rgba(52,211,153,0.15)", color: "#4ade80", label: "Concluída" },
+  solicitada: { bg: "#fffbeb", color: "#92400e", label: "Solicitada" },
+  aprovada:   { bg: "#eff6ff", color: "#1d4ed8", label: "Aprovada" },
+  programada: { bg: "#fdf4ff", color: "#7e22ce", label: "Programada" },
+  concluida:  { bg: "#f0fdf4", color: "#166534", label: "Concluída" },
 };
 
 const S_ESOCIAL: Record<StatusEsocial, { bg: string; color: string; label: string }> = {
-  fila:         { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Na fila" },
-  processando:  { bg: "rgba(96,165,250,0.15)", color: "#93c5fd", label: "Processando" },
-  transmitido:  { bg: "rgba(52,211,153,0.15)", color: "#4ade80", label: "Transmitido" },
-  erro:         { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Erro" },
+  fila:         { bg: "#fffbeb", color: "#92400e", label: "Na fila" },
+  processando:  { bg: "#eff6ff", color: "#1d4ed8", label: "Processando" },
+  transmitido:  { bg: "#f0fdf4", color: "#166534", label: "Transmitido" },
+  erro:         { bg: "#fef2f2", color: "#b91c1c", label: "Erro" },
 };
 
 const S_ADM: Record<StatusAdmissao, { bg: string; color: string; label: string }> = {
-  pendente:   { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Pendente" },
-  conferindo: { bg: "rgba(96,165,250,0.15)", color: "#93c5fd", label: "Conferindo" },
-  enviado:    { bg: "rgba(232,121,249,0.15)", color: "#7e22ce", label: "Enviado" },
-  concluido:  { bg: "rgba(52,211,153,0.15)", color: "#4ade80", label: "Concluído" },
+  pendente:   { bg: "#fffbeb", color: "#92400e", label: "Pendente" },
+  conferindo: { bg: "#eff6ff", color: "#1d4ed8", label: "Conferindo" },
+  enviado:    { bg: "#fdf4ff", color: "#7e22ce", label: "Enviado" },
+  concluido:  { bg: "#f0fdf4", color: "#166534", label: "Concluído" },
 };
 
 const TABS_DP = [
@@ -103,7 +103,7 @@ function fmt(v: number) {
 function Avatar({ nome, size = 34, bg = "linear-gradient(135deg,#7c3aed,#6b21a8)" }: { nome: string; size?: number; bg?: string }) {
   const initials = nome.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
   return (
-    <div style={{ width: size, height: size, borderRadius: "50%", background: bg, color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.3, fontWeight: 800, flexShrink: 0 }}>
+    <div style={{ width: size, height: size, borderRadius: "50%", background: bg, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.3, fontWeight: 800, flexShrink: 0 }}>
       {initials}
     </div>
   );
@@ -114,15 +114,15 @@ function Badge({ bg, color, label }: { bg: string; color: string; label: string 
 }
 
 function TH({ children, right }: { children: React.ReactNode; right?: boolean }) {
-  return <th style={{ textAlign: right ? "right" : "left", padding: "0.7rem 0.875rem", color: "var(--muted)", fontWeight: 700, fontSize: "0.73rem", textTransform: "uppercase", letterSpacing: "0.5px", borderBottom: "1px solid #e8e4f7" }}>{children}</th>;
+  return <th style={{ textAlign: right ? "right" : "left", padding: "0.7rem 0.875rem", color: "#6f8f7c", fontWeight: 700, fontSize: "0.73rem", textTransform: "uppercase", letterSpacing: "0.5px", borderBottom: "1px solid #e8e4f7" }}>{children}</th>;
 }
 
 function TD({ children, right, muted }: { children: React.ReactNode; right?: boolean; muted?: boolean }) {
-  return <td style={{ padding: "0.8rem 0.875rem", textAlign: right ? "right" : "left", color: muted ? "var(--muted)" : "var(--ink)", fontSize: "0.875rem", borderBottom: "1px solid rgba(196,181,253,0.15)" }}>{children}</td>;
+  return <td style={{ padding: "0.8rem 0.875rem", textAlign: right ? "right" : "left", color: muted ? "#6f8f7c" : "#07170d", fontSize: "0.875rem", borderBottom: "1px solid #f5f3ff" }}>{children}</td>;
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <p style={{ margin: "0 0 1rem", fontSize: "0.68rem", fontWeight: 900, color: "#c4b5fd", letterSpacing: "2px", textTransform: "uppercase" }}>{children}</p>;
+  return <p style={{ margin: "0 0 1rem", fontSize: "0.68rem", fontWeight: 900, color: "#7c3aed", letterSpacing: "2px", textTransform: "uppercase" }}>{children}</p>;
 }
 
 /* ─── Componente principal ────────────────────────────────────── */
@@ -237,7 +237,7 @@ export default function DPPage() {
       ]}
     >
       {/* ── Tabs ── */}
-      <div style={{ background: "var(--panel)", borderRadius: "12px 12px 0 0", border: "1px solid #e9e4f7", borderBottom: "none" }}>
+      <div style={{ background: "#fff", borderRadius: "12px 12px 0 0", border: "1px solid #e9e4f7", borderBottom: "none" }}>
         <div style={{ display: "flex", overflowX: "auto", padding: "0 6px" }}>
           {TABS_DP.map((t) => (
             <button
@@ -245,8 +245,8 @@ export default function DPPage() {
               onClick={() => setTab(t.id)}
               style={{
                 background: "none", border: "none", cursor: "pointer",
-                borderBottom: tab === t.id ? "2px solid #c4b5fd" : "2px solid transparent",
-                color: tab === t.id ? "#6b21a8" : "var(--muted)",
+                borderBottom: tab === t.id ? "2px solid #7c3aed" : "2px solid transparent",
+                color: tab === t.id ? "#6b21a8" : "#6f8f7c",
                 fontWeight: tab === t.id ? 800 : 500,
                 fontSize: "0.8rem", padding: "0.85rem 0.875rem",
                 whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: "0.35rem",
@@ -261,20 +261,20 @@ export default function DPPage() {
         </div>
       </div>
 
-      <div style={{ background: "var(--panel)", border: "1px solid #e9e4f7", borderTop: "none", borderRadius: "0 0 12px 12px", padding: "1.5rem" }}>
+      <div style={{ background: "#fff", border: "1px solid #e9e4f7", borderTop: "none", borderRadius: "0 0 12px 12px", padding: "1.5rem" }}>
 
         {/* ════════════ DASHBOARD ════════════ */}
         {tab === "dashboard" && (
           <div style={{ display: "grid", gap: "1.25rem" }}>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
               {[
-                { label: "Ativos",       value: ativos,   color: "#c4b5fd", bg: "#faf5ff" },
-                { label: "Em férias",    value: emFerias, color: "#93c5fd", bg: "rgba(96,165,250,0.15)" },
-                { label: "eSocial pend.",value: pendESoc, color: pendESoc > 0 ? "#f87171" : "#34d399", bg: pendESoc > 0 ? "rgba(248,113,113,0.15)" : "rgba(52,211,153,0.15)" },
-                { label: "Férias pend.", value: feriasPend, color: "#fbbf24", bg: "rgba(251,146,60,0.15)" },
+                { label: "Ativos",       value: ativos,   color: "#7c3aed", bg: "#faf5ff" },
+                { label: "Em férias",    value: emFerias, color: "#1d4ed8", bg: "#eff6ff" },
+                { label: "eSocial pend.",value: pendESoc, color: pendESoc > 0 ? "#b91c1c" : "#065f46", bg: pendESoc > 0 ? "#fef2f2" : "#f0fdf4" },
+                { label: "Férias pend.", value: feriasPend, color: "#92400e", bg: "#fff7ed" },
               ].map((k) => (
                 <div key={k.label} style={{ background: k.bg, border: `1px solid ${k.color}22`, borderTop: `3px solid ${k.color}`, borderRadius: 12, padding: "0.875rem 1rem" }}>
-                  <p style={{ margin: "0 0 4px", fontSize: "0.68rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>{k.label}</p>
+                  <p style={{ margin: "0 0 4px", fontSize: "0.68rem", fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.5px" }}>{k.label}</p>
                   <p style={{ margin: 0, fontSize: "1.6rem", fontWeight: 800, color: k.color }}>{k.value}</p>
                 </div>
               ))}
@@ -291,13 +291,13 @@ export default function DPPage() {
                     <p style={{ textAlign: "center", color: "#9ca3af", fontSize: "0.85rem", padding: "1rem 0" }}>Nenhuma folha disponível</p>
                   ) : (
                     [
-                      { label: "Salários brutos",  val: totalBruto,   color: "var(--ink)" },
-                      { label: "INSS empregado",   val: -totalInss,   color: "#f87171" },
-                      { label: "IRRF",             val: -totalIrrf,   color: "#f87171" },
-                      { label: "Líquido",          val: totalLiq,     color: "#c4b5fd", bold: true },
+                      { label: "Salários brutos",  val: totalBruto,   color: "#07170d" },
+                      { label: "INSS empregado",   val: -totalInss,   color: "#b91c1c" },
+                      { label: "IRRF",             val: -totalIrrf,   color: "#b91c1c" },
+                      { label: "Líquido",          val: totalLiq,     color: "#7c3aed", bold: true },
                     ].map((row) => (
-                      <div key={row.label} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: "1px solid rgba(196,181,253,0.15)" }}>
-                        <span style={{ fontSize: "0.82rem", color: row.bold ? "var(--ink)" : "#4b6358", fontWeight: row.bold ? 700 : 400 }}>{row.label}</span>
+                      <div key={row.label} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: "1px solid #f5f3ff" }}>
+                        <span style={{ fontSize: "0.82rem", color: row.bold ? "#07170d" : "#4b6358", fontWeight: row.bold ? 700 : 400 }}>{row.label}</span>
                         <span style={{ fontSize: "0.82rem", fontWeight: 700, color: row.color }}>{fmt(Math.abs(row.val))}</span>
                       </div>
                     ))
@@ -311,8 +311,8 @@ export default function DPPage() {
                   {log.length === 0 ? (
                     <p style={{ textAlign: "center", color: "#9ca3af", fontSize: "0.85rem", padding: "1rem 0" }}>Nenhum evento registrado</p>
                   ) : log.slice(0, 5).map((entry) => (
-                    <div key={entry.id} style={{ padding: "7px 1rem", borderBottom: "1px solid rgba(196,181,253,0.15)" }}>
-                      <p style={{ margin: "0 0 1px", fontSize: "0.8rem", fontWeight: 700, color: "var(--ink)" }}>{entry.acao}</p>
+                    <div key={entry.id} style={{ padding: "7px 1rem", borderBottom: "1px solid #f5f3ff" }}>
+                      <p style={{ margin: "0 0 1px", fontSize: "0.8rem", fontWeight: 700, color: "#07170d" }}>{entry.acao}</p>
                       <p style={{ margin: 0, fontSize: "0.68rem", color: "#9ca3af" }}>{new Date(entry.data).toLocaleString("pt-BR")} - {entry.usuario}</p>
                     </div>
                   ))}
@@ -328,7 +328,7 @@ export default function DPPage() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
                 <h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Funcionários</h2>
-                <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "var(--muted)" }}>{funcionarios.length} colaboradores cadastrados</p>
+                <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#6f8f7c" }}>{funcionarios.length} colaboradores cadastrados</p>
               </div>
               <button onClick={() => { setAdmStep(1); setTab("admissao"); }} type="button">+ Admitir funcionário</button>
             </div>
@@ -362,9 +362,9 @@ export default function DPPage() {
                         { label: "CTPS", value: perfil.ctps }, { label: "E-mail", value: perfil.email },
                         { label: "Telefone", value: perfil.telefone }, { label: "Dependentes", value: String(perfil.dependentes) },
                       ].map((item) => (
-                        <div key={item.label} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid rgba(196,181,253,0.15)" }}>
-                          <span style={{ fontSize: "0.8rem", color: "var(--muted)", fontWeight: 600 }}>{item.label}</span>
-                          <span style={{ fontSize: "0.8rem", color: "var(--ink)", fontWeight: 700 }}>{item.value}</span>
+                        <div key={item.label} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #f5f3ff" }}>
+                          <span style={{ fontSize: "0.8rem", color: "#6b7280", fontWeight: 600 }}>{item.label}</span>
+                          <span style={{ fontSize: "0.8rem", color: "#07170d", fontWeight: 700 }}>{item.value}</span>
                         </div>
                       ))}
                     </div>
@@ -377,9 +377,9 @@ export default function DPPage() {
                         { label: "Cargo", value: perfil.cargo }, { label: "Setor", value: perfil.setor },
                         { label: "Salário base", value: fmt(perfil.salario) },
                       ].map((item) => (
-                        <div key={item.label} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid rgba(196,181,253,0.15)" }}>
-                          <span style={{ fontSize: "0.8rem", color: "var(--muted)", fontWeight: 600 }}>{item.label}</span>
-                          <span style={{ fontSize: "0.8rem", color: "var(--ink)", fontWeight: 700 }}>{item.value}</span>
+                        <div key={item.label} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #f5f3ff" }}>
+                          <span style={{ fontSize: "0.8rem", color: "#6b7280", fontWeight: 600 }}>{item.label}</span>
+                          <span style={{ fontSize: "0.8rem", color: "#07170d", fontWeight: 700 }}>{item.value}</span>
                         </div>
                       ))}
                     </div>
@@ -410,17 +410,17 @@ export default function DPPage() {
         {/* ════════════ ADMISSAO ════════════ */}
         {tab === "admissao" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-            <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Nova Admissão</h2><p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "var(--muted)" }}>Etapa {admStep} de 5</p></div>
+            <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Nova Admissão</h2><p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#6f8f7c" }}>Etapa {admStep} de 5</p></div>
             <div style={{ display: "flex", gap: 0, overflowX: "auto" }}>
               {["Dados Pessoais", "Contrato", "Documentos", "Conferência", "eSocial"].map((label, i) => {
                 const num = i + 1; const ativo = num === admStep; const concluido = num < admStep;
                 return (
                   <div key={label} style={{ display: "flex", alignItems: "center", flex: 1, minWidth: 0 }}>
                     <button onClick={() => setAdmStep(num)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer", padding: "0 8px", flex: 1 }} type="button">
-                      <div style={{ width: 32, height: 32, borderRadius: "50%", background: concluido ? "#c4b5fd" : ativo ? "rgba(196,181,253,0.18)" : "rgba(148,163,184,0.15)", color: concluido ? "var(--panel)" : ativo ? "#c4b5fd" : "#9ca3af", border: `2px solid ${ativo ? "#c4b5fd" : concluido ? "#c4b5fd" : "rgba(148,163,184,0.2)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem", fontWeight: 800 }}>{concluido ? "✓" : num}</div>
+                      <div style={{ width: 32, height: 32, borderRadius: "50%", background: concluido ? "#7c3aed" : ativo ? "#ede9fe" : "#f3f4f6", color: concluido ? "#fff" : ativo ? "#7c3aed" : "#9ca3af", border: `2px solid ${ativo ? "#7c3aed" : concluido ? "#7c3aed" : "#e5e7eb"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem", fontWeight: 800 }}>{concluido ? "✓" : num}</div>
                       <span style={{ fontSize: "0.7rem", fontWeight: ativo ? 700 : 500, color: ativo ? "#6b21a8" : "#9ca3af", textAlign: "center" }}>{label}</span>
                     </button>
-                    {i < 4 && <div style={{ height: 2, flex: 1, background: concluido ? "#c4b5fd" : "rgba(148,163,184,0.2)", minWidth: 20 }} />}
+                    {i < 4 && <div style={{ height: 2, flex: 1, background: concluido ? "#7c3aed" : "#e5e7eb", minWidth: 20 }} />}
                   </div>
                 );
               })}
@@ -444,19 +444,19 @@ export default function DPPage() {
               )}
               {admStep === 3 && (
                 <div><SectionTitle>Checklist de Documentos</SectionTitle>
-                  <p style={{ fontSize: "0.8rem", color: "var(--muted)", margin: "0 0 12px" }}>Clique em "Enviar" para anexar o arquivo de cada documento.</p>
+                  <p style={{ fontSize: "0.8rem", color: "#6b7280", margin: "0 0 12px" }}>Clique em "Enviar" para anexar o arquivo de cada documento.</p>
                   <div style={{ display: "grid", gap: 8 }}>
                     {checklist.map((item) => (
-                      <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 10, background: item.feito ? "rgba(196,181,253,0.15)" : "var(--panel)", border: `1px solid ${item.feito ? "#c4b5fd" : "#e9d5ff"}` }}>
-                        <div style={{ width: 20, height: 20, borderRadius: 6, border: `2px solid ${item.feito ? "#c4b5fd" : "#c4b5fd"}`, background: item.feito ? "#c4b5fd" : "var(--panel)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{item.feito && <span style={{ color: "#ffffff", fontSize: 11, fontWeight: 900 }}>✓</span>}</div>
-                        <span style={{ fontSize: "0.875rem", fontWeight: 600, color: item.feito ? "#6b21a8" : "var(--ink)", flex: 1 }}>{item.label}</span>
+                      <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 10, background: item.feito ? "#f5f3ff" : "#fff", border: `1px solid ${item.feito ? "#c4b5fd" : "#e9d5ff"}` }}>
+                        <div style={{ width: 20, height: 20, borderRadius: 6, border: `2px solid ${item.feito ? "#7c3aed" : "#c4b5fd"}`, background: item.feito ? "#7c3aed" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{item.feito && <span style={{ color: "#fff", fontSize: 11, fontWeight: 900 }}>✓</span>}</div>
+                        <span style={{ fontSize: "0.875rem", fontWeight: 600, color: item.feito ? "#6b21a8" : "#07170d", flex: 1 }}>{item.label}</span>
                         {item.feito && item.fileName ? (
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                             <span style={{ fontSize: "0.75rem", color: "#6b21a8", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.fileName}</span>
-                            <button onClick={() => setChecklist((prev) => prev.map((c) => c.id === item.id ? { ...c, feito: false, fileName: undefined, file: undefined } : c))} style={{ background: "none", border: "none", color: "#f87171", fontSize: "0.7rem", fontWeight: 700, cursor: "pointer" }} type="button">Remover</button>
+                            <button onClick={() => setChecklist((prev) => prev.map((c) => c.id === item.id ? { ...c, feito: false, fileName: undefined, file: undefined } : c))} style={{ background: "none", border: "none", color: "#b91c1c", fontSize: "0.7rem", fontWeight: 700, cursor: "pointer" }} type="button">Remover</button>
                           </div>
                         ) : (
-                          <label style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 12px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", background: "rgba(196,181,253,0.18)", color: "#c4b5fd", border: "1px solid #c4b5fd" }}>
+                          <label style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 12px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", background: "#ede9fe", color: "#7c3aed", border: "1px solid #c4b5fd" }}>
                             Enviar
                             <input type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style={{ display: "none" }} onChange={(e) => { const f = e.target.files?.[0]; if (f) setChecklist((prev) => prev.map((c) => c.id === item.id ? { ...c, feito: true, fileName: f.name, file: f } : c)); e.target.value = ""; }} />
                           </label>
@@ -468,23 +468,23 @@ export default function DPPage() {
 
                   {/* Área de drag-and-drop para documentos extras */}
                   <div
-                    onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#c4b5fd"; }}
+                    onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#7c3aed"; }}
                     onDragLeave={e => { e.currentTarget.style.borderColor = "#e9d5ff"; }}
                     onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#e9d5ff"; Array.from(e.dataTransfer.files).forEach(f => { const newId = String(Date.now()) + f.name; setChecklist(prev => [...prev, { id: newId, label: f.name, feito: true, fileName: f.name, file: f }]); }); }}
                     onClick={() => { const inp = document.createElement("input"); inp.type = "file"; inp.multiple = true; inp.accept = ".pdf,.jpg,.jpeg,.png,.doc,.docx"; inp.onchange = (ev) => { Array.from((ev.target as HTMLInputElement).files ?? []).forEach(f => { const newId = String(Date.now()) + f.name; setChecklist(prev => [...prev, { id: newId, label: f.name, feito: true, fileName: f.name, file: f }]); }); }; inp.click(); }}
                     style={{ marginTop: 16, border: "2px dashed #e9d5ff", borderRadius: 10, padding: "20px", textAlign: "center", cursor: "pointer", background: "#faf5ff", transition: "border-color 0.2s" }}
                   >
-                    <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#c4b5fd", marginBottom: 4 }}>Arraste outros documentos aqui ou clique para selecionar</div>
+                    <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#7c3aed", marginBottom: 4 }}>Arraste outros documentos aqui ou clique para selecionar</div>
                     <div style={{ fontSize: "0.72rem", color: "#9ca3af" }}>PDF, imagens, Word — até 10 MB</div>
                   </div>
                 </div>
               )}
-              {admStep === 4 && (<div><SectionTitle>Conferência Final</SectionTitle><p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Revise todos os dados antes de enviar ao eSocial.</p></div>)}
+              {admStep === 4 && (<div><SectionTitle>Conferência Final</SectionTitle><p style={{ color: "#6b7280", fontSize: "0.85rem" }}>Revise todos os dados antes de enviar ao eSocial.</p></div>)}
               {admStep === 5 && (
                 <div style={{ textAlign: "center", padding: "1rem 0" }}>
                   <SectionTitle>Envio ao eSocial</SectionTitle>
-                  <p style={{ fontSize: "0.875rem", color: "var(--muted)", marginBottom: "1.5rem" }}>Ao confirmar, será gerado o evento <strong>S-2200</strong> e enviado ao eSocial.</p>
-                  <button onClick={() => { audit("Admissão iniciada", "Admissão", "S-2200 gerado para novo funcionário"); setTab("esocial"); }} style={{ background: "linear-gradient(135deg, #7c3aed, #6b21a8)", color: "#ffffff", border: "none", borderRadius: 10, padding: "0.75rem 2rem", fontWeight: 800, fontSize: "0.9rem", cursor: "pointer" }} type="button">Gerar evento eSocial e concluir</button>
+                  <p style={{ fontSize: "0.875rem", color: "#6b7280", marginBottom: "1.5rem" }}>Ao confirmar, será gerado o evento <strong>S-2200</strong> e enviado ao eSocial.</p>
+                  <button onClick={() => { audit("Admissão iniciada", "Admissão", "S-2200 gerado para novo funcionário"); setTab("esocial"); }} style={{ background: "linear-gradient(135deg, #7c3aed, #6b21a8)", color: "#fff", border: "none", borderRadius: 10, padding: "0.75rem 2rem", fontWeight: 800, fontSize: "0.9rem", cursor: "pointer" }} type="button">Gerar evento eSocial e concluir</button>
                 </div>
               )}
             </div>
@@ -501,7 +501,7 @@ export default function DPPage() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Folha de Pagamento</h2>
-                <Badge {...(folhaStatus === "fechada" ? { bg: "rgba(52,211,153,0.15)", color: "#4ade80", label: "Fechada" } : { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Em aberto" })} />
+                <Badge {...(folhaStatus === "fechada" ? { bg: "#f0fdf4", color: "#166534", label: "Fechada" } : { bg: "#fffbeb", color: "#92400e", label: "Em aberto" })} />
               </div>
               <button disabled={folhaStatus === "fechada"} onClick={avancarFolha} type="button">
                 {folhaStatus === "aberta" ? "Calcular folha" : folhaStatus === "calculada" ? "Validar" : folhaStatus === "validada" ? "Encerrar folha" : "Encerrada"}
@@ -513,13 +513,13 @@ export default function DPPage() {
               <>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
                   {[
-                    { label: "Total bruto",  value: fmt(totalBruto),  color: "#c4b5fd" },
-                    { label: "Descontos",    value: fmt(totalInss + totalIrrf), color: "#f87171" },
-                    { label: "Líquido",      value: fmt(totalLiq),    color: "#34d399" },
+                    { label: "Total bruto",  value: fmt(totalBruto),  color: "#7c3aed" },
+                    { label: "Descontos",    value: fmt(totalInss + totalIrrf), color: "#b91c1c" },
+                    { label: "Líquido",      value: fmt(totalLiq),    color: "#065f46" },
                     { label: "Encargos",     value: fmt(totalFgts + totalInssEmp), color: "#f59e0b" },
                   ].map((k) => (
                     <div key={k.label} style={{ background: "#faf5ff", border: "1px solid #e9d5ff", borderTop: `3px solid ${k.color}`, borderRadius: 12, padding: "0.875rem 1rem" }}>
-                      <p style={{ margin: "0 0 4px", fontSize: "0.68rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>{k.label}</p>
+                      <p style={{ margin: "0 0 4px", fontSize: "0.68rem", fontWeight: 700, color: "#6b7280", textTransform: "uppercase" }}>{k.label}</p>
                       <p style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: k.color }}>{k.value}</p>
                     </div>
                   ))}
@@ -533,17 +533,17 @@ export default function DPPage() {
                         <TD right>{fmt(f.salarioBruto)}</TD>
                         <TD right muted>{fmt(f.inss)}</TD>
                         <TD right muted>{f.irrf > 0 ? fmt(f.irrf) : "—"}</TD>
-                        <TD right><strong style={{ color: "#34d399" }}>{fmt(f.liquido)}</strong></TD>
+                        <TD right><strong style={{ color: "#065f46" }}>{fmt(f.liquido)}</strong></TD>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot>
-                    <tr style={{ background: "rgba(196,181,253,0.15)", borderTop: "2px solid #c4b5fd" }}>
+                    <tr style={{ background: "#f5f3ff", borderTop: "2px solid #c4b5fd" }}>
                       <td style={{ padding: "0.8rem 0.875rem", fontWeight: 800, color: "#6b21a8" }}>Total</td>
                       <td style={{ padding: "0.8rem 0.875rem", textAlign: "right", fontWeight: 800 }}>{fmt(totalBruto)}</td>
-                      <td style={{ padding: "0.8rem 0.875rem", textAlign: "right", fontWeight: 800, color: "#f87171" }}>{fmt(totalInss)}</td>
-                      <td style={{ padding: "0.8rem 0.875rem", textAlign: "right", fontWeight: 800, color: "#f87171" }}>{fmt(totalIrrf)}</td>
-                      <td style={{ padding: "0.8rem 0.875rem", textAlign: "right", fontWeight: 900, fontSize: "1rem", color: "#34d399" }}>{fmt(totalLiq)}</td>
+                      <td style={{ padding: "0.8rem 0.875rem", textAlign: "right", fontWeight: 800, color: "#b91c1c" }}>{fmt(totalInss)}</td>
+                      <td style={{ padding: "0.8rem 0.875rem", textAlign: "right", fontWeight: 800, color: "#b91c1c" }}>{fmt(totalIrrf)}</td>
+                      <td style={{ padding: "0.8rem 0.875rem", textAlign: "right", fontWeight: 900, fontSize: "1rem", color: "#065f46" }}>{fmt(totalLiq)}</td>
                     </tr>
                   </tfoot>
                 </table>
@@ -556,7 +556,7 @@ export default function DPPage() {
         {tab === "ferias" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Férias</h2><p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "var(--muted)" }}>{ferias.length} períodos cadastrados</p></div>
+              <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Férias</h2><p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#6f8f7c" }}>{ferias.length} períodos cadastrados</p></div>
               <button type="button">+ Solicitar férias</button>
             </div>
             {ferias.length === 0 ? (
@@ -591,17 +591,17 @@ export default function DPPage() {
         {/* ════════════ RESCISAO ════════════ */}
         {tab === "rescisao" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-            <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Rescisão Contratual</h2><p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "var(--muted)" }}>Etapa {rescisaoStep} de 4</p></div>
+            <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Rescisão Contratual</h2><p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#6f8f7c" }}>Etapa {rescisaoStep} de 4</p></div>
             <div style={{ display: "flex", gap: 0 }}>
               {["Tipo / Funcionário", "Cálculo de Verbas", "Descontos", "Conferência"].map((label, i) => {
                 const num = i + 1; const ok = num < rescisaoStep; const ativo = num === rescisaoStep;
                 return (
                   <div key={label} style={{ display: "flex", alignItems: "center", flex: 1 }}>
                     <button onClick={() => setRescisaoStep(num)} style={{ flex: 1, textAlign: "center", padding: "0 4px", background: "none", border: "none", cursor: "pointer" }} type="button">
-                      <div style={{ width: 28, height: 28, borderRadius: "50%", background: ok ? "#c4b5fd" : ativo ? "rgba(196,181,253,0.18)" : "rgba(148,163,184,0.15)", color: ok ? "var(--panel)" : ativo ? "#c4b5fd" : "#9ca3af", border: `2px solid ${ativo || ok ? "#c4b5fd" : "rgba(148,163,184,0.2)"}`, margin: "0 auto 6px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.72rem", fontWeight: 800 }}>{ok ? "✓" : num}</div>
+                      <div style={{ width: 28, height: 28, borderRadius: "50%", background: ok ? "#7c3aed" : ativo ? "#ede9fe" : "#f3f4f6", color: ok ? "#fff" : ativo ? "#7c3aed" : "#9ca3af", border: `2px solid ${ativo || ok ? "#7c3aed" : "#e5e7eb"}`, margin: "0 auto 6px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.72rem", fontWeight: 800 }}>{ok ? "✓" : num}</div>
                       <span style={{ fontSize: "0.68rem", color: ativo ? "#6b21a8" : "#9ca3af", fontWeight: ativo ? 700 : 400 }}>{label}</span>
                     </button>
-                    {i < 3 && <div style={{ height: 2, width: 24, background: ok ? "#c4b5fd" : "rgba(148,163,184,0.2)" }} />}
+                    {i < 3 && <div style={{ height: 2, width: 24, background: ok ? "#7c3aed" : "#e5e7eb" }} />}
                   </div>
                 );
               })}
@@ -625,8 +625,8 @@ export default function DPPage() {
                   <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: "0.78rem", fontWeight: 700, color: "#4b5563" }}>Data da rescisão<input className="input" type="date" /></label>
                 </div>
               )}
-              {rescisaoStep === 2 && (<div><SectionTitle>Verbas Rescisórias</SectionTitle><p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>O cálculo será baseado nos dados do funcionário selecionado.</p></div>)}
-              {rescisaoStep === 3 && (<div><SectionTitle>Descontos</SectionTitle><p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Descontos serão aplicados conforme legislação vigente.</p></div>)}
+              {rescisaoStep === 2 && (<div><SectionTitle>Verbas Rescisórias</SectionTitle><p style={{ color: "#6b7280", fontSize: "0.85rem" }}>O cálculo será baseado nos dados do funcionário selecionado.</p></div>)}
+              {rescisaoStep === 3 && (<div><SectionTitle>Descontos</SectionTitle><p style={{ color: "#6b7280", fontSize: "0.85rem" }}>Descontos serão aplicados conforme legislação vigente.</p></div>)}
               {rescisaoStep === 4 && (
                 <div style={{ textAlign: "center", padding: "0.5rem 0" }}>
                   <SectionTitle>Conferência e Geração do TRCT</SectionTitle>
@@ -648,7 +648,7 @@ export default function DPPage() {
         {tab === "esocial" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>eSocial</h2><p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "var(--muted)" }}>Eventos, transmissões e protocolos</p></div>
+              <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>eSocial</h2><p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#6f8f7c" }}>Eventos, transmissões e protocolos</p></div>
               <button type="button">+ Novo evento</button>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
@@ -696,7 +696,7 @@ export default function DPPage() {
         {tab === "historico" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Histórico de Auditoria</h2><p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "var(--muted)" }}>{log.length} registros</p></div>
+              <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Histórico de Auditoria</h2><p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#6f8f7c" }}>{log.length} registros</p></div>
             </div>
             {log.length === 0 ? (
               <p style={{ textAlign: "center", color: "#9ca3af", padding: "2rem", fontSize: "0.9rem" }}>Nenhum registro de auditoria</p>
@@ -708,8 +708,8 @@ export default function DPPage() {
                     <tr key={entry.id}>
                       <TD muted><span style={{ fontFamily: "monospace", fontSize: "0.78rem" }}>{new Date(entry.data).toLocaleString("pt-BR")}</span></TD>
                       <TD><span style={{ fontSize: "0.82rem", fontWeight: 600 }}>{entry.usuario}</span></TD>
-                      <TD><span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#c4b5fd" }}>{entry.acao}</span></TD>
-                      <TD muted><span style={{ fontSize: "0.72rem", fontWeight: 700, background: "rgba(196,181,253,0.15)", color: "#6b21a8", borderRadius: 999, padding: "2px 8px" }}>{entry.modulo}</span></TD>
+                      <TD><span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#7c3aed" }}>{entry.acao}</span></TD>
+                      <TD muted><span style={{ fontSize: "0.72rem", fontWeight: 700, background: "#f5f3ff", color: "#6b21a8", borderRadius: 999, padding: "2px 8px" }}>{entry.modulo}</span></TD>
                       <TD muted>{entry.detalhe}</TD>
                     </tr>
                   ))}

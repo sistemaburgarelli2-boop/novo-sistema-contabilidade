@@ -77,7 +77,7 @@ export default function PortalSolicitacoes() {
             background: "rgba(16,185,129,0.08)",
             border: "1px solid rgba(16,185,129,0.25)",
             borderRadius: 10,
-            color: "#34d399",
+            color: "#065f46",
             display: "flex",
             fontSize: 14,
             fontWeight: 600,
@@ -128,7 +128,7 @@ export default function PortalSolicitacoes() {
                             : "1.5px solid var(--border)",
                           borderRadius: 8,
                           color: prioridade === p
-                            ? (p === "Urgente" ? "#f87171" : "#34d399")
+                            ? (p === "Urgente" ? "#b91c1c" : "#065f46")
                             : "var(--muted)",
                           cursor: "pointer",
                           flex: 1,

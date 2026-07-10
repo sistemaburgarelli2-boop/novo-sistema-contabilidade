@@ -6,9 +6,9 @@ import { BotaoVoltar } from "@/components/ui/BotaoVoltar";
 
 /* ─── CSS Variables ──────────────────────────────────────────── */
 const V = {
-  bg: "var(--bg)", panel: "var(--panel)", ink: "var(--ink)", muted: "var(--muted)",
-  green700: "#2ee58f", green500: "#10b981", green400: "#18d19b",
-  gold: "#d4ae4a", border: "var(--border)", danger: "#ef445f",
+  bg: "#f3f8f5", panel: "#ffffff", ink: "#07170d", muted: "#6f8f7c",
+  green700: "#075f3c", green500: "#10b981", green400: "#18d19b",
+  gold: "#d4ae4a", border: "#dfece5", danger: "#ef445f",
 };
 
 /* ─── Constantes ─────────────────────────────────────────────── */
@@ -432,7 +432,7 @@ export default function NovaEmpresaPage() {
   };
 
   const btnPrimary: React.CSSProperties = {
-    padding: "10px 28px", background: V.green700, color: "#ffffff",
+    padding: "10px 28px", background: V.green700, color: "#fff",
     border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600,
     cursor: "pointer", transition: "opacity .2s",
   };
@@ -1020,7 +1020,7 @@ export default function NovaEmpresaPage() {
 
         {/* Drag-and-drop area */}
         <div
-          onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = V.green500; e.currentTarget.style.background = "rgba(52,211,153,0.15)"; }}
+          onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = V.green500; e.currentTarget.style.background = "#ecfdf5"; }}
           onDragLeave={e => { e.currentTarget.style.borderColor = V.border; e.currentTarget.style.background = V.bg; }}
           onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor = V.border; e.currentTarget.style.background = V.bg; if (e.dataTransfer.files.length) handleDropGeneral(e.dataTransfer.files); }}
           onClick={() => {
@@ -1489,7 +1489,7 @@ Senha: ${form.senha_portal || "{senha}"}`}
               </div>
 
               {erroSalvar && step === 8 && (
-                <div style={{ position: "absolute", bottom: "100%", right: 0, marginBottom: 8, background: "rgba(248,113,113,0.15)", color: "#f87171", padding: "8px 14px", borderRadius: 8, fontSize: "0.8rem", fontWeight: 600, whiteSpace: "nowrap" }}>{erroSalvar}</div>
+                <div style={{ position: "absolute", bottom: "100%", right: 0, marginBottom: 8, background: "#fef2f2", color: "#b91c1c", padding: "8px 14px", borderRadius: 8, fontSize: "0.8rem", fontWeight: 600, whiteSpace: "nowrap" }}>{erroSalvar}</div>
               )}
               {step === 8 ? (
                 <button style={{ ...btnPrimary, opacity: salvando ? 0.7 : 1 }} onClick={goNext} disabled={salvando}>

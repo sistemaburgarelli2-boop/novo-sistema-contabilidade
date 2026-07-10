@@ -6,8 +6,8 @@ import type { Empresa } from "@/modules/empresas/empresas.types";
 const SETORES = [
   {
     id: "fiscal",
-    cor: "#34d399",
-    fundo: "rgba(52,211,153,0.15)",
+    cor: "#065f46",
+    fundo: "#ecfdf5",
     borda: "#6ee7b7",
     icone: (
       <svg fill="none" height={22} viewBox="0 0 24 24" width={22}>
@@ -23,8 +23,8 @@ const SETORES = [
   },
   {
     id: "contabil",
-    cor: "#93c5fd",
-    fundo: "rgba(96,165,250,0.15)",
+    cor: "#1e40af",
+    fundo: "#eff6ff",
     borda: "#93c5fd",
     icone: (
       <svg fill="none" height={22} viewBox="0 0 24 24" width={22}>
@@ -57,8 +57,8 @@ const SETORES = [
   },
   {
     id: "societario",
-    cor: "#fbbf24",
-    fundo: "rgba(251,191,36,0.15)",
+    cor: "#92400e",
+    fundo: "#fffbeb",
     borda: "#fcd34d",
     icone: (
       <svg fill="none" height={22} viewBox="0 0 24 24" width={22}>
@@ -73,7 +73,7 @@ const SETORES = [
   },
   {
     id: "financeiro",
-    cor: "#67e8f9",
+    cor: "#0e7490",
     fundo: "#ecfeff",
     borda: "#67e8f9",
     icone: (
@@ -111,8 +111,8 @@ export function SetoresModal({
       <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem", pointerEvents: "none" }}>
         <div style={{
           width: "100%", maxWidth: 860, maxHeight: "90vh",
-          background: "var(--panel)", borderRadius: 16,
-          border: "1px solid var(--border)",
+          background: "#fff", borderRadius: 16,
+          border: "1px solid #dfece5",
           boxShadow: "0 32px 100px rgba(7,23,13,0.18)",
           display: "flex", flexDirection: "column",
           overflow: "hidden", pointerEvents: "auto",
@@ -120,7 +120,7 @@ export function SetoresModal({
           {/* Header */}
           <div style={{
             padding: "1.5rem 2rem",
-            borderBottom: "1px solid var(--border)",
+            borderBottom: "1px solid #dfece5",
             background: "linear-gradient(100deg, rgba(6,23,13,0.97), rgba(16,50,22,0.97))",
             display: "flex", alignItems: "center", justifyContent: "space-between",
           }}>
@@ -152,7 +152,7 @@ export function SetoresModal({
                 <div
                   key={setor.id}
                   style={{
-                    background: "var(--panel)",
+                    background: "#fff",
                     border: `1px solid #e8f0eb`,
                     borderTop: `3px solid ${setor.borda}`,
                     borderRadius: 12,
@@ -177,7 +177,7 @@ export function SetoresModal({
                         {setor.icone}
                       </div>
                       <div>
-                        <p style={{ margin: 0, fontWeight: 800, fontSize: "0.88rem", color: "var(--ink)" }}>{setor.nome}</p>
+                        <p style={{ margin: 0, fontWeight: 800, fontSize: "0.88rem", color: "#07170d" }}>{setor.nome}</p>
                         <span style={{
                           display: "inline-block", marginTop: 3,
                           fontSize: "0.7rem", fontWeight: 700,
@@ -218,7 +218,7 @@ export function SetoresModal({
           </div>
 
           {/* Footer */}
-          <div style={{ padding: "1rem 2rem", borderTop: "1px solid var(--border)", background: "var(--bg)", display: "flex", justifyContent: "flex-end" }}>
+          <div style={{ padding: "1rem 2rem", borderTop: "1px solid #dfece5", background: "#f3f8f5", display: "flex", justifyContent: "flex-end" }}>
             <button className="small-action" onClick={onClose} type="button">Fechar</button>
           </div>
         </div>

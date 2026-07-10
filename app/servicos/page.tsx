@@ -16,11 +16,11 @@ type Ferramenta = {
 };
 
 const FERRAMENTAS: Ferramenta[] = [
-  { id: "rescisao", nome: "Calculadora de Rescisao", descricao: "Calcula verbas rescisorias com base no tipo de demissao", emoji: "🧮", cor: "#f87171" },
+  { id: "rescisao", nome: "Calculadora de Rescisao", descricao: "Calcula verbas rescisorias com base no tipo de demissao", emoji: "🧮", cor: "#dc2626" },
   { id: "contratos", nome: "Gerador de Contratos", descricao: "Gera contratos trabalhistas, sociais e de prestacao de servico", emoji: "📝", cor: "#2563eb" },
   { id: "fgts", nome: "Simulador de FGTS", descricao: "Simula saldo e multa de FGTS do colaborador", emoji: "🏦", cor: "#0891b2" },
-  { id: "ferias", nome: "Calculadora de Ferias", descricao: "Calcula ferias proporcionais, integrais e abono", emoji: "🏖️", cor: "#34d399" },
-  { id: "inss", nome: "Calculadora de INSS", descricao: "Calcula contribuicao previdenciaria por faixa", emoji: "🛡️", cor: "#c4b5fd" },
+  { id: "ferias", nome: "Calculadora de Ferias", descricao: "Calcula ferias proporcionais, integrais e abono", emoji: "🏖️", cor: "#059669" },
+  { id: "inss", nome: "Calculadora de INSS", descricao: "Calcula contribuicao previdenciaria por faixa", emoji: "🛡️", cor: "#7c3aed" },
   { id: "irrf", nome: "Calculadora de IRRF", descricao: "Calcula imposto de renda retido na fonte sobre salario", emoji: "💰", cor: "#d97706" },
   { id: "marcas_inpi", nome: "Registro de Marcas INPI", descricao: "Gerencie pedidos e acompanhe o status de marcas junto ao INPI", emoji: "™", cor: "#0891b2" },
 ];
@@ -36,11 +36,11 @@ function InputField({ label, value, onChange, type = "text", placeholder = "" }:
 }) {
   return (
     <div style={{ flex: 1, minWidth: 180 }}>
-      <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", marginBottom: 4 }}>{label}</label>
+      <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>{label}</label>
       <input
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }}
+        style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }}
         type={type}
         value={value}
       />
@@ -53,10 +53,10 @@ function SelectField({ label, value, onChange, options }: {
 }) {
   return (
     <div style={{ flex: 1, minWidth: 180 }}>
-      <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", marginBottom: 4 }}>{label}</label>
+      <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>{label}</label>
       <select
         onChange={(e) => onChange(e.target.value)}
-        style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.85rem", background: "var(--panel)", cursor: "pointer", boxSizing: "border-box" }}
+        style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.85rem", background: "#fff", cursor: "pointer", boxSizing: "border-box" }}
         value={value}
       >
         {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -67,9 +67,9 @@ function SelectField({ label, value, onChange, options }: {
 
 function ResultCard({ label, valor, destaque }: { label: string; valor: number; destaque?: boolean }) {
   return (
-    <div style={{ background: destaque ? "rgba(99,102,241,0.15)" : "var(--panel-2)", borderRadius: 8, padding: "0.75rem 1rem", flex: 1, minWidth: 140 }}>
-      <div style={{ fontSize: "0.65rem", color: "var(--muted)", fontWeight: 600, textTransform: "uppercase" }}>{label}</div>
-      <div style={{ fontSize: destaque ? "1.1rem" : "0.95rem", color: destaque ? "#4f46e5" : "var(--ink)", fontWeight: 700, marginTop: 4 }}>{fmt(valor)}</div>
+    <div style={{ background: destaque ? "#eef2ff" : "#f9fafb", borderRadius: 8, padding: "0.75rem 1rem", flex: 1, minWidth: 140 }}>
+      <div style={{ fontSize: "0.65rem", color: "#6f8f7c", fontWeight: 600, textTransform: "uppercase" }}>{label}</div>
+      <div style={{ fontSize: destaque ? "1.1rem" : "0.95rem", color: destaque ? "#4f46e5" : "#07170d", fontWeight: 700, marginTop: 4 }}>{fmt(valor)}</div>
     </div>
   );
 }
@@ -194,8 +194,8 @@ function RescisaoCalc() {
 
   return (
     <div>
-      <h3 style={{ margin: "0 0 4px", fontSize: "1.05rem", color: "var(--ink)" }}>Calculadora de Rescisao Trabalhista</h3>
-      <p style={{ color: "var(--muted)", fontSize: "0.82rem", marginBottom: 20 }}>Preencha os dados do colaborador para calcular as verbas rescisorias.</p>
+      <h3 style={{ margin: "0 0 4px", fontSize: "1.05rem", color: "#07170d" }}>Calculadora de Rescisao Trabalhista</h3>
+      <p style={{ color: "#6f8f7c", fontSize: "0.82rem", marginBottom: 20 }}>Preencha os dados do colaborador para calcular as verbas rescisorias.</p>
 
       <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: 12 }}>
         <InputField label="Salario bruto" value={salario} onChange={setSalario} type="number" placeholder="3000.00" />
@@ -220,13 +220,13 @@ function RescisaoCalc() {
         <InputField label="Meses ferias proporcional" value={mesesFerias} onChange={setMesesFerias} type="number" placeholder="Auto" />
       </div>
 
-      <button onClick={calcular} style={{ padding: "0.6rem 2rem", background: "linear-gradient(135deg, #dc2626, #ef4444)", color: "#ffffff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.875rem", cursor: "pointer", marginBottom: 20 }} type="button">
+      <button onClick={calcular} style={{ padding: "0.6rem 2rem", background: "linear-gradient(135deg, #dc2626, #ef4444)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.875rem", cursor: "pointer", marginBottom: 20 }} type="button">
         Calcular rescisao
       </button>
 
       {resultado && (
-        <div style={{ background: "var(--panel-2)", borderRadius: 12, padding: "1.25rem", border: "1px solid #e8f0eb" }}>
-          <h4 style={{ margin: "0 0 12px", fontSize: "0.9rem", color: "var(--ink)" }}>Verbas rescisorias</h4>
+        <div style={{ background: "#f9fafb", borderRadius: 12, padding: "1.25rem", border: "1px solid #e8f0eb" }}>
+          <h4 style={{ margin: "0 0 12px", fontSize: "0.9rem", color: "#07170d" }}>Verbas rescisorias</h4>
           <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: 12 }}>
             <ResultCard label="Saldo de salario" valor={resultado.saldo_salario} />
             <ResultCard label="13o proporcional" valor={resultado.decimo_terceiro_prop} />
@@ -455,8 +455,8 @@ PARTE REVELADORA                    PARTE RECEPTORA`;
 
   return (
     <div>
-      <h3 style={{ margin: "0 0 4px", fontSize: "1.05rem", color: "var(--ink)" }}>Gerador de Contratos</h3>
-      <p style={{ color: "var(--muted)", fontSize: "0.82rem", marginBottom: 20 }}>Selecione o modelo e preencha os dados para gerar o contrato.</p>
+      <h3 style={{ margin: "0 0 4px", fontSize: "1.05rem", color: "#07170d" }}>Gerador de Contratos</h3>
+      <p style={{ color: "#6f8f7c", fontSize: "0.82rem", marginBottom: 20 }}>Selecione o modelo e preencha os dados para gerar o contrato.</p>
 
       <SelectField label="Modelo de contrato" value={modeloId} onChange={(v) => { setModeloId(v); setCampos({}); setContratoGerado(null); }} options={MODELOS_CONTRATO.map((m) => ({ value: m.id, label: `${m.nome} (${m.categoria})` }))} />
 
@@ -466,19 +466,19 @@ PARTE REVELADORA                    PARTE RECEPTORA`;
         ))}
       </div>
 
-      <button onClick={gerarContrato} style={{ padding: "0.6rem 2rem", background: "linear-gradient(135deg, #2563eb, #3b82f6)", color: "#ffffff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.875rem", cursor: "pointer" }} type="button">
+      <button onClick={gerarContrato} style={{ padding: "0.6rem 2rem", background: "linear-gradient(135deg, #2563eb, #3b82f6)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.875rem", cursor: "pointer" }} type="button">
         Gerar contrato
       </button>
 
       {contratoGerado && (
         <div style={{ marginTop: 20 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <h4 style={{ margin: 0, fontSize: "0.9rem", color: "var(--ink)" }}>Contrato gerado</h4>
-            <button onClick={copiar} style={{ padding: "4px 12px", background: "rgba(148,163,184,0.15)", border: "1px solid var(--border)", borderRadius: 6, fontSize: "0.75rem", fontWeight: 600, cursor: "pointer" }} type="button">
+            <h4 style={{ margin: 0, fontSize: "0.9rem", color: "#07170d" }}>Contrato gerado</h4>
+            <button onClick={copiar} style={{ padding: "4px 12px", background: "#f3f4f6", border: "1px solid #dfece5", borderRadius: 6, fontSize: "0.75rem", fontWeight: 600, cursor: "pointer" }} type="button">
               Copiar
             </button>
           </div>
-          <pre style={{ background: "var(--panel-2)", border: "1px solid #e8f0eb", borderRadius: 10, padding: "1.25rem", fontSize: "0.82rem", lineHeight: 1.7, whiteSpace: "pre-wrap", fontFamily: "inherit", color: "var(--ink)", maxHeight: 500, overflow: "auto" }}>
+          <pre style={{ background: "#f9fafb", border: "1px solid #e8f0eb", borderRadius: 10, padding: "1.25rem", fontSize: "0.82rem", lineHeight: 1.7, whiteSpace: "pre-wrap", fontFamily: "inherit", color: "#07170d", maxHeight: 500, overflow: "auto" }}>
             {contratoGerado}
           </pre>
         </div>
@@ -507,8 +507,8 @@ function SimuladorFGTS() {
 
   return (
     <div>
-      <h3 style={{ margin: "0 0 4px", fontSize: "1.05rem", color: "var(--ink)" }}>Simulador de FGTS</h3>
-      <p style={{ color: "var(--muted)", fontSize: "0.82rem", marginBottom: 20 }}>Simule o saldo de FGTS e multa rescisoria.</p>
+      <h3 style={{ margin: "0 0 4px", fontSize: "1.05rem", color: "#07170d" }}>Simulador de FGTS</h3>
+      <p style={{ color: "#6f8f7c", fontSize: "0.82rem", marginBottom: 20 }}>Simule o saldo de FGTS e multa rescisoria.</p>
       <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: 16 }}>
         <InputField label="Salario bruto" value={salario} onChange={setSalario} type="number" placeholder="3000.00" />
         <InputField label="Meses trabalhados" value={meses} onChange={setMeses} type="number" placeholder="24" />
@@ -518,7 +518,7 @@ function SimuladorFGTS() {
           { value: "pedido", label: "Pedido de demissao (0%)" },
         ]} />
       </div>
-      <button onClick={calcular} style={{ padding: "0.6rem 2rem", background: "linear-gradient(135deg, #0891b2, #06b6d4)", color: "#ffffff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.875rem", cursor: "pointer" }} type="button">Calcular FGTS</button>
+      <button onClick={calcular} style={{ padding: "0.6rem 2rem", background: "linear-gradient(135deg, #0891b2, #06b6d4)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.875rem", cursor: "pointer" }} type="button">Calcular FGTS</button>
       {resultado && (
         <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: 16 }}>
           <ResultCard label="Saldo FGTS" valor={resultado.saldo} />
@@ -555,15 +555,15 @@ function CalculadoraFerias() {
 
   return (
     <div>
-      <h3 style={{ margin: "0 0 4px", fontSize: "1.05rem", color: "var(--ink)" }}>Calculadora de Ferias</h3>
-      <p style={{ color: "var(--muted)", fontSize: "0.82rem", marginBottom: 20 }}>Calcule o valor das ferias com abono e descontos.</p>
+      <h3 style={{ margin: "0 0 4px", fontSize: "1.05rem", color: "#07170d" }}>Calculadora de Ferias</h3>
+      <p style={{ color: "#6f8f7c", fontSize: "0.82rem", marginBottom: 20 }}>Calcule o valor das ferias com abono e descontos.</p>
       <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: 16 }}>
         <InputField label="Salario bruto" value={salario} onChange={setSalario} type="number" placeholder="3000.00" />
         <InputField label="Dias de ferias" value={dias} onChange={setDias} type="number" placeholder="30" />
         <SelectField label="Abono pecuniario?" value={abono} onChange={setAbono} options={[{ value: "nao", label: "Nao" }, { value: "sim", label: "Sim (vender 10 dias)" }]} />
         <InputField label="Dependentes" value={dependentes} onChange={setDependentes} type="number" placeholder="0" />
       </div>
-      <button onClick={calcular} style={{ padding: "0.6rem 2rem", background: "linear-gradient(135deg, #059669, #10b981)", color: "#ffffff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.875rem", cursor: "pointer" }} type="button">Calcular ferias</button>
+      <button onClick={calcular} style={{ padding: "0.6rem 2rem", background: "linear-gradient(135deg, #059669, #10b981)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.875rem", cursor: "pointer" }} type="button">Calcular ferias</button>
       {resultado && (
         <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: 16 }}>
           <ResultCard label="Ferias" valor={resultado.ferias} />
@@ -592,27 +592,27 @@ function CalculadoraINSS() {
 
   return (
     <div>
-      <h3 style={{ margin: "0 0 4px", fontSize: "1.05rem", color: "var(--ink)" }}>Calculadora de INSS</h3>
-      <p style={{ color: "var(--muted)", fontSize: "0.82rem", marginBottom: 20 }}>Calculo progressivo por faixa (tabela 2026).</p>
+      <h3 style={{ margin: "0 0 4px", fontSize: "1.05rem", color: "#07170d" }}>Calculadora de INSS</h3>
+      <p style={{ color: "#6f8f7c", fontSize: "0.82rem", marginBottom: 20 }}>Calculo progressivo por faixa (tabela 2026).</p>
       <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: 16 }}>
         <InputField label="Salario bruto" value={salario} onChange={setSalario} type="number" placeholder="3000.00" />
       </div>
-      <button onClick={calcular} style={{ padding: "0.6rem 2rem", background: "linear-gradient(135deg, #7c3aed, #8b5cf6)", color: "#ffffff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.875rem", cursor: "pointer" }} type="button">Calcular INSS</button>
+      <button onClick={calcular} style={{ padding: "0.6rem 2rem", background: "linear-gradient(135deg, #7c3aed, #8b5cf6)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.875rem", cursor: "pointer" }} type="button">Calcular INSS</button>
       {resultado && (
         <div style={{ marginTop: 16 }}>
           <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: 16 }}>
             <ResultCard label="INSS a descontar" valor={resultado.valor} destaque />
           </div>
-          <div style={{ fontSize: "0.82rem", color: "var(--muted)" }}>Aliquota efetiva: <strong style={{ color: "var(--ink)" }}>{resultado.aliqEfetiva.toFixed(2)}%</strong></div>
+          <div style={{ fontSize: "0.82rem", color: "#6f8f7c" }}>Aliquota efetiva: <strong style={{ color: "#07170d" }}>{resultado.aliqEfetiva.toFixed(2)}%</strong></div>
           <div style={{ marginTop: 12 }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8rem" }}>
               <thead><tr>
-                <th style={{ textAlign: "left", padding: "6px 10px", color: "var(--muted)", fontWeight: 700, fontSize: "0.7rem", textTransform: "uppercase", borderBottom: "1px solid #e8f0eb" }}>Faixa</th>
-                <th style={{ textAlign: "right", padding: "6px 10px", color: "var(--muted)", fontWeight: 700, fontSize: "0.7rem", textTransform: "uppercase", borderBottom: "1px solid #e8f0eb" }}>Aliquota</th>
+                <th style={{ textAlign: "left", padding: "6px 10px", color: "#6f8f7c", fontWeight: 700, fontSize: "0.7rem", textTransform: "uppercase", borderBottom: "1px solid #e8f0eb" }}>Faixa</th>
+                <th style={{ textAlign: "right", padding: "6px 10px", color: "#6f8f7c", fontWeight: 700, fontSize: "0.7rem", textTransform: "uppercase", borderBottom: "1px solid #e8f0eb" }}>Aliquota</th>
               </tr></thead>
               <tbody>
                 {FAIXAS_INSS.map((f, i) => (
-                  <tr key={i}><td style={{ padding: "6px 10px", borderBottom: "1px solid var(--panel-2)" }}>Ate {fmt(f.ate)}</td><td style={{ textAlign: "right", padding: "6px 10px", borderBottom: "1px solid var(--panel-2)" }}>{(f.aliq * 100).toFixed(1)}%</td></tr>
+                  <tr key={i}><td style={{ padding: "6px 10px", borderBottom: "1px solid #f0f7f3" }}>Ate {fmt(f.ate)}</td><td style={{ textAlign: "right", padding: "6px 10px", borderBottom: "1px solid #f0f7f3" }}>{(f.aliq * 100).toFixed(1)}%</td></tr>
                 ))}
               </tbody>
             </table>
@@ -641,13 +641,13 @@ function CalculadoraIRRF() {
 
   return (
     <div>
-      <h3 style={{ margin: "0 0 4px", fontSize: "1.05rem", color: "var(--ink)" }}>Calculadora de IRRF</h3>
-      <p style={{ color: "var(--muted)", fontSize: "0.82rem", marginBottom: 20 }}>Imposto de renda retido na fonte sobre salario (tabela 2026).</p>
+      <h3 style={{ margin: "0 0 4px", fontSize: "1.05rem", color: "#07170d" }}>Calculadora de IRRF</h3>
+      <p style={{ color: "#6f8f7c", fontSize: "0.82rem", marginBottom: 20 }}>Imposto de renda retido na fonte sobre salario (tabela 2026).</p>
       <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: 16 }}>
         <InputField label="Salario bruto" value={salario} onChange={setSalario} type="number" placeholder="5000.00" />
         <InputField label="Dependentes" value={dependentes} onChange={setDependentes} type="number" placeholder="0" />
       </div>
-      <button onClick={calcular} style={{ padding: "0.6rem 2rem", background: "linear-gradient(135deg, #d97706, #f59e0b)", color: "#ffffff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.875rem", cursor: "pointer" }} type="button">Calcular IRRF</button>
+      <button onClick={calcular} style={{ padding: "0.6rem 2rem", background: "linear-gradient(135deg, #d97706, #f59e0b)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.875rem", cursor: "pointer" }} type="button">Calcular IRRF</button>
       {resultado && (
         <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: 16 }}>
           <ResultCard label="INSS descontado" valor={resultado.inss} />
@@ -672,15 +672,15 @@ type MarcaINPI = {
 };
 
 const S_MARCA: Record<StatusMarca, { bg: string; color: string; label: string }> = {
-  em_preparacao:     { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: "Em preparação" },
-  protocolo_pendente:{ bg: "rgba(250,204,21,0.15)", color: "#fbbf24", label: "Protocolo pendente" },
-  depositada:        { bg: "rgba(96,165,250,0.15)", color: "#93c5fd", label: "Depositada" },
-  em_exame:          { bg: "#ecfeff", color: "#67e8f9", label: "Em exame" },
-  oposicao:          { bg: "rgba(251,146,60,0.15)", color: "#fb923c", label: "Oposição" },
-  deferida:          { bg: "rgba(52,211,153,0.15)", color: "#4ade80", label: "Deferida" },
-  registrada:        { bg: "rgba(74,222,128,0.15)", color: "#34d399", label: "Registrada ✓" },
-  arquivada:         { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: "Arquivada" },
-  indeferida:        { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Indeferida" },
+  em_preparacao:     { bg: "#f3f4f6", color: "#6b7280", label: "Em preparação" },
+  protocolo_pendente:{ bg: "#fef9c3", color: "#854d0e", label: "Protocolo pendente" },
+  depositada:        { bg: "#eff6ff", color: "#1d4ed8", label: "Depositada" },
+  em_exame:          { bg: "#ecfeff", color: "#0e7490", label: "Em exame" },
+  oposicao:          { bg: "#fff7ed", color: "#c2410c", label: "Oposição" },
+  deferida:          { bg: "#f0fdf4", color: "#15803d", label: "Deferida" },
+  registrada:        { bg: "#dcfce7", color: "#065f46", label: "Registrada ✓" },
+  arquivada:         { bg: "#f3f4f6", color: "#6b7280", label: "Arquivada" },
+  indeferida:        { bg: "#fef2f2", color: "#b91c1c", label: "Indeferida" },
 };
 
 const FLUXO_MARCA: StatusMarca[] = ["em_preparacao", "protocolo_pendente", "depositada", "em_exame", "deferida", "registrada"];
@@ -770,20 +770,20 @@ function MarcasINPI() {
 
   return (
     <div>
-      <h3 style={{ margin: "0 0 4px", fontSize: "1.05rem", color: "var(--ink)" }}>Registro de Marcas INPI</h3>
-      <p style={{ color: "var(--muted)", fontSize: "0.82rem", marginBottom: 20 }}>Gerencie pedidos de marca e acesse rapidamente a consulta oficial do INPI (pePI).</p>
+      <h3 style={{ margin: "0 0 4px", fontSize: "1.05rem", color: "#07170d" }}>Registro de Marcas INPI</h3>
+      <p style={{ color: "#6f8f7c", fontSize: "0.82rem", marginBottom: 20 }}>Gerencie pedidos de marca e acesse rapidamente a consulta oficial do INPI (pePI).</p>
 
       {/* KPIs */}
       <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: 20 }}>
         {[
-          { label: "Total", value: marcas.length, color: "#374151", bg: "var(--panel-2)" },
-          { label: "Registradas", value: marcas.filter(m => m.status === "registrada").length, color: "#34d399", bg: "rgba(52,211,153,0.15)" },
-          { label: "Em andamento", value: marcas.filter(m => ["depositada","em_exame","deferida"].includes(m.status)).length, color: "#93c5fd", bg: "rgba(96,165,250,0.15)" },
-          { label: "Atenção", value: marcas.filter(m => ["oposicao","indeferida"].includes(m.status)).length, color: "#f87171", bg: "rgba(248,113,113,0.15)" },
+          { label: "Total", value: marcas.length, color: "#374151", bg: "#f9fafb" },
+          { label: "Registradas", value: marcas.filter(m => m.status === "registrada").length, color: "#065f46", bg: "#f0fdf4" },
+          { label: "Em andamento", value: marcas.filter(m => ["depositada","em_exame","deferida"].includes(m.status)).length, color: "#1d4ed8", bg: "#eff6ff" },
+          { label: "Atenção", value: marcas.filter(m => ["oposicao","indeferida"].includes(m.status)).length, color: "#b91c1c", bg: "#fef2f2" },
         ].map(k => (
           <div key={k.label} style={{ background: k.bg, border: `1px solid ${k.color}22`, borderRadius: 10, padding: "0.75rem 1.1rem", minWidth: 110 }}>
             <div style={{ fontSize: "1.5rem", fontWeight: 800, color: k.color }}>{k.value}</div>
-            <div style={{ fontSize: "0.7rem", color: "var(--muted)", marginTop: 2 }}>{k.label}</div>
+            <div style={{ fontSize: "0.7rem", color: "#6b7280", marginTop: 2 }}>{k.label}</div>
           </div>
         ))}
       </div>
@@ -802,12 +802,12 @@ function MarcasINPI() {
             onChange={e => setBuscaTermo(e.target.value)}
             onKeyDown={e => e.key === "Enter" && consultarBusca()}
             placeholder="Ex: FATTURATI ou 921234567"
-            style={{ flex: 1, padding: "0.55rem 0.875rem", border: "1.5px solid #bae6fd", borderRadius: 8, fontSize: "0.875rem", outline: "none", background: "var(--panel)" }}
+            style={{ flex: 1, padding: "0.55rem 0.875rem", border: "1.5px solid #bae6fd", borderRadius: 8, fontSize: "0.875rem", outline: "none", background: "#fff" }}
           />
           <button
             onClick={consultarBusca}
             disabled={!buscaTermo.trim()}
-            style={{ padding: "0.55rem 1.25rem", background: "linear-gradient(135deg, #0369a1, #0891b2)", color: "#ffffff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", whiteSpace: "nowrap" }}
+            style={{ padding: "0.55rem 1.25rem", background: "linear-gradient(135deg, #0369a1, #0891b2)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", whiteSpace: "nowrap" }}
             type="button"
           >
             Abrir no pePI ↗
@@ -817,10 +817,10 @@ function MarcasINPI() {
 
       {/* Ações */}
       <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", marginBottom: 16, flexWrap: "wrap" }}>
-        <button onClick={() => setShowForm(v => !v)} style={{ padding: "0.5rem 1.2rem", background: "linear-gradient(135deg, #0e7490, #0891b2)", color: "#ffffff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }} type="button">
+        <button onClick={() => setShowForm(v => !v)} style={{ padding: "0.5rem 1.2rem", background: "linear-gradient(135deg, #0e7490, #0891b2)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }} type="button">
           {showForm ? "✕ Cancelar" : "+ Nova Marca Manual"}
         </button>
-        <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value as StatusMarca | "")} style={{ padding: "0.5rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.82rem", background: "var(--panel)", cursor: "pointer" }}>
+        <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value as StatusMarca | "")} style={{ padding: "0.5rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.82rem", background: "#fff", cursor: "pointer" }}>
           <option value="">Todos os status</option>
           {(Object.keys(S_MARCA) as StatusMarca[]).map(s => <option key={s} value={s}>{S_MARCA[s].label}</option>)}
         </select>
@@ -828,16 +828,16 @@ function MarcasINPI() {
 
       {/* Formulário manual */}
       {showForm && (
-        <div style={{ background: "var(--panel-2)", border: "1.5px solid var(--border)", borderRadius: 12, padding: "1.25rem", marginBottom: 20 }}>
+        <div style={{ background: "#f9fafb", border: "1.5px solid #dfece5", borderRadius: 12, padding: "1.25rem", marginBottom: 20 }}>
           <h4 style={{ margin: "0 0 1rem", fontSize: "0.9rem", fontWeight: 800 }}>Cadastrar marca manualmente</h4>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
             <div style={{ gridColumn: "1/-1" }}>
-              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", marginBottom: 4 }}>Nome / Sinal da Marca *</label>
-              <input value={nome} onChange={e => setNome(e.target.value)} placeholder="Ex: FATTURATI" style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.875rem", boxSizing: "border-box" }} />
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Nome / Sinal da Marca *</label>
+              <input value={nome} onChange={e => setNome(e.target.value)} placeholder="Ex: FATTURATI" style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.875rem", boxSizing: "border-box" }} />
             </div>
             <div>
-              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", marginBottom: 4 }}>Natureza</label>
-              <select value={natureza} onChange={e => setNatureza(e.target.value as NaturezaMarca)} style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.875rem", background: "var(--panel)", boxSizing: "border-box" }}>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Natureza</label>
+              <select value={natureza} onChange={e => setNatureza(e.target.value as NaturezaMarca)} style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.875rem", background: "#fff", boxSizing: "border-box" }}>
                 <option value="nominativa">Nominativa</option>
                 <option value="figurativa">Figurativa</option>
                 <option value="mista">Mista</option>
@@ -845,46 +845,46 @@ function MarcasINPI() {
               </select>
             </div>
             <div>
-              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", marginBottom: 4 }}>Classe NCL</label>
-              <select value={classe} onChange={e => setClasse(e.target.value)} style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.875rem", background: "var(--panel)", boxSizing: "border-box" }}>
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Classe NCL</label>
+              <select value={classe} onChange={e => setClasse(e.target.value)} style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.875rem", background: "#fff", boxSizing: "border-box" }}>
                 {CLASSES_NCL.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div style={{ gridColumn: "1/-1" }}>
-              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", marginBottom: 4 }}>Descrição dos serviços / produtos</label>
-              <textarea value={descricao} onChange={e => setDescricao(e.target.value)} rows={2} placeholder="Descrição conforme petição de depósito..." style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box" }} />
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Descrição dos serviços / produtos</label>
+              <textarea value={descricao} onChange={e => setDescricao(e.target.value)} rows={2} placeholder="Descrição conforme petição de depósito..." style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box" }} />
             </div>
             <div>
-              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", marginBottom: 4 }}>Titular</label>
-              <input value={titular} onChange={e => setTitular(e.target.value)} placeholder="Nome do titular" style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.875rem", boxSizing: "border-box" }} />
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Titular</label>
+              <input value={titular} onChange={e => setTitular(e.target.value)} placeholder="Nome do titular" style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.875rem", boxSizing: "border-box" }} />
             </div>
             <div>
-              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", marginBottom: 4 }}>Procurador / Agente</label>
-              <input value={procurador} onChange={e => setProcurador(e.target.value)} placeholder="Nome do procurador" style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.875rem", boxSizing: "border-box" }} />
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Procurador / Agente</label>
+              <input value={procurador} onChange={e => setProcurador(e.target.value)} placeholder="Nome do procurador" style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.875rem", boxSizing: "border-box" }} />
             </div>
             <div>
-              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", marginBottom: 4 }}>Nº do Pedido (INPI)</label>
-              <input value={pedido} onChange={e => setPedido(e.target.value)} placeholder="Ex: 921234567" style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.875rem", boxSizing: "border-box" }} />
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Nº do Pedido (INPI)</label>
+              <input value={pedido} onChange={e => setPedido(e.target.value)} placeholder="Ex: 921234567" style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.875rem", boxSizing: "border-box" }} />
             </div>
             <div>
-              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", marginBottom: 4 }}>Data de depósito</label>
-              <input type="date" value={deposito} onChange={e => setDeposito(e.target.value)} style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.875rem", boxSizing: "border-box" }} />
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Data de depósito</label>
+              <input type="date" value={deposito} onChange={e => setDeposito(e.target.value)} style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.875rem", boxSizing: "border-box" }} />
             </div>
             <div style={{ gridColumn: "1/-1" }}>
-              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", marginBottom: 4 }}>Observações</label>
-              <textarea value={obs} onChange={e => setObs(e.target.value)} rows={2} placeholder="Andamentos, recursos, prazos especiais..." style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box" }} />
+              <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>Observações</label>
+              <textarea value={obs} onChange={e => setObs(e.target.value)} rows={2} placeholder="Andamentos, recursos, prazos especiais..." style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.875rem", resize: "vertical", boxSizing: "border-box" }} />
             </div>
           </div>
           <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end", marginTop: "1rem" }}>
-            <button onClick={() => setShowForm(false)} style={{ padding: "0.5rem 1.2rem", background: "rgba(148,163,184,0.15)", color: "#374151", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }} type="button">Cancelar</button>
-            <button onClick={salvar} style={{ padding: "0.5rem 1.4rem", background: "linear-gradient(135deg, #0e7490, #0891b2)", color: "#ffffff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }} type="button">Salvar marca</button>
+            <button onClick={() => setShowForm(false)} style={{ padding: "0.5rem 1.2rem", background: "#f3f4f6", color: "#374151", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }} type="button">Cancelar</button>
+            <button onClick={salvar} style={{ padding: "0.5rem 1.4rem", background: "linear-gradient(135deg, #0e7490, #0891b2)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }} type="button">Salvar marca</button>
           </div>
         </div>
       )}
 
       {/* Tabela */}
       {marcasFiltradas.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "3rem 2rem", background: "var(--panel-2)", borderRadius: 12, border: "2px dashed rgba(148,163,184,0.2)" }}>
+        <div style={{ textAlign: "center", padding: "3rem 2rem", background: "#f9fafb", borderRadius: 12, border: "2px dashed #e5e7eb" }}>
           <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>™</div>
           <div style={{ fontWeight: 700, color: "#374151", marginBottom: 4 }}>Nenhuma marca cadastrada</div>
           <div style={{ fontSize: "0.82rem", color: "#9ca3af" }}>Use a busca acima para encontrar marcas no INPI, ou clique em "Nova Marca Manual".</div>
@@ -892,12 +892,12 @@ function MarcasINPI() {
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
           {marcasFiltradas.map(m => (
-            <div key={m.id} style={{ background: "var(--panel)", border: "1.5px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
+            <div key={m.id} style={{ background: "#fff", border: "1.5px solid #dfece5", borderRadius: 12, overflow: "hidden" }}>
               {/* Linha principal */}
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.875rem 1rem", flexWrap: "wrap" }}>
                 <div style={{ flex: 1, minWidth: 200 }}>
-                  <div style={{ fontWeight: 800, fontSize: "0.92rem", color: "var(--ink)" }}>{m.nome}</div>
-                  <div style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: 2 }}>
+                  <div style={{ fontWeight: 800, fontSize: "0.92rem", color: "#07170d" }}>{m.nome}</div>
+                  <div style={{ fontSize: "0.75rem", color: "#6b7280", marginTop: 2 }}>
                     {m.numero_pedido !== "—" && <>Pedido: <strong>{m.numero_pedido}</strong> · </>}
                     {m.natureza.charAt(0).toUpperCase() + m.natureza.slice(1)} · {m.classe_ncl}
                   </div>
@@ -922,21 +922,21 @@ function MarcasINPI() {
                   )}
                   <button
                     onClick={() => setDetalheAberto(detalheAberto === m.id ? null : m.id)}
-                    style={{ background: "rgba(148,163,184,0.15)", color: "#374151", border: "1px solid rgba(148,163,184,0.2)", borderRadius: 6, padding: "4px 10px", fontSize: "0.73rem", fontWeight: 700, cursor: "pointer" }}
+                    style={{ background: "#f3f4f6", color: "#374151", border: "1px solid #e5e7eb", borderRadius: 6, padding: "4px 10px", fontSize: "0.73rem", fontWeight: 700, cursor: "pointer" }}
                     type="button"
                   >
                     {detalheAberto === m.id ? "▲" : "▼"}
                   </button>
                   {FLUXO_MARCA.includes(m.status) && FLUXO_MARCA.indexOf(m.status) < FLUXO_MARCA.length - 1 && (
-                    <button onClick={() => avancar(m.id)} style={{ background: "rgba(52,211,153,0.15)", color: "#34d399", border: "1px solid rgba(74,222,128,0.25)", borderRadius: 6, padding: "4px 10px", fontSize: "0.73rem", fontWeight: 700, cursor: "pointer" }} type="button">→</button>
+                    <button onClick={() => avancar(m.id)} style={{ background: "#f0fdf4", color: "#065f46", border: "1px solid #bbf7d0", borderRadius: 6, padding: "4px 10px", fontSize: "0.73rem", fontWeight: 700, cursor: "pointer" }} type="button">→</button>
                   )}
-                  <button onClick={() => remover(m.id, m.nome)} style={{ background: "rgba(248,113,113,0.15)", color: "#f87171", border: "1px solid rgba(248,113,113,0.35)", borderRadius: 6, padding: "4px 10px", fontSize: "0.73rem", fontWeight: 700, cursor: "pointer" }} type="button">✕</button>
+                  <button onClick={() => remover(m.id, m.nome)} style={{ background: "#fef2f2", color: "#b91c1c", border: "1px solid #fecaca", borderRadius: 6, padding: "4px 10px", fontSize: "0.73rem", fontWeight: 700, cursor: "pointer" }} type="button">✕</button>
                 </div>
               </div>
 
               {/* Detalhe expandido */}
               {detalheAberto === m.id && (
-                <div style={{ borderTop: "1px solid #e8f0eb", background: "var(--panel-2)", padding: "0.875rem 1rem", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "0.75rem" }}>
+                <div style={{ borderTop: "1px solid #e8f0eb", background: "#f9fafb", padding: "0.875rem 1rem", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "0.75rem" }}>
                   {[
                     { label: "Nº Pedido", value: m.numero_pedido },
                     { label: "Depósito", value: m.data_deposito && m.data_deposito !== "—" ? new Date(m.data_deposito + "T00:00:00").toLocaleDateString("pt-BR") : "—" },
@@ -962,9 +962,9 @@ function MarcasINPI() {
       )}
 
       {/* Informativo */}
-      <div style={{ background: "rgba(96,165,250,0.15)", border: "1px solid rgba(96,165,250,0.35)", borderRadius: 10, padding: "0.875rem 1.1rem", marginTop: 20 }}>
-        <div style={{ fontWeight: 700, fontSize: "0.82rem", color: "#93c5fd", marginBottom: "0.35rem" }}>ℹ️ Sobre o registro de marcas no Brasil</div>
-        <div style={{ fontSize: "0.77rem", color: "#93c5fd", lineHeight: 1.65 }}>
+      <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 10, padding: "0.875rem 1.1rem", marginTop: 20 }}>
+        <div style={{ fontWeight: 700, fontSize: "0.82rem", color: "#1d4ed8", marginBottom: "0.35rem" }}>ℹ️ Sobre o registro de marcas no Brasil</div>
+        <div style={{ fontSize: "0.77rem", color: "#1e40af", lineHeight: 1.65 }}>
           O INPI <strong>não oferece API pública</strong> para automação — a consulta e o depósito são feitos manualmente no portal oficial <strong>pePI</strong> (busca.inpi.gov.br) e <strong>e-INPI</strong> (com certificado digital).
           Use os botões "pePI ↗" acima para abrir rapidamente a consulta de cada pedido. Prazo médio de análise: <strong>18 a 36 meses</strong>. Registro válido por <strong>10 anos</strong>, renovável.
         </div>
@@ -983,8 +983,8 @@ export default function ServicosAvulsosPage() {
       <div className="page-stack">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
-            <h1 style={{ margin: "0 0 4px", fontSize: "1.5rem", color: "var(--ink)", fontWeight: 800 }}>Servicos Avulsos</h1>
-            <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--muted)" }}>Ferramentas e calculadoras para o dia a dia contabil e trabalhista.</p>
+            <h1 style={{ margin: "0 0 4px", fontSize: "1.5rem", color: "#07170d", fontWeight: 800 }}>Servicos Avulsos</h1>
+            <p style={{ margin: 0, fontSize: "0.875rem", color: "#6f8f7c" }}>Ferramentas e calculadoras para o dia a dia contabil e trabalhista.</p>
           </div>
         </div>
 
@@ -995,8 +995,8 @@ export default function ServicosAvulsosPage() {
                 key={f.id}
                 onClick={() => setTab(f.id)}
                 style={{
-                  background: "var(--panel)",
-                  border: "1.5px solid var(--border)",
+                  background: "#fff",
+                  border: "1.5px solid #dfece5",
                   borderRadius: 12,
                   padding: "1.25rem",
                   cursor: "pointer",
@@ -1012,8 +1012,8 @@ export default function ServicosAvulsosPage() {
                   {f.emoji}
                 </div>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "var(--ink)", marginBottom: 4 }}>{f.nome}</div>
-                  <div style={{ fontSize: "0.78rem", color: "var(--muted)" }}>{f.descricao}</div>
+                  <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "#07170d", marginBottom: 4 }}>{f.nome}</div>
+                  <div style={{ fontSize: "0.78rem", color: "#6f8f7c" }}>{f.descricao}</div>
                 </div>
               </button>
             ))}
@@ -1022,14 +1022,14 @@ export default function ServicosAvulsosPage() {
           <div style={{ marginTop: 16 }}>
             <button
               onClick={() => setTab("ferramentas")}
-              style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "var(--muted)", cursor: "pointer", fontSize: "0.82rem", fontWeight: 600, marginBottom: 16, padding: 0 }}
+              style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "#6f8f7c", cursor: "pointer", fontSize: "0.82rem", fontWeight: 600, marginBottom: 16, padding: 0 }}
               type="button"
             >
               <svg fill="none" height={14} viewBox="0 0 24 24" width={14}><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}/></svg>
               Voltar
             </button>
 
-            <div style={{ background: "var(--panel)", border: "1.5px solid var(--border)", borderRadius: 12, padding: "1.5rem" }}>
+            <div style={{ background: "#fff", border: "1.5px solid #dfece5", borderRadius: 12, padding: "1.5rem" }}>
               {tab === "rescisao" && <RescisaoCalc />}
               {tab === "contratos" && <GeradorContratos />}
               {tab === "fgts" && <SimuladorFGTS />}

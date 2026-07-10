@@ -22,15 +22,15 @@ import {
 /* ─── Constantes visuais ─────────────────────────────────────── */
 
 const STATUS_INFO: Record<StatusContrato, { label: string; bg: string; color: string }> = {
-  rascunho:            { label: "Rascunho",             bg: "rgba(148,163,184,0.15)", color: "var(--muted)" },
-  em_revisao:          { label: "Em Revisão",           bg: "rgba(251,191,36,0.15)", color: "#fbbf24" },
-  aprovado:            { label: "Aprovado",             bg: "rgba(96,165,250,0.15)", color: "#93c5fd" },
-  reprovado:           { label: "Reprovado",            bg: "rgba(248,113,113,0.15)", color: "#f87171" },
-  pendente_assinatura: { label: "Pendente Assinatura",  bg: "rgba(196,181,253,0.15)", color: "#c4b5fd" },
-  assinado:            { label: "Assinado",             bg: "rgba(52,211,153,0.15)", color: "#34d399" },
-  vencido:             { label: "Vencido",              bg: "rgba(251,146,60,0.15)", color: "#fb923c" },
-  arquivado:           { label: "Arquivado",            bg: "var(--panel-2)", color: "var(--muted)" },
-  cancelado:           { label: "Cancelado",            bg: "rgba(248,113,113,0.15)", color: "#f87171" },
+  rascunho:            { label: "Rascunho",             bg: "#f3f4f6", color: "#6b7280" },
+  em_revisao:          { label: "Em Revisão",           bg: "#fffbeb", color: "#92400e" },
+  aprovado:            { label: "Aprovado",             bg: "#eff6ff", color: "#1e40af" },
+  reprovado:           { label: "Reprovado",            bg: "#fef2f2", color: "#b91c1c" },
+  pendente_assinatura: { label: "Pendente Assinatura",  bg: "#f5f3ff", color: "#7c3aed" },
+  assinado:            { label: "Assinado",             bg: "#f0fdf4", color: "#065f46" },
+  vencido:             { label: "Vencido",              bg: "#fff7ed", color: "#c2410c" },
+  arquivado:           { label: "Arquivado",            bg: "#f8fafc", color: "#64748b" },
+  cancelado:           { label: "Cancelado",            bg: "#fef2f2", color: "#b91c1c" },
 };
 
 const FLUXO_STATUS: StatusContrato[] = [
@@ -74,27 +74,27 @@ const GUIAS: { key: GuiaGerador; label: string; icon: string }[] = [
 
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "9px 12px", borderRadius: 8,
-  border: "1px solid var(--border)", fontSize: "0.85rem", color: "var(--ink)",
-  background: "var(--panel-2)", boxSizing: "border-box",
+  border: "1px solid #e2e8f0", fontSize: "0.85rem", color: "#0f172a",
+  background: "#fff", boxSizing: "border-box",
 };
 
 const btnPrimary: React.CSSProperties = {
-  background: "var(--green-500)", color: "#04140c", border: "none", borderRadius: 8,
+  background: "#0f172a", color: "#fff", border: "none", borderRadius: 8,
   padding: "9px 18px", fontSize: "0.84rem", fontWeight: 600, cursor: "pointer",
 };
 
 const btnGhost: React.CSSProperties = {
-  background: "var(--panel-2)", color: "var(--green-500)", border: "1px solid var(--border)",
+  background: "#f8fafc", color: "#0f172a", border: "1px solid #e2e8f0",
   borderRadius: 8, padding: "8px 14px", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer",
 };
 
 const btnSmall: React.CSSProperties = {
-  background: "var(--panel)", color: "var(--ink-2)", border: "1px solid var(--border)",
+  background: "#fff", color: "#334155", border: "1px solid #e2e8f0",
   borderRadius: 6, padding: "4px 10px", fontSize: "0.74rem", fontWeight: 600, cursor: "pointer",
 };
 
 const cardStyle: React.CSSProperties = {
-  background: "var(--panel)", borderRadius: 10, border: "1px solid var(--border)", padding: 18,
+  background: "#fff", borderRadius: 10, border: "1px solid #e2e8f0", padding: 18,
 };
 
 function Badge({ bg, color, label }: { bg: string; color: string; label: string }) {
@@ -110,15 +110,15 @@ function Badge({ bg, color, label }: { bg: string; color: string; label: string 
 
 function Field({ label, children, required }: { label: string; children: React.ReactNode; required?: boolean }) {
   return (
-    <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: "0.78rem", fontWeight: 600, color: "var(--ink-2)" }}>
-      <span>{label}{required && <span style={{ color: "#f87171" }}> *</span>}</span>
+    <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: "0.78rem", fontWeight: 600, color: "#475569" }}>
+      <span>{label}{required && <span style={{ color: "#dc2626" }}> *</span>}</span>
       {children}
     </label>
   );
 }
 
 function Vazio({ msg }: { msg: string }) {
-  return <div style={{ textAlign: "center", padding: "50px 20px", color: "var(--muted)", fontSize: "0.9rem" }}>{msg}</div>;
+  return <div style={{ textAlign: "center", padding: "50px 20px", color: "#94a3b8", fontSize: "0.9rem" }}>{msg}</div>;
 }
 
 function Modal({ title, onClose, children, wide }: { title: string; onClose: () => void; children: React.ReactNode; wide?: boolean }) {
@@ -126,20 +126,20 @@ function Modal({ title, onClose, children, wide }: { title: string; onClose: () 
     <div
       onClick={onClose}
       style={{
-        position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", zIndex: 200,
+        position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", zIndex: 200,
         display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: "var(--panel)", borderRadius: 12, width: wide ? "min(960px, 96vw)" : "min(640px, 96vw)",
+          background: "#fff", borderRadius: 12, width: wide ? "min(960px, 96vw)" : "min(640px, 96vw)",
           maxHeight: "90vh", overflow: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
         }}
       >
         <div style={{
           display: "flex", justifyContent: "space-between", alignItems: "center",
-          padding: "14px 20px", borderBottom: "1px solid var(--border)", position: "sticky", top: 0, background: "var(--panel)", zIndex: 1,
+          padding: "14px 20px", borderBottom: "1px solid #e2e8f0", position: "sticky", top: 0, background: "#fff", zIndex: 1,
         }}>
           <strong style={{ fontSize: "0.98rem" }}>{title}</strong>
           <button onClick={onClose} style={{ ...btnSmall, border: "none", fontSize: "1rem" }}>✕</button>
@@ -206,7 +206,7 @@ export function GeradorContratos() {
   };
 
   if (!pronto) {
-    return <div style={{ textAlign: "center", padding: 60, color: "var(--muted)" }}>Carregando gerador...</div>;
+    return <div style={{ textAlign: "center", padding: 60, color: "#94a3b8" }}>Carregando gerador...</div>;
   }
 
   return (
@@ -219,9 +219,9 @@ export function GeradorContratos() {
             onClick={() => { setGuia(g.key); if (g.key !== "novo") setContratoEmEdicao(null); }}
             style={{
               padding: "8px 16px", borderRadius: 999, fontSize: "0.82rem", fontWeight: 600,
-              cursor: "pointer", border: "1px solid var(--border)",
-              background: guia === g.key ? "var(--green-500)" : "var(--panel)",
-              color: guia === g.key ? "#fff" : "var(--ink-2)",
+              cursor: "pointer", border: "1px solid #e2e8f0",
+              background: guia === g.key ? "#0f172a" : "#fff",
+              color: guia === g.key ? "#fff" : "#334155",
             }}
           >
             {g.icon} {g.label}
@@ -304,8 +304,8 @@ function GuiaDashboard({
 
   const KPI = ({ label, valor, cor }: { label: string; valor: string | number; cor?: string }) => (
     <div className="metric-card" style={{ ...cardStyle, padding: 16 }}>
-      <span style={{ fontSize: "0.75rem", color: "var(--muted)", display: "block" }}>{label}</span>
-      <strong style={{ fontSize: "1.5rem", color: cor ?? "var(--ink)" }}>{valor}</strong>
+      <span style={{ fontSize: "0.75rem", color: "#64748b", display: "block" }}>{label}</span>
+      <strong style={{ fontSize: "1.5rem", color: cor ?? "#0f172a" }}>{valor}</strong>
     </div>
   );
 
@@ -313,11 +313,11 @@ function GuiaDashboard({
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12 }}>
         <KPI label="Contratos criados" valor={kpis.criados} />
-        <KPI label="Assinados" valor={kpis.assinados} cor="#34d399" />
-        <KPI label="Pendentes" valor={kpis.pendentes} cor="#c4b5fd" />
-        <KPI label="Vencidos" valor={kpis.vencidos} cor="#fb923c" />
-        <KPI label="Cancelados" valor={kpis.cancelados} cor="#f87171" />
-        <KPI label="Valor total" valor={fmtBRL(kpis.valorTotal)} cor="#34d399" />
+        <KPI label="Assinados" valor={kpis.assinados} cor="#065f46" />
+        <KPI label="Pendentes" valor={kpis.pendentes} cor="#7c3aed" />
+        <KPI label="Vencidos" valor={kpis.vencidos} cor="#c2410c" />
+        <KPI label="Cancelados" valor={kpis.cancelados} cor="#b91c1c" />
+        <KPI label="Valor total" valor={fmtBRL(kpis.valorTotal)} cor="#065f46" />
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
@@ -332,13 +332,13 @@ function GuiaDashboard({
                 const modelo = modelos.find((m) => m.nome === nome);
                 return (
                   <div key={nome} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <span style={{ width: 160, fontSize: "0.8rem", color: "var(--ink-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <span style={{ width: 160, fontSize: "0.8rem", color: "#334155", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {modelo?.icone} {nome}
                     </span>
-                    <div style={{ flex: 1, background: "var(--panel-2)", borderRadius: 6, height: 18 }}>
+                    <div style={{ flex: 1, background: "#f1f5f9", borderRadius: 6, height: 18 }}>
                       <div style={{
                         width: `${(n / maxTipo) * 100}%`, height: "100%", borderRadius: 6,
-                        background: modelo?.cor ?? "var(--green-500)", minWidth: 20,
+                        background: modelo?.cor ?? "#0f172a", minWidth: 20,
                         display: "flex", alignItems: "center", justifyContent: "flex-end",
                         color: "#fff", fontSize: "0.68rem", fontWeight: 700, paddingRight: 6, boxSizing: "border-box",
                       }}>
@@ -362,13 +362,13 @@ function GuiaDashboard({
               {proximosVencimentos.slice(0, 8).map((c) => (
                 <div key={c.id} style={{
                   display: "flex", justifyContent: "space-between", alignItems: "center",
-                  padding: "8px 12px", background: "rgba(251,146,60,0.15)", borderRadius: 8, border: "1px solid rgba(251,146,60,0.35)",
+                  padding: "8px 12px", background: "#fff7ed", borderRadius: 8, border: "1px solid #fed7aa",
                 }}>
                   <div>
-                    <strong style={{ fontSize: "0.8rem", color: "var(--ink)" }}>{c.numero}</strong>
-                    <span style={{ fontSize: "0.75rem", color: "var(--muted)", marginLeft: 8 }}>{c.titulo}</span>
+                    <strong style={{ fontSize: "0.8rem", color: "#0f172a" }}>{c.numero}</strong>
+                    <span style={{ fontSize: "0.75rem", color: "#64748b", marginLeft: 8 }}>{c.titulo}</span>
                   </div>
-                  <span style={{ fontSize: "0.76rem", fontWeight: 700, color: "#fb923c" }}>{dataBR(c.dataVencimento)}</span>
+                  <span style={{ fontSize: "0.76rem", fontWeight: 700, color: "#c2410c" }}>{dataBR(c.dataVencimento)}</span>
                 </div>
               ))}
             </div>
@@ -389,7 +389,7 @@ function GuiaDashboard({
             <thead>
               <tr>
                 {["Número", "Título", "Modelo", "Status", "Valor", "Criado em"].map((h) => (
-                  <th key={h} style={{ padding: "8px 12px", textAlign: "left", fontSize: "0.72rem", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", borderBottom: "1px solid var(--border)" }}>{h}</th>
+                  <th key={h} style={{ padding: "8px 12px", textAlign: "left", fontSize: "0.72rem", fontWeight: 600, color: "#64748b", textTransform: "uppercase", borderBottom: "1px solid #e2e8f0" }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -398,12 +398,12 @@ function GuiaDashboard({
                 const st = STATUS_INFO[c.status];
                 return (
                   <tr key={c.id}>
-                    <td style={{ padding: "8px 12px", fontSize: "0.8rem", fontFamily: "monospace", borderBottom: "1px solid var(--panel-2)" }}>{c.numero}</td>
-                    <td style={{ padding: "8px 12px", fontSize: "0.82rem", borderBottom: "1px solid var(--panel-2)" }}>{c.titulo}</td>
-                    <td style={{ padding: "8px 12px", fontSize: "0.8rem", color: "var(--muted)", borderBottom: "1px solid var(--panel-2)" }}>{c.modeloNome}</td>
-                    <td style={{ padding: "8px 12px", borderBottom: "1px solid var(--panel-2)" }}><Badge {...st} /></td>
-                    <td style={{ padding: "8px 12px", fontSize: "0.8rem", borderBottom: "1px solid var(--panel-2)" }}>{fmtBRL(c.valor || 0)}</td>
-                    <td style={{ padding: "8px 12px", fontSize: "0.8rem", color: "var(--muted)", borderBottom: "1px solid var(--panel-2)" }}>{new Date(c.criadoEm).toLocaleDateString("pt-BR")}</td>
+                    <td style={{ padding: "8px 12px", fontSize: "0.8rem", fontFamily: "monospace", borderBottom: "1px solid #f1f5f9" }}>{c.numero}</td>
+                    <td style={{ padding: "8px 12px", fontSize: "0.82rem", borderBottom: "1px solid #f1f5f9" }}>{c.titulo}</td>
+                    <td style={{ padding: "8px 12px", fontSize: "0.8rem", color: "#64748b", borderBottom: "1px solid #f1f5f9" }}>{c.modeloNome}</td>
+                    <td style={{ padding: "8px 12px", borderBottom: "1px solid #f1f5f9" }}><Badge {...st} /></td>
+                    <td style={{ padding: "8px 12px", fontSize: "0.8rem", borderBottom: "1px solid #f1f5f9" }}>{fmtBRL(c.valor || 0)}</td>
+                    <td style={{ padding: "8px 12px", fontSize: "0.8rem", color: "#64748b", borderBottom: "1px solid #f1f5f9" }}>{new Date(c.criadoEm).toLocaleDateString("pt-BR")}</td>
                   </tr>
                 );
               })}
@@ -564,26 +564,26 @@ function GuiaNovoContrato({
                 <span style={{
                   width: 28, height: 28, borderRadius: "50%", display: "inline-flex",
                   alignItems: "center", justifyContent: "center", fontSize: "0.78rem", fontWeight: 700,
-                  background: ativo ? "var(--green-500)" : feito ? "#34d399" : "var(--border)",
-                  color: ativo || feito ? "#fff" : "var(--muted)",
+                  background: ativo ? "#0f172a" : feito ? "#065f46" : "#e2e8f0",
+                  color: ativo || feito ? "#fff" : "#64748b",
                 }}>
                   {feito ? "✓" : num}
                 </span>
-                <span style={{ fontSize: "0.8rem", fontWeight: ativo ? 700 : 500, color: ativo ? "var(--ink)" : "var(--muted)" }}>{p}</span>
+                <span style={{ fontSize: "0.8rem", fontWeight: ativo ? 700 : 500, color: ativo ? "#0f172a" : "#64748b" }}>{p}</span>
               </button>
-              {i < PASSOS.length - 1 && <div style={{ width: 32, height: 2, background: feito ? "#34d399" : "var(--border)", margin: "0 6px" }} />}
+              {i < PASSOS.length - 1 && <div style={{ width: 32, height: 2, background: feito ? "#065f46" : "#e2e8f0", margin: "0 6px" }} />}
             </div>
           );
         })}
         {contratoEmEdicao && (
           <span style={{ marginLeft: "auto" }}>
-            <Badge bg="rgba(96,165,250,0.15)" color="#93c5fd" label={`Editando ${contratoEmEdicao.numero} (v${contratoEmEdicao.versao} → v${contratoEmEdicao.versao + 1})`} />
+            <Badge bg="#eff6ff" color="#1e40af" label={`Editando ${contratoEmEdicao.numero} (v${contratoEmEdicao.versao} → v${contratoEmEdicao.versao + 1})`} />
           </span>
         )}
       </div>
 
       {avisoValidacao && (
-        <div style={{ background: "rgba(248,113,113,0.15)", border: "1px solid rgba(248,113,113,0.35)", color: "#f87171", borderRadius: 8, padding: "10px 14px", fontSize: "0.82rem" }}>
+        <div style={{ background: "#fef2f2", border: "1px solid #fecaca", color: "#b91c1c", borderRadius: 8, padding: "10px 14px", fontSize: "0.82rem" }}>
           ⚠️ {avisoValidacao}
         </div>
       )}
@@ -606,10 +606,10 @@ function GuiaNovoContrato({
                   <span style={{ fontSize: "1.4rem" }}>{m.icone}</span>
                   <strong style={{ fontSize: "0.9rem" }}>{m.nome}</strong>
                 </div>
-                <span style={{ fontSize: "0.76rem", color: "var(--muted)", lineHeight: 1.4 }}>{m.descricao}</span>
+                <span style={{ fontSize: "0.76rem", color: "#64748b", lineHeight: 1.4 }}>{m.descricao}</span>
                 <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
                   <Badge bg={m.cor + "18"} color={m.cor} label={m.categoria} />
-                  <Badge bg="var(--panel-2)" color="var(--muted)" label={`${m.campos.length} campos`} />
+                  <Badge bg="#f1f5f9" color="#64748b" label={`${m.campos.length} campos`} />
                 </div>
               </div>
             </button>
@@ -621,7 +621,7 @@ function GuiaNovoContrato({
       {passo === 2 && modelo && (
         <div style={cardStyle}>
           <strong style={{ fontSize: "0.95rem" }}>{modelo.icone} {modelo.nome} — dados do contrato</strong>
-          <p style={{ fontSize: "0.78rem", color: "var(--muted)", margin: "4px 0 16px" }}>
+          <p style={{ fontSize: "0.78rem", color: "#64748b", margin: "4px 0 16px" }}>
             Os campos abaixo alimentam as variáveis do documento (ex: {"{{VALOR}}"}, {"{{VALOR_EXTENSO}}"}, {"{{DATA_EXTENSO}}"}).
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14 }}>
@@ -644,7 +644,7 @@ function GuiaNovoContrato({
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
               <div>
                 <strong style={{ fontSize: "0.95rem" }}>Partes do contrato</strong>
-                <p style={{ fontSize: "0.78rem", color: "var(--muted)", margin: "2px 0 0" }}>
+                <p style={{ fontSize: "0.78rem", color: "#64748b", margin: "2px 0 0" }}>
                   Mínimo de {modelo.minAssinantes} partes. Pessoas cadastradas podem ser reutilizadas em outros contratos.
                 </p>
               </div>
@@ -660,8 +660,8 @@ function GuiaNovoContrato({
                   return (
                     <div key={p.id} style={{
                       display: "flex", alignItems: "center", gap: 12, padding: "10px 14px",
-                      borderRadius: 8, border: `1px solid ${sel ? "#34d399" : "var(--border)"}`,
-                      background: sel ? "rgba(52,211,153,0.15)" : "var(--panel)",
+                      borderRadius: 8, border: `1px solid ${sel ? "#065f46" : "#e2e8f0"}`,
+                      background: sel ? "#f0fdf4" : "#fff",
                     }}>
                       <input
                         type="checkbox"
@@ -676,7 +676,7 @@ function GuiaNovoContrato({
                       />
                       <div style={{ flex: 1 }}>
                         <strong style={{ fontSize: "0.84rem" }}>{p.nome}</strong>
-                        <span style={{ fontSize: "0.75rem", color: "var(--muted)", marginLeft: 8 }}>
+                        <span style={{ fontSize: "0.75rem", color: "#64748b", marginLeft: 8 }}>
                           {p.tipoPessoa} · {p.documento} · {p.cidade}/{p.uf}
                         </span>
                       </div>
@@ -884,7 +884,7 @@ function FormParte({ onSalvar, inicial }: { onSalvar: (p: Parte) => void; inicia
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      {erro && <div style={{ background: "rgba(248,113,113,0.15)", color: "#f87171", borderRadius: 8, padding: "8px 12px", fontSize: "0.8rem" }}>{erro}</div>}
+      {erro && <div style={{ background: "#fef2f2", color: "#b91c1c", borderRadius: 8, padding: "8px 12px", fontSize: "0.8rem" }}>{erro}</div>}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <Field label="Tipo de pessoa" required>
           <select style={inputStyle} value={p.tipoPessoa} onChange={(e) => set({ tipoPessoa: e.target.value as "PF" | "PJ", documento: "" })}>
@@ -1016,16 +1016,16 @@ function ConstrutorClausulas({
   );
 
   const ORIGEM_INFO: Record<ClausulaContrato["origem"], { label: string; bg: string; color: string }> = {
-    obrigatoria: { label: "Obrigatória", bg: "rgba(96,165,250,0.15)", color: "#93c5fd" },
-    regra:       { label: "Regra automática", bg: "rgba(232,121,249,0.15)", color: "#e879f9" },
-    opcional:    { label: "Opcional", bg: "rgba(52,211,153,0.15)", color: "#34d399" },
-    manual:      { label: "Manual", bg: "var(--panel-2)", color: "var(--muted)" },
+    obrigatoria: { label: "Obrigatória", bg: "#eff6ff", color: "#1e40af" },
+    regra:       { label: "Regra automática", bg: "#fdf4ff", color: "#a21caf" },
+    opcional:    { label: "Opcional", bg: "#f0fdf4", color: "#065f46" },
+    manual:      { label: "Manual", bg: "#f8fafc", color: "#64748b" },
   };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       {regrasAtivadas.length > 0 && (
-        <div style={{ background: "rgba(232,121,249,0.15)", border: "1px solid rgba(232,121,249,0.35)", borderRadius: 8, padding: "10px 14px", fontSize: "0.8rem", color: "#e879f9" }}>
+        <div style={{ background: "#fdf4ff", border: "1px solid #f0abfc", borderRadius: 8, padding: "10px 14px", fontSize: "0.8rem", color: "#a21caf" }}>
           ⚡ Regras aplicadas automaticamente: {regrasAtivadas.map((r) => r.nome).join(" · ")}
         </div>
       )}
@@ -1034,7 +1034,7 @@ function ConstrutorClausulas({
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <div>
             <strong style={{ fontSize: "0.95rem" }}>Cláusulas do contrato ({clausulasSel.length})</strong>
-            <p style={{ fontSize: "0.76rem", color: "var(--muted)", margin: "2px 0 0" }}>
+            <p style={{ fontSize: "0.76rem", color: "#64748b", margin: "2px 0 0" }}>
               A numeração (CLÁUSULA PRIMEIRA, SEGUNDA...) é atualizada automaticamente ao mover ou excluir.
             </p>
           </div>
@@ -1056,12 +1056,12 @@ function ConstrutorClausulas({
             {clausulasSel.map((c, i) => {
               const origem = ORIGEM_INFO[c.origem];
               return (
-                <div key={i} style={{ border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: "var(--panel-2)" }}>
-                    <strong style={{ fontSize: "0.78rem", color: "var(--ink)", whiteSpace: "nowrap" }}>
+                <div key={i} style={{ border: "1px solid #e2e8f0", borderRadius: 8, overflow: "hidden" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: "#f8fafc" }}>
+                    <strong style={{ fontSize: "0.78rem", color: "#0f172a", whiteSpace: "nowrap" }}>
                       CLÁUSULA {ordinalClausula(i)}
                     </strong>
-                    <span style={{ fontSize: "0.82rem", color: "var(--ink-2)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <span style={{ fontSize: "0.82rem", color: "#334155", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {c.titulo}
                     </span>
                     <Badge {...origem} />
@@ -1070,7 +1070,7 @@ function ConstrutorClausulas({
                       <button style={btnSmall} title="Mover para baixo" onClick={() => mover(i, 1)} disabled={i === clausulasSel.length - 1}>↓</button>
                       <button style={btnSmall} title="Editar" onClick={() => setEditandoIdx(editandoIdx === i ? null : i)}>✏️</button>
                       <button style={btnSmall} title="Duplicar" onClick={() => duplicar(i)}>⧉</button>
-                      <button style={{ ...btnSmall, color: "#f87171" }} title="Excluir" onClick={() => remover(i)}>🗑️</button>
+                      <button style={{ ...btnSmall, color: "#b91c1c" }} title="Excluir" onClick={() => remover(i)}>🗑️</button>
                     </div>
                   </div>
                   {editandoIdx === i ? (
@@ -1085,12 +1085,12 @@ function ConstrutorClausulas({
                         value={c.texto}
                         onChange={(e) => setClausulasSel((prev) => prev.map((x, idx) => idx === i ? { ...x, texto: e.target.value } : x))}
                       />
-                      <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>
+                      <span style={{ fontSize: "0.72rem", color: "#94a3b8" }}>
                         Use variáveis como {"{{VALOR}}"}, {"{{VALOR_EXTENSO}}"}, {"{{CONTRATANTE}}"}, {"{{DATA_EXTENSO}}"}...
                       </span>
                     </div>
                   ) : (
-                    <p style={{ padding: "10px 14px", margin: 0, fontSize: "0.8rem", color: "var(--ink-2)", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>
+                    <p style={{ padding: "10px 14px", margin: 0, fontSize: "0.8rem", color: "#475569", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>
                       {c.texto.length > 260 ? c.texto.slice(0, 260) + "…" : c.texto}
                     </p>
                   )}
@@ -1116,14 +1116,14 @@ function ConstrutorClausulas({
               {filtradas.map((c) => {
                 const sugerida = modelo.clausulasOpcionais.includes(c.id);
                 return (
-                  <div key={c.id} style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 12, display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  <div key={c.id} style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: 12, display: "flex", gap: 12, alignItems: "flex-start" }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                         <strong style={{ fontSize: "0.84rem" }}>{c.favorita ? "⭐ " : ""}{c.titulo}</strong>
-                        <Badge bg="var(--panel-2)" color="var(--muted)" label={c.categoria} />
-                        {sugerida && <Badge bg="rgba(52,211,153,0.15)" color="#34d399" label="Sugerida p/ este modelo" />}
+                        <Badge bg="#f1f5f9" color="#64748b" label={c.categoria} />
+                        {sugerida && <Badge bg="#f0fdf4" color="#065f46" label="Sugerida p/ este modelo" />}
                       </div>
-                      <p style={{ fontSize: "0.76rem", color: "var(--muted)", margin: "6px 0 0", lineHeight: 1.5 }}>
+                      <p style={{ fontSize: "0.76rem", color: "#64748b", margin: "6px 0 0", lineHeight: 1.5 }}>
                         {c.texto.slice(0, 180)}…
                       </p>
                     </div>
@@ -1175,7 +1175,7 @@ function PreviewContrato({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {pendentes.size > 0 && (
-        <div style={{ background: "rgba(251,191,36,0.15)", border: "1px solid rgba(251,191,36,0.35)", color: "#fbbf24", borderRadius: 8, padding: "10px 14px", fontSize: "0.8rem" }}>
+        <div style={{ background: "#fffbeb", border: "1px solid #fde68a", color: "#92400e", borderRadius: 8, padding: "10px 14px", fontSize: "0.8rem" }}>
           ⚠️ Variáveis sem valor (aparecem entre colchetes no documento): {[...pendentes].join(", ")}
         </div>
       )}
@@ -1185,10 +1185,10 @@ function PreviewContrato({
         <button style={btnGhost} onClick={() => exportarHTML(html, modelo.tituloDocumento)}>🌐 HTML</button>
         <button style={btnGhost} onClick={() => exportarTXT(html, modelo.tituloDocumento)}>📃 TXT</button>
       </div>
-      <div style={{ background: "var(--green-950)", borderRadius: 12, padding: 24, display: "flex", justifyContent: "center" }}>
+      <div style={{ background: "#e2e8f0", borderRadius: 12, padding: 24, display: "flex", justifyContent: "center" }}>
         <div style={{
-          background: "white", width: "min(800px, 100%)", padding: "60px 70px",
-          boxShadow: "0 4px 24px rgba(0,0,0,0.45)", borderRadius: 4,
+          background: "#fff", width: "min(800px, 100%)", padding: "60px 70px",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.12)", borderRadius: 4,
         }}>
           <style dangerouslySetInnerHTML={{ __html: DOC_CSS }} />
           <div dangerouslySetInnerHTML={{ __html: html }} />
@@ -1283,9 +1283,9 @@ function GuiaContratos({
                   <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                     <strong style={{ fontSize: "0.85rem", fontFamily: "monospace" }}>{c.numero}</strong>
                     <Badge {...st} />
-                    <Badge bg="var(--panel-2)" color="var(--muted)" label={`v${c.versao}`} />
+                    <Badge bg="#f1f5f9" color="#64748b" label={`v${c.versao}`} />
                   </div>
-                  <div style={{ fontSize: "0.8rem", color: "var(--ink-2)", marginTop: 4 }}>
+                  <div style={{ fontSize: "0.8rem", color: "#475569", marginTop: 4 }}>
                     {c.titulo} · {c.modeloNome} · {fmtBRL(c.valor || 0)}
                     {c.dataVencimento && ` · vence em ${dataBR(c.dataVencimento)}`}
                     {` · assinaturas ${assinaturas}/${c.partes.length}`}
@@ -1305,7 +1305,7 @@ function GuiaContratos({
                   <button style={btnSmall} onClick={() => exportarDOCX(htmlDe(c), c.numero)}>📄 DOCX</button>
                   <button style={btnSmall} onClick={() => editarContrato(c)}>✏️ Nova versão</button>
                   <button style={btnSmall} onClick={() => setHistoricoDe(c)}>🕘 Histórico</button>
-                  <button style={{ ...btnSmall, color: "#f87171" }} onClick={() => excluir(c)}>🗑️</button>
+                  <button style={{ ...btnSmall, color: "#b91c1c" }} onClick={() => excluir(c)}>🗑️</button>
                 </div>
               </div>
             );
@@ -1316,7 +1316,7 @@ function GuiaContratos({
       {visualizando && (
         <Modal title={`${visualizando.numero} — ${visualizando.titulo}`} onClose={() => setVisualizando(null)} wide>
           <style dangerouslySetInnerHTML={{ __html: DOC_CSS }} />
-          <div style={{ background: "white", padding: "40px 48px", borderRadius: 4 }} dangerouslySetInnerHTML={{ __html: htmlDe(visualizando) }} />
+          <div dangerouslySetInnerHTML={{ __html: htmlDe(visualizando) }} />
         </Modal>
       )}
 
@@ -1324,14 +1324,14 @@ function GuiaContratos({
         <Modal title={`Histórico de versões — ${historicoDe.numero}`} onClose={() => setHistoricoDe(null)}>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {[...historicoDe.versoes].reverse().map((v) => (
-              <div key={v.versao} style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 12 }}>
+              <div key={v.versao} style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: 12 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <strong style={{ fontSize: "0.84rem" }}>Versão {v.versao}</strong>
-                  <span style={{ fontSize: "0.74rem", color: "var(--muted)" }}>
+                  <span style={{ fontSize: "0.74rem", color: "#64748b" }}>
                     {new Date(v.data).toLocaleString("pt-BR")} · {v.autor}
                   </span>
                 </div>
-                <p style={{ fontSize: "0.78rem", color: "var(--ink-2)", margin: "4px 0 8px" }}>{v.descricao} — {v.clausulas.length} cláusulas</p>
+                <p style={{ fontSize: "0.78rem", color: "#475569", margin: "4px 0 8px" }}>{v.descricao} — {v.clausulas.length} cláusulas</p>
                 {v.versao !== historicoDe.versao && (
                   <button
                     style={btnSmall}
@@ -1429,7 +1429,7 @@ function GuiaModelos({
           onClick={() =>
             setEditando({
               id: uid(), nome: "Novo modelo", categoria: "Geral", descricao: "", icone: "📄",
-              cor: "#10b981", status: "ativo", versao: 1,
+              cor: "#0f172a", status: "ativo", versao: 1,
               tituloDocumento: "Contrato", preambulo: "", fechamento: "",
               campos: [], clausulasObrigatorias: [], clausulasOpcionais: [], minAssinantes: 2,
             })
@@ -1448,17 +1448,17 @@ function GuiaModelos({
                 <span style={{ fontSize: "1.4rem" }}>{m.icone}</span>
                 <strong style={{ fontSize: "0.92rem", flex: 1 }}>{m.nome}</strong>
                 <Badge
-                  bg={m.status === "ativo" ? "rgba(52,211,153,0.15)" : "rgba(148,163,184,0.15)"}
-                  color={m.status === "ativo" ? "#34d399" : "var(--muted)"}
+                  bg={m.status === "ativo" ? "#f0fdf4" : "#f3f4f6"}
+                  color={m.status === "ativo" ? "#065f46" : "#6b7280"}
                   label={m.status === "ativo" ? "Ativo" : "Inativo"}
                 />
               </div>
-              <span style={{ fontSize: "0.76rem", color: "var(--muted)", lineHeight: 1.45 }}>{m.descricao}</span>
+              <span style={{ fontSize: "0.76rem", color: "#64748b", lineHeight: 1.45 }}>{m.descricao}</span>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 <Badge bg={m.cor + "18"} color={m.cor} label={m.categoria} />
-                <Badge bg="var(--panel-2)" color="var(--muted)" label={`${m.campos.length} campos`} />
-                <Badge bg="var(--panel-2)" color="var(--muted)" label={`${m.clausulasObrigatorias.length + m.clausulasOpcionais.length} cláusulas`} />
-                <Badge bg="var(--panel-2)" color="var(--muted)" label={`v${m.versao}`} />
+                <Badge bg="#f1f5f9" color="#64748b" label={`${m.campos.length} campos`} />
+                <Badge bg="#f1f5f9" color="#64748b" label={`${m.clausulasObrigatorias.length + m.clausulasOpcionais.length} cláusulas`} />
+                <Badge bg="#f1f5f9" color="#64748b" label={`v${m.versao}`} />
               </div>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 4 }}>
                 <button style={btnSmall} onClick={() => setEditando(m)}>✏️ Editar</button>
@@ -1470,7 +1470,7 @@ function GuiaModelos({
                 >
                   {m.status === "ativo" ? "⏸️ Desativar" : "▶️ Ativar"}
                 </button>
-                <button style={{ ...btnSmall, color: "#f87171" }} onClick={() => excluir(m)}>🗑️</button>
+                <button style={{ ...btnSmall, color: "#b91c1c" }} onClick={() => excluir(m)}>🗑️</button>
               </div>
             </div>
           </div>
@@ -1565,7 +1565,7 @@ function EditorModelo({
       </Field>
 
       {/* Campos do formulário */}
-      <div style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 14 }}>
+      <div style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: 14 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
           <strong style={{ fontSize: "0.86rem" }}>Campos do formulário ({m.campos.length})</strong>
           <button
@@ -1593,27 +1593,27 @@ function EditorModelo({
               style={{ ...inputStyle, fontFamily: "monospace" }} value={c.variavel} placeholder="VARIAVEL"
               onChange={(e) => set({ campos: m.campos.map((x, idx) => idx === i ? { ...x, variavel: e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, "_") } : x) })}
             />
-            <label style={{ display: "flex", alignItems: "center", gap: 4, fontSize: "0.72rem", color: "var(--ink-2)" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: 4, fontSize: "0.72rem", color: "#475569" }}>
               <input
                 type="checkbox" checked={c.obrigatorio}
                 onChange={(e) => set({ campos: m.campos.map((x, idx) => idx === i ? { ...x, obrigatorio: e.target.checked } : x) })}
               />
               Obrig.
             </label>
-            <button style={{ ...btnSmall, color: "#f87171" }} onClick={() => set({ campos: m.campos.filter((_, idx) => idx !== i) })}>🗑️</button>
+            <button style={{ ...btnSmall, color: "#b91c1c" }} onClick={() => set({ campos: m.campos.filter((_, idx) => idx !== i) })}>🗑️</button>
           </div>
         ))}
         {m.campos.some((c) => c.tipo === "select") && (
-          <p style={{ fontSize: "0.72rem", color: "var(--muted)", margin: "6px 0 0" }}>
+          <p style={{ fontSize: "0.72rem", color: "#94a3b8", margin: "6px 0 0" }}>
             Campos de seleção usam as opções definidas no modelo original; edite via exportar/importar JSON para opções personalizadas.
           </p>
         )}
       </div>
 
       {/* Cláusulas do modelo */}
-      <div style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 14 }}>
+      <div style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: 14 }}>
         <strong style={{ fontSize: "0.86rem" }}>Cláusulas do modelo</strong>
-        <p style={{ fontSize: "0.72rem", color: "var(--muted)", margin: "4px 0 10px" }}>
+        <p style={{ fontSize: "0.72rem", color: "#94a3b8", margin: "4px 0 10px" }}>
           Obrigatórias entram automaticamente; opcionais aparecem como sugestão no construtor.
         </p>
         <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 260, overflow: "auto" }}>
@@ -1622,7 +1622,7 @@ function EditorModelo({
             const opc = m.clausulasOpcionais.includes(c.id);
             return (
               <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: "0.8rem" }}>
-                <span style={{ flex: 1, color: "var(--ink-2)" }}>{c.titulo} <span style={{ color: "var(--muted)" }}>({c.categoria})</span></span>
+                <span style={{ flex: 1, color: "#334155" }}>{c.titulo} <span style={{ color: "#94a3b8" }}>({c.categoria})</span></span>
                 <label style={{ display: "flex", gap: 4, alignItems: "center", fontSize: "0.72rem" }}>
                   <input type="checkbox" checked={obrig} onChange={() => toggleClausula(c.id, "obrig")} /> Obrigatória
                 </label>
@@ -1696,7 +1696,7 @@ function GuiaClausulas({
           <option value="todas">Todas as categorias</option>
           {categorias.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
-        <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.8rem", color: "var(--ink-2)" }}>
+        <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.8rem", color: "#475569" }}>
           <input type="checkbox" checked={soFavoritas} onChange={(e) => setSoFavoritas(e.target.checked)} />
           ⭐ Só favoritas
         </label>
@@ -1718,13 +1718,13 @@ function GuiaClausulas({
                   {c.favorita ? "⭐" : "☆"}
                 </button>
                 <strong style={{ fontSize: "0.86rem", flex: 1 }}>{c.titulo}</strong>
-                <Badge bg="var(--panel-2)" color="var(--muted)" label={`v${c.versao}`} />
+                <Badge bg="#f1f5f9" color="#64748b" label={`v${c.versao}`} />
               </div>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                <Badge bg="rgba(96,165,250,0.15)" color="#93c5fd" label={c.categoria} />
-                {c.tags.slice(0, 3).map((t) => <Badge key={t} bg="var(--panel-2)" color="var(--muted)" label={`#${t}`} />)}
+                <Badge bg="#eff6ff" color="#1e40af" label={c.categoria} />
+                {c.tags.slice(0, 3).map((t) => <Badge key={t} bg="#f1f5f9" color="#64748b" label={`#${t}`} />)}
               </div>
-              <p style={{ fontSize: "0.76rem", color: "var(--muted)", margin: 0, lineHeight: 1.5, flex: 1 }}>
+              <p style={{ fontSize: "0.76rem", color: "#64748b", margin: 0, lineHeight: 1.5, flex: 1 }}>
                 {c.texto.slice(0, 150)}{c.texto.length > 150 ? "…" : ""}
               </p>
               <div style={{ display: "flex", gap: 6 }}>
@@ -1742,7 +1742,7 @@ function GuiaClausulas({
                   {c.status === "ativa" ? "⏸️" : "▶️"}
                 </button>
                 <button
-                  style={{ ...btnSmall, color: "#f87171" }}
+                  style={{ ...btnSmall, color: "#b91c1c" }}
                   onClick={() => {
                     if (!window.confirm(`Excluir a cláusula "${c.titulo}"?`)) return;
                     setClausulas((prev) => prev.filter((x) => x.id !== c.id));
@@ -1797,7 +1797,7 @@ function EditorClausula({ inicial, onSalvar }: { inicial: Clausula; onSalvar: (c
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      {erro && <div style={{ background: "rgba(248,113,113,0.15)", color: "#f87171", borderRadius: 8, padding: "8px 12px", fontSize: "0.8rem" }}>{erro}</div>}
+      {erro && <div style={{ background: "#fef2f2", color: "#b91c1c", borderRadius: 8, padding: "8px 12px", fontSize: "0.8rem" }}>{erro}</div>}
       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 }}>
         <Field label="Título" required>
           <input style={inputStyle} value={c.titulo} onChange={(e) => setC({ ...c, titulo: e.target.value })} />
@@ -1814,7 +1814,7 @@ function EditorClausula({ inicial, onSalvar }: { inicial: Clausula; onSalvar: (c
       </Field>
 
       <div>
-        <span style={{ fontSize: "0.74rem", fontWeight: 600, color: "var(--ink-2)" }}>Inserir variável:</span>
+        <span style={{ fontSize: "0.74rem", fontWeight: 600, color: "#475569" }}>Inserir variável:</span>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 6 }}>
           {VARIAVEIS_SUGERIDAS.map((v) => (
             <button key={v} style={{ ...btnSmall, fontFamily: "monospace", fontSize: "0.68rem" }} onClick={() => inserirVariavel(v)}>
@@ -1833,9 +1833,9 @@ function EditorClausula({ inicial, onSalvar }: { inicial: Clausula; onSalvar: (c
       </Field>
 
       {c.texto && (
-        <div style={{ background: "var(--panel-2)", border: "1px solid var(--border)", borderRadius: 8, padding: 14 }}>
-          <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Pré-visualização (dados de exemplo)</span>
-          <p style={{ fontSize: "0.82rem", color: "var(--ink-2)", lineHeight: 1.7, margin: "8px 0 0", whiteSpace: "pre-wrap" }}>
+        <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8, padding: 14 }}>
+          <span style={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Pré-visualização (dados de exemplo)</span>
+          <p style={{ fontSize: "0.82rem", color: "#334155", lineHeight: 1.7, margin: "8px 0 0", whiteSpace: "pre-wrap" }}>
             {substituirVariaveis(c.texto, previewVars)}
           </p>
         </div>
@@ -1894,27 +1894,27 @@ function GuiaPartes({
             <div key={p.id} style={{ ...cardStyle, padding: 14, display: "flex", flexDirection: "column", gap: 6 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{
-                  width: 34, height: 34, borderRadius: "50%", background: "var(--green-500)", color: "#ffffff",
+                  width: 34, height: 34, borderRadius: "50%", background: "#0f172a", color: "#fff",
                   display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "0.8rem", fontWeight: 700,
                 }}>
                   {p.nome.slice(0, 2).toUpperCase()}
                 </span>
                 <div style={{ flex: 1 }}>
                   <strong style={{ fontSize: "0.86rem", display: "block" }}>{p.nome}</strong>
-                  <span style={{ fontSize: "0.72rem", color: "var(--muted)" }}>{p.tipoPessoa} · {p.documento}</span>
+                  <span style={{ fontSize: "0.72rem", color: "#64748b" }}>{p.tipoPessoa} · {p.documento}</span>
                 </div>
-                <Badge bg="rgba(96,165,250,0.15)" color="#93c5fd" label={p.papelPadrao} />
+                <Badge bg="#eff6ff" color="#1e40af" label={p.papelPadrao} />
               </div>
-              <span style={{ fontSize: "0.75rem", color: "var(--muted)" }}>
+              <span style={{ fontSize: "0.75rem", color: "#64748b" }}>
                 {[p.email, p.telefone].filter(Boolean).join(" · ") || "Sem contato"}
               </span>
-              <span style={{ fontSize: "0.75rem", color: "var(--muted)" }}>
+              <span style={{ fontSize: "0.75rem", color: "#64748b" }}>
                 {[p.logradouro, p.numero, p.cidade && `${p.cidade}/${p.uf}`].filter(Boolean).join(", ") || "Sem endereço"}
               </span>
               <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
                 <button style={btnSmall} onClick={() => setEditando(p)}>✏️ Editar</button>
                 <button
-                  style={{ ...btnSmall, color: "#f87171" }}
+                  style={{ ...btnSmall, color: "#b91c1c" }}
                   onClick={() => {
                     if (!window.confirm(`Excluir "${p.nome}" do cadastro?`)) return;
                     setPartes((prev) => prev.filter((x) => x.id !== p.id));
@@ -1965,9 +1965,9 @@ function GuiaRegras({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      <div style={{ ...cardStyle, background: "var(--panel-2)" }}>
+      <div style={{ ...cardStyle, background: "#f8fafc" }}>
         <strong style={{ fontSize: "0.9rem" }}>⚙️ Motor de regras</strong>
-        <p style={{ fontSize: "0.78rem", color: "var(--muted)", margin: "4px 0 0", lineHeight: 1.5 }}>
+        <p style={{ fontSize: "0.78rem", color: "#64748b", margin: "4px 0 0", lineHeight: 1.5 }}>
           Crie regras do tipo <strong>SE campo [condição] valor ENTÃO adicionar cláusula</strong>.
           As regras são aplicadas automaticamente ao montar as cláusulas de um novo contrato.
           Ex.: SE VALOR &gt; 5000 ENTÃO adicionar cláusula de garantia.
@@ -1989,14 +1989,14 @@ function GuiaRegras({
               <div key={r.id} style={{ ...cardStyle, padding: "12px 16px", display: "flex", alignItems: "center", gap: 12, opacity: r.ativa ? 1 : 0.5 }}>
                 <div style={{ flex: 1 }}>
                   <strong style={{ fontSize: "0.84rem" }}>{r.nome || "(sem nome)"}</strong>
-                  <div style={{ fontSize: "0.78rem", color: "var(--ink-2)", marginTop: 2 }}>
-                    <span style={{ background: "rgba(96,165,250,0.15)", color: "#93c5fd", borderRadius: 4, padding: "1px 6px", fontWeight: 700 }}>SE</span>
+                  <div style={{ fontSize: "0.78rem", color: "#475569", marginTop: 2 }}>
+                    <span style={{ background: "#eff6ff", color: "#1e40af", borderRadius: 4, padding: "1px 6px", fontWeight: 700 }}>SE</span>
                     {" "}<code>{r.campo}</code> {op?.label} <code>{r.valor}</code>{" "}
-                    <span style={{ background: "rgba(52,211,153,0.15)", color: "#34d399", borderRadius: 4, padding: "1px 6px", fontWeight: 700 }}>ENTÃO</span>
+                    <span style={{ background: "#f0fdf4", color: "#065f46", borderRadius: 4, padding: "1px 6px", fontWeight: 700 }}>ENTÃO</span>
                     {" "}adicionar <strong>{cl?.titulo ?? "cláusula removida"}</strong>
                   </div>
                 </div>
-                <label style={{ display: "flex", alignItems: "center", gap: 4, fontSize: "0.74rem", color: "var(--ink-2)" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: 4, fontSize: "0.74rem", color: "#475569" }}>
                   <input
                     type="checkbox" checked={r.ativa}
                     onChange={(e) => setRegras((prev) => prev.map((x) => x.id === r.id ? { ...x, ativa: e.target.checked } : x))}
@@ -2005,7 +2005,7 @@ function GuiaRegras({
                 </label>
                 <button style={btnSmall} onClick={() => setEditando(r)}>✏️</button>
                 <button
-                  style={{ ...btnSmall, color: "#f87171" }}
+                  style={{ ...btnSmall, color: "#b91c1c" }}
                   onClick={() => {
                     if (!window.confirm(`Excluir a regra "${r.nome}"?`)) return;
                     setRegras((prev) => prev.filter((x) => x.id !== r.id));

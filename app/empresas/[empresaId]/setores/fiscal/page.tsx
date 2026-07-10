@@ -67,13 +67,13 @@ const ICONE = (
 /* ─── Configuracoes visuais ───────────────────────────────────── */
 
 const STATUS_OBR: Record<StatusObrigacao, { bg: string; color: string; label: string }> = {
-  pendente:           { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Pendente" },
-  em_andamento:       { bg: "rgba(96,165,250,0.15)", color: "#93c5fd", label: "Em andamento" },
-  aguardando_cliente: { bg: "rgba(232,121,249,0.15)", color: "#7e22ce", label: "Aguard. cliente" },
-  em_revisao:         { bg: "rgba(251,146,60,0.15)", color: "#fb923c", label: "Em revisao" },
-  transmitido:        { bg: "rgba(52,211,153,0.15)", color: "#34d399", label: "Transmitido" },
-  concluido:          { bg: "rgba(52,211,153,0.15)", color: "#4ade80", label: "Concluido" },
-  atrasado:           { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Atrasado" },
+  pendente:           { bg: "#fffbeb", color: "#92400e", label: "Pendente" },
+  em_andamento:       { bg: "#eff6ff", color: "#1d4ed8", label: "Em andamento" },
+  aguardando_cliente: { bg: "#fdf4ff", color: "#7e22ce", label: "Aguard. cliente" },
+  em_revisao:         { bg: "#fff7ed", color: "#c2410c", label: "Em revisao" },
+  transmitido:        { bg: "#ecfdf5", color: "#065f46", label: "Transmitido" },
+  concluido:          { bg: "#f0fdf4", color: "#166534", label: "Concluido" },
+  atrasado:           { bg: "#fef2f2", color: "#b91c1c", label: "Atrasado" },
 };
 
 const PRIO: Record<Prioridade, { color: string; label: string }> = {
@@ -83,26 +83,26 @@ const PRIO: Record<Prioridade, { color: string; label: string }> = {
 };
 
 const STATUS_GUIA: Record<Guia["status"], { bg: string; color: string; label: string }> = {
-  pendente: { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Pendente" },
-  emitida:  { bg: "rgba(96,165,250,0.15)", color: "#93c5fd", label: "Emitida" },
-  enviada:  { bg: "rgba(232,121,249,0.15)", color: "#7e22ce", label: "Enviada" },
-  paga:     { bg: "rgba(52,211,153,0.15)", color: "#4ade80", label: "Paga" },
-  vencida:  { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Vencida" },
+  pendente: { bg: "#fffbeb", color: "#92400e", label: "Pendente" },
+  emitida:  { bg: "#eff6ff", color: "#1d4ed8", label: "Emitida" },
+  enviada:  { bg: "#fdf4ff", color: "#7e22ce", label: "Enviada" },
+  paga:     { bg: "#f0fdf4", color: "#166534", label: "Paga" },
+  vencida:  { bg: "#fef2f2", color: "#b91c1c", label: "Vencida" },
 };
 
 const STATUS_SPED: Record<SpedArquivo["status"], { bg: string; color: string; label: string }> = {
-  pendente:    { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Pendente" },
-  gerado:      { bg: "rgba(96,165,250,0.15)", color: "#93c5fd", label: "Gerado" },
-  validado:    { bg: "rgba(251,146,60,0.15)", color: "#fb923c", label: "Validado" },
-  transmitido: { bg: "rgba(52,211,153,0.15)", color: "#4ade80", label: "Transmitido" },
-  erro:        { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Erro" },
+  pendente:    { bg: "#fffbeb", color: "#92400e", label: "Pendente" },
+  gerado:      { bg: "#eff6ff", color: "#1d4ed8", label: "Gerado" },
+  validado:    { bg: "#fff7ed", color: "#c2410c", label: "Validado" },
+  transmitido: { bg: "#f0fdf4", color: "#166534", label: "Transmitido" },
+  erro:        { bg: "#fef2f2", color: "#b91c1c", label: "Erro" },
 };
 
 const STATUS_CERT: Record<Certidao["status"], { bg: string; color: string; label: string; icon: string }> = {
-  valida:         { bg: "rgba(52,211,153,0.15)", color: "#4ade80", label: "Valida", icon: "V" },
-  vencida:        { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Vencida", icon: "X" },
-  solicitada:     { bg: "rgba(96,165,250,0.15)", color: "#93c5fd", label: "Solicitada", icon: "..." },
-  nao_solicitada: { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: "Nao solicitada", icon: "-" },
+  valida:         { bg: "#f0fdf4", color: "#166534", label: "Valida", icon: "V" },
+  vencida:        { bg: "#fef2f2", color: "#b91c1c", label: "Vencida", icon: "X" },
+  solicitada:     { bg: "#eff6ff", color: "#1d4ed8", label: "Solicitada", icon: "..." },
+  nao_solicitada: { bg: "#f3f4f6", color: "#6b7280", label: "Nao solicitada", icon: "-" },
 };
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
@@ -129,7 +129,7 @@ function Badge({ cfg }: { cfg: { bg: string; color: string; label: string } }) {
 
 function TH({ children, right }: { children: React.ReactNode; right?: boolean }) {
   return (
-    <th style={{ textAlign: right ? "right" : "left", padding: "0.7rem 0.875rem", color: "var(--muted)", fontWeight: 700, fontSize: "0.73rem", textTransform: "uppercase", letterSpacing: "0.5px", borderBottom: "1px solid #e8f0eb" }}>
+    <th style={{ textAlign: right ? "right" : "left", padding: "0.7rem 0.875rem", color: "#6f8f7c", fontWeight: 700, fontSize: "0.73rem", textTransform: "uppercase", letterSpacing: "0.5px", borderBottom: "1px solid #e8f0eb" }}>
       {children}
     </th>
   );
@@ -137,7 +137,7 @@ function TH({ children, right }: { children: React.ReactNode; right?: boolean })
 
 function TD({ children, right, muted }: { children: React.ReactNode; right?: boolean; muted?: boolean }) {
   return (
-    <td style={{ padding: "0.8rem 0.875rem", textAlign: right ? "right" : "left", color: muted ? "var(--muted)" : "var(--ink)", fontSize: "0.875rem", borderBottom: "1px solid var(--panel-2)" }}>
+    <td style={{ padding: "0.8rem 0.875rem", textAlign: right ? "right" : "left", color: muted ? "#6f8f7c" : "#07170d", fontSize: "0.875rem", borderBottom: "1px solid #f0f7f3" }}>
       {children}
     </td>
   );
@@ -155,7 +155,7 @@ function LoadingSkeleton() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "2rem" }}>
       {[1, 2, 3].map((i) => (
-        <div key={i} style={{ height: 48, background: "var(--panel-2)", borderRadius: 8, animation: "pulse 1.5s infinite" }} />
+        <div key={i} style={{ height: 48, background: "#f0f7f3", borderRadius: 8, animation: "pulse 1.5s infinite" }} />
       ))}
       <style>{`@keyframes pulse { 0%,100%{opacity:.6} 50%{opacity:1} }`}</style>
     </div>
@@ -238,10 +238,10 @@ export default function FiscalPage() {
   return (
     <SetorShell
       borda="#6ee7b7"
-      cor="#34d399"
+      cor="#065f46"
       empresaId={empresaId}
       empresaNome="Empresa"
-      fundo="rgba(52,211,153,0.15)"
+      fundo="#ecfdf5"
       icone={ICONE}
       setorNome="Setor Fiscal"
       setorResumo="Apuracao, obrigacoes tributarias, guias e escrituracao digital"
@@ -253,7 +253,7 @@ export default function FiscalPage() {
       ]}
     >
       {/* ── Tabs internas ── */}
-      <div style={{ background: "var(--panel)", borderRadius: "12px 12px 0 0", border: "1px solid var(--border)", borderBottom: "none" }}>
+      <div style={{ background: "#fff", borderRadius: "12px 12px 0 0", border: "1px solid var(--border)", borderBottom: "none" }}>
         <div style={{ display: "flex", overflowX: "auto", padding: "0 8px" }}>
           {TABS.map((t) => (
             <button
@@ -263,7 +263,7 @@ export default function FiscalPage() {
                 background: "none",
                 border: "none",
                 borderBottom: tab === t.id ? "2px solid #10b981" : "2px solid transparent",
-                color: tab === t.id ? "#34d399" : "var(--muted)",
+                color: tab === t.id ? "#065f46" : "#6f8f7c",
                 cursor: "pointer",
                 fontWeight: tab === t.id ? 800 : 500,
                 fontSize: "0.82rem",
@@ -284,7 +284,7 @@ export default function FiscalPage() {
         </div>
       </div>
 
-      <div style={{ background: "var(--panel)", border: "1px solid var(--border)", borderTop: "none", borderRadius: "0 0 12px 12px", padding: "1.5rem" }}>
+      <div style={{ background: "#fff", border: "1px solid var(--border)", borderTop: "none", borderRadius: "0 0 12px 12px", padding: "1.5rem" }}>
 
         {loading && <LoadingSkeleton />}
 
@@ -296,13 +296,13 @@ export default function FiscalPage() {
             {/* KPI strip */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
               {[
-                { label: "Obrigacoes pendentes", value: pendentes, color: "#fbbf24", bg: "rgba(251,191,36,0.15)" },
-                { label: "Entregues no mes", value: entregues, color: "#10b981", bg: "rgba(52,211,153,0.15)" },
-                { label: "A vencer", value: aVencer, color: "#f59e0b", bg: "rgba(251,146,60,0.15)" },
-                { label: "Guias emitidas", value: guiasEmitidas, color: "#3b82f6", bg: "rgba(96,165,250,0.15)" },
+                { label: "Obrigacoes pendentes", value: pendentes, color: "#fbbf24", bg: "#fffbeb" },
+                { label: "Entregues no mes", value: entregues, color: "#10b981", bg: "#f0fdf4" },
+                { label: "A vencer", value: aVencer, color: "#f59e0b", bg: "#fff7ed" },
+                { label: "Guias emitidas", value: guiasEmitidas, color: "#3b82f6", bg: "#eff6ff" },
               ].map((kpi) => (
                 <div key={kpi.label} style={{ background: kpi.bg, border: `1px solid ${kpi.color}22`, borderRadius: 12, padding: "1rem 1.25rem", borderTop: `3px solid ${kpi.color}` }}>
-                  <p style={{ margin: "0 0 0.5rem", fontSize: "0.72rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>{kpi.label}</p>
+                  <p style={{ margin: "0 0 0.5rem", fontSize: "0.72rem", fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.5px" }}>{kpi.label}</p>
                   <p style={{ margin: 0, fontSize: "1.75rem", fontWeight: 800, color: kpi.color }}>{kpi.value}</p>
                 </div>
               ))}
@@ -320,9 +320,9 @@ export default function FiscalPage() {
                     <EmptyState message="Nenhuma obrigacao pendente." />
                   )}
                   {obrigacoes.filter((o) => !["transmitido", "concluido"].includes(o.status)).slice(0, 5).map((ob) => (
-                    <div key={ob.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 4px", borderBottom: "1px solid var(--panel-2)" }}>
+                    <div key={ob.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 4px", borderBottom: "1px solid #f0f7f3" }}>
                       <div>
-                        <p style={{ margin: 0, fontSize: "0.82rem", fontWeight: 600, color: "var(--ink)" }}>{ob.nome}</p>
+                        <p style={{ margin: 0, fontSize: "0.82rem", fontWeight: 600, color: "#07170d" }}>{ob.nome}</p>
                         <p style={{ margin: "2px 0 0", fontSize: "0.72rem", color: "#9ca3af" }}>{ob.competencia}</p>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -345,9 +345,9 @@ export default function FiscalPage() {
                   {certidoes.slice(0, 4).map((cert, i) => {
                     const cfg = STATUS_CERT[cert.status];
                     return (
-                      <div key={cert.id ?? i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 4px", borderBottom: "1px solid var(--panel-2)" }}>
+                      <div key={cert.id ?? i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 4px", borderBottom: "1px solid #f0f7f3" }}>
                         <div>
-                          <p style={{ margin: 0, fontSize: "0.82rem", fontWeight: 600, color: "var(--ink)" }}>{cert.nome}</p>
+                          <p style={{ margin: 0, fontSize: "0.82rem", fontWeight: 600, color: "#07170d" }}>{cert.nome}</p>
                           <p style={{ margin: "2px 0 0", fontSize: "0.72rem", color: "#9ca3af" }}>{cert.esfera}</p>
                         </div>
                         <Badge cfg={cfg} />
@@ -368,7 +368,7 @@ export default function FiscalPage() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div>
                 <h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Obrigacoes fiscais</h2>
-                <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "var(--muted)" }}>{obsFiltradas.length} obrigac{obsFiltradas.length !== 1 ? "oes" : "ao"}</p>
+                <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#6f8f7c" }}>{obsFiltradas.length} obrigac{obsFiltradas.length !== 1 ? "oes" : "ao"}</p>
               </div>
             </div>
 
@@ -434,12 +434,12 @@ export default function FiscalPage() {
                         </TD>
                         <TD muted>{ob.responsavel}</TD>
                         <TD>
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: "0.78rem", fontWeight: 700, color: PRIO[ob.prioridade]?.color ?? "var(--muted)" }}>
-                            <span style={{ width: 7, height: 7, borderRadius: "50%", background: PRIO[ob.prioridade]?.color ?? "var(--muted)", display: "inline-block" }} />
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: "0.78rem", fontWeight: 700, color: PRIO[ob.prioridade]?.color ?? "#6b7280" }}>
+                            <span style={{ width: 7, height: 7, borderRadius: "50%", background: PRIO[ob.prioridade]?.color ?? "#6b7280", display: "inline-block" }} />
                             {PRIO[ob.prioridade]?.label ?? ob.prioridade}
                           </span>
                         </TD>
-                        <TD><Badge cfg={STATUS_OBR[ob.status] ?? { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: ob.status }} /></TD>
+                        <TD><Badge cfg={STATUS_OBR[ob.status] ?? { bg: "#f3f4f6", color: "#6b7280", label: ob.status }} /></TD>
                         <TD right>
                           <select
                             className="input"
@@ -469,7 +469,7 @@ export default function FiscalPage() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div>
                 <h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Guias de Recolhimento</h2>
-                <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "var(--muted)" }}>{guias.length} guias cadastradas</p>
+                <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#6f8f7c" }}>{guias.length} guias cadastradas</p>
               </div>
             </div>
 
@@ -501,11 +501,11 @@ export default function FiscalPage() {
                       <TD muted>{g.competencia}</TD>
                       <TD muted>{g.vencimento}</TD>
                       <TD right>
-                        <strong style={{ color: g.valor > 0 ? "var(--ink)" : "#9ca3af" }}>
+                        <strong style={{ color: g.valor > 0 ? "#07170d" : "#9ca3af" }}>
                           {g.valor > 0 ? fmt(g.valor) : "-"}
                         </strong>
                       </TD>
-                      <TD><Badge cfg={STATUS_GUIA[g.status] ?? { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: g.status }} /></TD>
+                      <TD><Badge cfg={STATUS_GUIA[g.status] ?? { bg: "#f3f4f6", color: "#6b7280", label: g.status }} /></TD>
                       <TD right>
                         <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
                           {g.status === "pendente" && (
@@ -537,9 +537,9 @@ export default function FiscalPage() {
                 <>
                   <div onClick={() => setRegistrandoPag(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(3px)", zIndex: 40 }} />
                   <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                    <div style={{ background: "var(--panel)", borderRadius: 16, padding: "1.75rem", maxWidth: 420, width: "90%", boxShadow: "0 24px 80px rgba(0,0,0,0.18)", pointerEvents: "auto" }}>
+                    <div style={{ background: "#fff", borderRadius: 16, padding: "1.75rem", maxWidth: 420, width: "90%", boxShadow: "0 24px 80px rgba(0,0,0,0.18)", pointerEvents: "auto" }}>
                       <h3 style={{ margin: "0 0 0.5rem", fontSize: "1rem", fontWeight: 800 }}>Registrar pagamento</h3>
-                      <p style={{ margin: "0 0 1.25rem", fontSize: "0.875rem", color: "var(--muted)" }}>
+                      <p style={{ margin: "0 0 1.25rem", fontSize: "0.875rem", color: "#6b7280" }}>
                         <strong>{g.nome}</strong> - {g.competencia} - <strong>{fmt(g.valor)}</strong>
                       </p>
                       <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: 6 }}>
@@ -566,7 +566,7 @@ export default function FiscalPage() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div>
                 <h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>SPED - Escrituracao Digital</h2>
-                <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "var(--muted)" }}>Status de envio e protocolos</p>
+                <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#6f8f7c" }}>Status de envio e protocolos</p>
               </div>
             </div>
 
@@ -604,7 +604,7 @@ export default function FiscalPage() {
                       <TD><strong style={{ fontSize: "0.85rem" }}>{arq.tipo}</strong></TD>
                       <TD muted>{arq.competencia}</TD>
                       <TD muted>{arq.tamanho ?? "-"}</TD>
-                      <TD><Badge cfg={STATUS_SPED[arq.status] ?? { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: arq.status }} /></TD>
+                      <TD><Badge cfg={STATUS_SPED[arq.status] ?? { bg: "#f3f4f6", color: "#6b7280", label: arq.status }} /></TD>
                       <TD muted>
                         {arq.protocolo
                           ? <span style={{ fontFamily: "monospace", fontSize: "0.78rem" }}>{arq.protocolo}</span>
@@ -631,7 +631,7 @@ export default function FiscalPage() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div>
                 <h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Certidoes Negativas</h2>
-                <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "var(--muted)" }}>Situacao fiscal federal, estadual e municipal</p>
+                <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#6f8f7c" }}>Situacao fiscal federal, estadual e municipal</p>
               </div>
             </div>
 
@@ -648,7 +648,7 @@ export default function FiscalPage() {
                   </div>
                   <div style={{ padding: "0 1rem 1rem", display: "flex", flexDirection: "column", gap: 8 }}>
                     {certs.map((cert, i) => {
-                      const cfg = STATUS_CERT[cert.status] ?? { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: cert.status, icon: "?" };
+                      const cfg = STATUS_CERT[cert.status] ?? { bg: "#f3f4f6", color: "#6b7280", label: cert.status, icon: "?" };
                       const vencendoEm7 = cert.validade && new Date(cert.validade) <= new Date(Date.now() + 7 * 86400000);
                       return (
                         <div
@@ -657,16 +657,16 @@ export default function FiscalPage() {
                             display: "flex", alignItems: "center", justifyContent: "space-between",
                             padding: "12px 14px", borderRadius: 10,
                             background: cfg.bg,
-                            border: `1px solid ${cert.status === "vencida" ? "#fca5a5" : cert.status === "valida" ? "rgba(74,222,128,0.25)" : "rgba(148,163,184,0.2)"}`,
+                            border: `1px solid ${cert.status === "vencida" ? "#fca5a5" : cert.status === "valida" ? "#bbf7d0" : "#e5e7eb"}`,
                           }}
                         >
                           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                            <span style={{ width: 32, height: 32, borderRadius: 8, background: cert.status === "valida" ? "rgba(74,222,128,0.15)" : cert.status === "vencida" ? "rgba(248,113,113,0.18)" : "rgba(148,163,184,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.9rem", fontWeight: 700, color: cfg.color }}>
+                            <span style={{ width: 32, height: 32, borderRadius: 8, background: cert.status === "valida" ? "#dcfce7" : cert.status === "vencida" ? "#fee2e2" : "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.9rem", fontWeight: 700, color: cfg.color }}>
                               {cfg.icon}
                             </span>
                             <div>
-                              <p style={{ margin: 0, fontSize: "0.875rem", fontWeight: 700, color: "var(--ink)" }}>{cert.nome}</p>
-                              <p style={{ margin: "2px 0 0", fontSize: "0.75rem", color: "var(--muted)" }}>
+                              <p style={{ margin: 0, fontSize: "0.875rem", fontWeight: 700, color: "#07170d" }}>{cert.nome}</p>
+                              <p style={{ margin: "2px 0 0", fontSize: "0.75rem", color: "#6b7280" }}>
                                 {cert.numero ? `No ${cert.numero}` : "Sem numero"}
                                 {cert.validade && ` - Validade: ${new Date(cert.validade).toLocaleDateString("pt-BR")}`}
                                 {vencendoEm7 && cert.status === "valida" && <span style={{ color: "#f59e0b", fontWeight: 700 }}> Vencendo em breve</span>}

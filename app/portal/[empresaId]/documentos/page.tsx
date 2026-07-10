@@ -8,10 +8,10 @@ import type { Empresa } from "@/modules/empresas/empresas.types";
 
 const CATEGORIAS = ["Todos", "Fiscal", "Contábil", "DP", "Societário"];
 const FILE_TYPES = [
-  { label: "PDF", bg: "rgba(239,68,95,0.1)", color: "#f87171" },
-  { label: "XML", bg: "rgba(245,158,11,0.1)", color: "#fbbf24" },
-  { label: "ZIP", bg: "rgba(99,102,241,0.1)", color: "#a5b4fc" },
-  { label: "Excel", bg: "rgba(16,185,129,0.1)", color: "#34d399" },
+  { label: "PDF", bg: "rgba(239,68,95,0.1)", color: "#b91c1c" },
+  { label: "XML", bg: "rgba(245,158,11,0.1)", color: "#92400e" },
+  { label: "ZIP", bg: "rgba(99,102,241,0.1)", color: "#4338ca" },
+  { label: "Excel", bg: "rgba(16,185,129,0.1)", color: "#065f46" },
 ];
 
 export default function PortalDocumentos() {
@@ -54,7 +54,7 @@ export default function PortalDocumentos() {
               key={cat}
               onClick={() => setFiltro(cat)}
               style={{
-                background: filtro === cat ? "var(--green-700)" : "var(--panel)",
+                background: filtro === cat ? "var(--green-700)" : "#fff",
                 border: filtro === cat ? "1px solid var(--green-700)" : "1px solid var(--border)",
                 borderRadius: 20,
                 color: filtro === cat ? "#fff" : "var(--muted)",

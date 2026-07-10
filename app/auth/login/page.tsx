@@ -354,9 +354,9 @@ export default function Login() {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: var(--panel);
+          background: #ffffff;
           border-top: 2px solid #0bae75;
-          color: var(--ink);
+          color: #06170d;
           padding: 40px 48px;
         }
 
@@ -380,7 +380,7 @@ export default function Login() {
 
         .form-heading h2 {
           margin: 12px 0 4px;
-          color: var(--ink);
+          color: #07170d;
           font-size: 28px;
           line-height: 1.1;
           letter-spacing: 0;
@@ -388,7 +388,7 @@ export default function Login() {
 
         .form-heading p {
           margin: 0;
-          color: var(--muted);
+          color: #6c8a78;
           font-size: 14px;
         }
 
@@ -398,7 +398,7 @@ export default function Login() {
         }
 
         .field > span {
-          color: var(--ink-2);
+          color: #092015;
           font-size: 11px;
           font-weight: 800;
           letter-spacing: 1px;
@@ -410,10 +410,10 @@ export default function Login() {
           align-items: center;
           gap: 12px;
           min-height: 48px;
-          border: 1px solid var(--border);
+          border: 1px solid #cadbd1;
           border-radius: 12px;
-          background: var(--panel-2);
-          color: var(--muted);
+          background: #f7fbf8;
+          color: #789385;
           padding: 0 14px;
         }
 
@@ -428,12 +428,12 @@ export default function Login() {
           border: 0;
           outline: 0;
           background: transparent;
-          color: var(--ink);
+          color: #0b1f14;
           font-size: 15px;
         }
 
         .input-wrap input::placeholder {
-          color: var(--muted);
+          color: #7c9186;
         }
 
         .icon-button {
@@ -441,7 +441,7 @@ export default function Login() {
           place-items: center;
           border: 0;
           background: transparent;
-          color: var(--muted);
+          color: #779888;
           cursor: pointer;
           padding: 0;
         }
@@ -451,7 +451,7 @@ export default function Login() {
           align-items: center;
           justify-content: space-between;
           gap: 12px;
-          color: var(--muted);
+          color: #355042;
           font-size: 13px;
         }
 
@@ -471,7 +471,7 @@ export default function Login() {
 
         .error-message {
           margin: 0;
-          color: #f87171;
+          color: #b91c1c;
           font-size: 14px;
         }
 
@@ -498,7 +498,7 @@ export default function Login() {
 
         .copyright {
           margin: 12px 0 0;
-          color: var(--muted);
+          color: #7a9688;
           font-size: 12px;
           text-align: center;
         }

@@ -8,19 +8,19 @@ import type { Empresa } from "@/modules/empresas/empresas.types";
 import type { Certificado } from "@/modules/certificados/certificados.types";
 
 const STATUS_STYLES: Record<string, { bg: string; color: string; label: string }> = {
-  ativo:                { bg: "rgba(52,211,153,0.15)", color: "#34d399", label: "Ativo" },
-  proximo_vencimento:   { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Próximo vencimento" },
-  renovando:            { bg: "#ecfeff", color: "#67e8f9", label: "Renovando" },
-  vencido:              { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Vencido" },
-  suspenso:             { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: "Suspenso" },
-  revogado:             { bg: "rgba(148,163,184,0.15)", color: "#374151", label: "Revogado" },
+  ativo:                { bg: "#f0fdf4", color: "#065f46", label: "Ativo" },
+  proximo_vencimento:   { bg: "#fffbeb", color: "#92400e", label: "Próximo vencimento" },
+  renovando:            { bg: "#ecfeff", color: "#0e7490", label: "Renovando" },
+  vencido:              { bg: "#fef2f2", color: "#b91c1c", label: "Vencido" },
+  suspenso:             { bg: "#f3f4f6", color: "#6b7280", label: "Suspenso" },
+  revogado:             { bg: "#f3f4f6", color: "#374151", label: "Revogado" },
 };
 
 function diasColor(dias: number): string {
-  if (dias <= 0) return "#f87171";
-  if (dias <= 30) return "#fbbf24";
-  if (dias <= 60) return "#67e8f9";
-  return "#34d399";
+  if (dias <= 0) return "#b91c1c";
+  if (dias <= 30) return "#92400e";
+  if (dias <= 60) return "#0e7490";
+  return "#065f46";
 }
 
 export default function PortalCertificados() {
@@ -72,17 +72,17 @@ export default function PortalCertificados() {
         ) : (
           <>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
-              <div style={{ background: "rgba(52,211,153,0.15)", border: "1px solid rgba(74,222,128,0.25)", borderTop: "3px solid #34d399", borderRadius: 10, padding: "0.875rem 1rem" }}>
+              <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderTop: "3px solid #065f46", borderRadius: 10, padding: "0.875rem 1rem" }}>
                 <p style={{ margin: "0 0 2px", fontSize: "0.65rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase" }}>Ativos</p>
-                <p style={{ margin: 0, fontSize: "1.4rem", fontWeight: 900, color: "#34d399" }}>{certificados.filter((c) => c.status === "ativo").length}</p>
+                <p style={{ margin: 0, fontSize: "1.4rem", fontWeight: 900, color: "#065f46" }}>{certificados.filter((c) => c.status === "ativo").length}</p>
               </div>
-              <div style={{ background: "rgba(251,191,36,0.15)", border: "1px solid rgba(251,191,36,0.35)", borderTop: "3px solid #fbbf24", borderRadius: 10, padding: "0.875rem 1rem" }}>
+              <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderTop: "3px solid #92400e", borderRadius: 10, padding: "0.875rem 1rem" }}>
                 <p style={{ margin: "0 0 2px", fontSize: "0.65rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase" }}>Vencendo em 30 dias</p>
-                <p style={{ margin: 0, fontSize: "1.4rem", fontWeight: 900, color: "#fbbf24" }}>{certificados.filter((c) => c.dias_restantes > 0 && c.dias_restantes <= 30).length}</p>
+                <p style={{ margin: 0, fontSize: "1.4rem", fontWeight: 900, color: "#92400e" }}>{certificados.filter((c) => c.dias_restantes > 0 && c.dias_restantes <= 30).length}</p>
               </div>
-              <div style={{ background: "rgba(248,113,113,0.15)", border: "1px solid rgba(248,113,113,0.35)", borderTop: "3px solid #f87171", borderRadius: 10, padding: "0.875rem 1rem" }}>
+              <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderTop: "3px solid #b91c1c", borderRadius: 10, padding: "0.875rem 1rem" }}>
                 <p style={{ margin: "0 0 2px", fontSize: "0.65rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase" }}>Vencidos</p>
-                <p style={{ margin: 0, fontSize: "1.4rem", fontWeight: 900, color: "#f87171" }}>{certificados.filter((c) => c.dias_restantes <= 0).length}</p>
+                <p style={{ margin: 0, fontSize: "1.4rem", fontWeight: 900, color: "#b91c1c" }}>{certificados.filter((c) => c.dias_restantes <= 0).length}</p>
               </div>
             </div>
 
@@ -108,7 +108,7 @@ export default function PortalCertificados() {
                       return (
                         <tr key={cert.id} style={{ borderBottom: "1px solid var(--border)" }}>
                           <td style={{ padding: "0.75rem" }}>
-                            <span style={{ background: "#ecfeff", color: "#67e8f9", borderRadius: 6, padding: "2px 8px", fontSize: "0.75rem", fontWeight: 700 }}>{cert.tipo}</span>
+                            <span style={{ background: "#ecfeff", color: "#0e7490", borderRadius: 6, padding: "2px 8px", fontSize: "0.75rem", fontWeight: 700 }}>{cert.tipo}</span>
                           </td>
                           <td style={{ padding: "0.75rem", fontWeight: 600 }}>{cert.titular}</td>
                           <td style={{ padding: "0.75rem", color: "var(--muted)" }}>{new Date(cert.validade).toLocaleDateString("pt-BR")}</td>

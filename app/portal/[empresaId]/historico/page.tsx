@@ -46,7 +46,7 @@ export default function PortalHistorico() {
               key={f}
               onClick={() => setFiltro(f)}
               style={{
-                background: filtro === f ? "var(--green-700)" : "var(--panel)",
+                background: filtro === f ? "var(--green-700)" : "#fff",
                 border: filtro === f ? "1px solid var(--green-700)" : "1px solid var(--border)",
                 borderRadius: 20,
                 color: filtro === f ? "#fff" : "var(--muted)",

@@ -27,13 +27,13 @@ type Assinatura = {
 /* ─── Helpers visuais ─────────────────────────────────────────── */
 
 const STATUS_EMP: Record<string, { bg: string; color: string; label: string }> = {
-  active:   { bg: "rgba(52,211,153,0.15)", color: "#34d399", label: "Ativa" },
-  analysis: { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Analise" },
-  opening:  { bg: "rgba(96,165,250,0.15)", color: "#93c5fd", label: "Abrindo" },
-  changing: { bg: "rgba(232,121,249,0.15)", color: "#7e22ce", label: "Alterando" },
-  closing:  { bg: "rgba(251,146,60,0.15)", color: "#fb923c", label: "Encerrando" },
-  closed:   { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: "Encerrada" },
-  inactive: { bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Inativa" },
+  active:   { bg: "#f0fdf4", color: "#065f46", label: "Ativa" },
+  analysis: { bg: "#fffbeb", color: "#92400e", label: "Analise" },
+  opening:  { bg: "#eff6ff", color: "#1d4ed8", label: "Abrindo" },
+  changing: { bg: "#fdf4ff", color: "#7e22ce", label: "Alterando" },
+  closing:  { bg: "#fff7ed", color: "#c2410c", label: "Encerrando" },
+  closed:   { bg: "#f3f4f6", color: "#6b7280", label: "Encerrada" },
+  inactive: { bg: "#fef2f2", color: "#b91c1c", label: "Inativa" },
 };
 
 function Badge({ bg, color, label }: { bg: string; color: string; label: string }) {
@@ -41,22 +41,22 @@ function Badge({ bg, color, label }: { bg: string; color: string; label: string 
 }
 
 function TH({ children, right }: { children: React.ReactNode; right?: boolean }) {
-  return <th style={{ textAlign: right ? "right" : "left", padding: "0.7rem 0.875rem", color: "var(--muted)", fontWeight: 700, fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.5px", borderBottom: "1px solid #e8f0eb" }}>{children}</th>;
+  return <th style={{ textAlign: right ? "right" : "left", padding: "0.7rem 0.875rem", color: "#6f8f7c", fontWeight: 700, fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.5px", borderBottom: "1px solid #e8f0eb" }}>{children}</th>;
 }
 
 function TD({ children, right, muted, bold }: { children: React.ReactNode; right?: boolean; muted?: boolean; bold?: boolean }) {
-  return <td style={{ padding: "0.75rem 0.875rem", textAlign: right ? "right" : "left", color: muted ? "#9ca3af" : "var(--ink)", fontSize: "0.85rem", borderBottom: "1px solid var(--panel-2)", fontWeight: bold ? 700 : 400 }}>{children}</td>;
+  return <td style={{ padding: "0.75rem 0.875rem", textAlign: right ? "right" : "left", color: muted ? "#9ca3af" : "#07170d", fontSize: "0.85rem", borderBottom: "1px solid #f0f7f3", fontWeight: bold ? 700 : 400 }}>{children}</td>;
 }
 
 function Card({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
-  return <div style={{ background: "var(--panel)", border: "1px solid var(--border)", borderRadius: 14, padding: "1.25rem", ...style }}>{children}</div>;
+  return <div style={{ background: "#fff", border: "1px solid #dfece5", borderRadius: 14, padding: "1.25rem", ...style }}>{children}</div>;
 }
 
 function StatCard({ label, value, sub, color, icon }: { label: string; value: string | number; sub: string; color: string; icon: string }) {
   return (
     <div style={{ background: `${color}08`, border: `1px solid ${color}20`, borderRadius: 14, padding: "1rem 1.125rem", position: "relative", overflow: "hidden" }}>
       <div style={{ position: "absolute", top: 10, right: 14, fontSize: 28, opacity: 0.15 }}>{icon}</div>
-      <p style={{ margin: "0 0 4px", fontSize: "0.68rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>{label}</p>
+      <p style={{ margin: "0 0 4px", fontSize: "0.68rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase" }}>{label}</p>
       <p style={{ margin: "0 0 2px", fontSize: "1.5rem", fontWeight: 900, color, lineHeight: 1 }}>{value}</p>
       <p style={{ margin: 0, fontSize: "0.72rem", color: "#9ca3af" }}>{sub}</p>
     </div>
@@ -70,7 +70,7 @@ function EmptyBox({ msg }: { msg: string }) {
 function LoadingPulse() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10, padding: "1rem 0" }}>
-      {[1, 2, 3].map((i) => <div key={i} style={{ height: 44, background: "var(--panel-2)", borderRadius: 8, animation: "pulse 1.5s infinite" }} />)}
+      {[1, 2, 3].map((i) => <div key={i} style={{ height: 44, background: "#f0f7f3", borderRadius: 8, animation: "pulse 1.5s infinite" }} />)}
       <style>{`@keyframes pulse { 0%,100%{opacity:.6} 50%{opacity:1} }`}</style>
     </div>
   );
@@ -171,7 +171,7 @@ export default function AdminPage() {
     <AppShell>
       <div className="page-stack">
         {/* ── Header ── */}
-        <div style={{ borderRadius: 14, overflow: "hidden", background: "linear-gradient(110deg, #06170d 0%, #0b2e18 60%, #0f3d20 100%)", boxShadow: "0 4px 24px rgba(6,23,13,0.18)", padding: "1.5rem 2rem", color: "#ffffff", position: "relative" }}>
+        <div style={{ borderRadius: 14, overflow: "hidden", background: "linear-gradient(110deg, #06170d 0%, #0b2e18 60%, #0f3d20 100%)", boxShadow: "0 4px 24px rgba(6,23,13,0.18)", padding: "1.5rem 2rem", color: "#fff", position: "relative" }}>
           <div style={{ position: "absolute", top: 0, right: 0, width: 200, height: "100%", background: "radial-gradient(circle at 80% 50%, rgba(16,185,129,0.12) 0%, transparent 70%)" }} />
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -185,11 +185,11 @@ export default function AdminPage() {
         </div>
 
         {/* ── Tabs ── */}
-        <div style={{ display: "flex", gap: 0, overflowX: "auto", borderBottom: "2px solid var(--border)" }}>
+        <div style={{ display: "flex", gap: 0, overflowX: "auto", borderBottom: "2px solid #dfece5" }}>
           {TABS.map((t) => (
             <button key={t.key} onClick={() => setTab(t.key)} type="button" style={{
               padding: "0.7rem 1.1rem", fontSize: "0.82rem", fontWeight: tab === t.key ? 800 : 500,
-              color: tab === t.key ? "#34d399" : "var(--muted)", background: "transparent", border: "none",
+              color: tab === t.key ? "#065f46" : "#6f8f7c", background: "transparent", border: "none",
               borderBottom: tab === t.key ? "2px solid #10b981" : "2px solid transparent",
               marginBottom: -2, cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap",
               display: "flex", alignItems: "center", gap: 6,
@@ -205,21 +205,21 @@ export default function AdminPage() {
         {!loading && tab === "visao_geral" && (
           <div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12, marginBottom: 20 }}>
-              <StatCard label="Empresas" value={totalEmpresas} sub="cadastradas no sistema" color="#a5b4fc" icon="🏢" />
-              <StatCard label="Ativas" value={empAtivas} sub="em operacao" color="#34d399" icon="✓" />
+              <StatCard label="Empresas" value={totalEmpresas} sub="cadastradas no sistema" color="#4338ca" icon="🏢" />
+              <StatCard label="Ativas" value={empAtivas} sub="em operacao" color="#059669" icon="✓" />
               <StatCard label="Em analise" value={empAnalise} sub="aguardando abertura" color="#d97706" icon="⏳" />
-              <StatCard label="Usuarios" value={totalUsers} sub="com acesso ao sistema" color="#c4b5fd" icon="👤" />
+              <StatCard label="Usuarios" value={totalUsers} sub="com acesso ao sistema" color="#7c3aed" icon="👤" />
               <StatCard label="Permissoes" value={permissoes.length} sub="configuradas no RBAC" color="#0891b2" icon="🔑" />
-              <StatCard label="Assinaturas" value={assinaturas.length} sub="planos ativos" color="#f87171" icon="💳" />
+              <StatCard label="Assinaturas" value={assinaturas.length} sub="planos ativos" color="#dc2626" icon="💳" />
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
               <Card>
-                <h3 style={{ margin: "0 0 12px", fontSize: "0.9rem", fontWeight: 700, color: "var(--ink)" }}>Ultimas empresas cadastradas</h3>
+                <h3 style={{ margin: "0 0 12px", fontSize: "0.9rem", fontWeight: 700, color: "#07170d" }}>Ultimas empresas cadastradas</h3>
                 {empresas.length === 0 ? <p style={{ color: "#9ca3af", fontSize: "0.82rem" }}>Nenhuma empresa.</p> : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     {empresas.slice(0, 5).map(e => (
-                      <div key={e.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid var(--panel-2)" }}>
+                      <div key={e.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #f0f7f3" }}>
                         <div>
                           <div style={{ fontWeight: 600, fontSize: "0.85rem" }}>{e.trade_name || e.legal_name}</div>
                           <div style={{ fontSize: "0.72rem", color: "#9ca3af" }}>{e.cnpj ?? "Sem CNPJ"}</div>
@@ -232,7 +232,7 @@ export default function AdminPage() {
               </Card>
 
               <Card>
-                <h3 style={{ margin: "0 0 12px", fontSize: "0.9rem", fontWeight: 700, color: "var(--ink)" }}>Acesso rapido</h3>
+                <h3 style={{ margin: "0 0 12px", fontSize: "0.9rem", fontWeight: 700, color: "#07170d" }}>Acesso rapido</h3>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                   {[
                     { label: "Gerenciar usuarios", icon: "👤", tab: "usuarios" as Tab },
@@ -243,8 +243,8 @@ export default function AdminPage() {
                   ].map(a => (
                     <button key={a.label} onClick={() => setTab(a.tab)} type="button" style={{
                       display: "flex", alignItems: "center", gap: 8, padding: "10px 12px",
-                      background: "var(--panel-2)", border: "1px solid var(--border)", borderRadius: 10,
-                      cursor: "pointer", fontSize: "0.82rem", fontWeight: 600, color: "var(--ink)", textAlign: "left",
+                      background: "#f9fafb", border: "1px solid #dfece5", borderRadius: 10,
+                      cursor: "pointer", fontSize: "0.82rem", fontWeight: 600, color: "#07170d", textAlign: "left",
                     }}>
                       <span style={{ fontSize: 18 }}>{a.icon}</span>{a.label}
                     </button>
@@ -259,8 +259,8 @@ export default function AdminPage() {
         {!loading && tab === "usuarios" && (
           <div>
             <div style={{ display: "flex", gap: 10, marginBottom: 14, alignItems: "center" }}>
-              <input onChange={e => setBuscaUser(e.target.value)} placeholder="Buscar usuario..." style={{ flex: 1, padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.85rem", outline: "none" }} type="text" value={buscaUser} />
-              <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>{usersFiltrados.length} usuario{usersFiltrados.length !== 1 ? "s" : ""}</span>
+              <input onChange={e => setBuscaUser(e.target.value)} placeholder="Buscar usuario..." style={{ flex: 1, padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.85rem", outline: "none" }} type="text" value={buscaUser} />
+              <span style={{ fontSize: "0.78rem", color: "#6f8f7c" }}>{usersFiltrados.length} usuario{usersFiltrados.length !== 1 ? "s" : ""}</span>
             </div>
             {usersFiltrados.length === 0 ? <EmptyBox msg="Nenhum usuario encontrado." /> : (
               <Card style={{ padding: 0, overflow: "hidden" }}>
@@ -270,7 +270,7 @@ export default function AdminPage() {
                     {usersFiltrados.map(u => (
                       <tr key={u.id}>
                         <TD><div><div style={{ fontWeight: 700 }}>{u.full_name ?? "Sem nome"}</div><div style={{ fontSize: "0.72rem", color: "#9ca3af" }}>{u.email}</div></div></TD>
-                        <TD><Badge bg={u.role === "admin" ? "rgba(99,102,241,0.15)" : "rgba(52,211,153,0.15)"} color={u.role === "admin" ? "#a5b4fc" : "#34d399"} label={u.role === "admin" ? "Admin" : "Usuario"} /></TD>
+                        <TD><Badge bg={u.role === "admin" ? "#eef2ff" : "#f0fdf4"} color={u.role === "admin" ? "#4338ca" : "#065f46"} label={u.role === "admin" ? "Admin" : "Usuario"} /></TD>
                         <TD muted>{fmtData(u.created_at)}</TD>
                       </tr>
                     ))}
@@ -285,8 +285,8 @@ export default function AdminPage() {
         {!loading && tab === "empresas" && (
           <div>
             <div style={{ display: "flex", gap: 10, marginBottom: 14, alignItems: "center" }}>
-              <input onChange={e => setBuscaEmp(e.target.value)} placeholder="Buscar empresa por nome ou CNPJ..." style={{ flex: 1, padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.85rem", outline: "none" }} type="text" value={buscaEmp} />
-              <span style={{ fontSize: "0.78rem", color: "var(--muted)" }}>{empsFiltradas.length} empresa{empsFiltradas.length !== 1 ? "s" : ""}</span>
+              <input onChange={e => setBuscaEmp(e.target.value)} placeholder="Buscar empresa por nome ou CNPJ..." style={{ flex: 1, padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.85rem", outline: "none" }} type="text" value={buscaEmp} />
+              <span style={{ fontSize: "0.78rem", color: "#6f8f7c" }}>{empsFiltradas.length} empresa{empsFiltradas.length !== 1 ? "s" : ""}</span>
             </div>
             {empsFiltradas.length === 0 ? <EmptyBox msg="Nenhuma empresa encontrada." /> : (
               <Card style={{ padding: 0, overflow: "hidden" }}>
@@ -317,12 +317,12 @@ export default function AdminPage() {
                 {Object.entries(permissoesPorModulo).map(([modulo, perms]) => (
                   <Card key={modulo}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                      <h3 style={{ margin: 0, fontSize: "0.95rem", fontWeight: 800, color: "var(--ink)" }}>{modulo}</h3>
-                      <span style={{ background: "rgba(99,102,241,0.15)", color: "#a5b4fc", borderRadius: 999, padding: "2px 8px", fontSize: "0.65rem", fontWeight: 700 }}>{perms.length}</span>
+                      <h3 style={{ margin: 0, fontSize: "0.95rem", fontWeight: 800, color: "#07170d" }}>{modulo}</h3>
+                      <span style={{ background: "#eef2ff", color: "#4338ca", borderRadius: 999, padding: "2px 8px", fontSize: "0.65rem", fontWeight: 700 }}>{perms.length}</span>
                     </div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                       {perms.map(p => (
-                        <span key={p.id} style={{ display: "inline-block", background: "rgba(99,102,241,0.12)", color: "#a5b4fc", borderRadius: 6, padding: "3px 8px", fontSize: "0.68rem", fontWeight: 600, border: "1px solid rgba(99,102,241,0.35)" }}>
+                        <span key={p.id} style={{ display: "inline-block", background: "#f5f7ff", color: "#4b5eaa", borderRadius: 6, padding: "3px 8px", fontSize: "0.68rem", fontWeight: 600, border: "1px solid #e0e7ff" }}>
                           {p.chave}
                         </span>
                       ))}
@@ -338,7 +338,7 @@ export default function AdminPage() {
         {!loading && tab === "escritorio" && (
           <div>
             <Card>
-              <h3 style={{ margin: "0 0 16px", fontSize: "1rem", fontWeight: 700, color: "var(--ink)" }}>Dados do escritorio</h3>
+              <h3 style={{ margin: "0 0 16px", fontSize: "1rem", fontWeight: 700, color: "#07170d" }}>Dados do escritorio</h3>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                 {([
                   { key: "nome", label: "Nome do escritorio", placeholder: "Ex: Burgarelli Contabilidade" },
@@ -352,23 +352,23 @@ export default function AdminPage() {
                   { key: "uf", label: "UF", placeholder: "SP" },
                 ] as { key: keyof ConfigEscritorio; label: string; placeholder: string }[]).map(f => (
                   <div key={f.key}>
-                    <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", marginBottom: 4 }}>{f.label}</label>
+                    <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 700, color: "#6f8f7c", textTransform: "uppercase", marginBottom: 4 }}>{f.label}</label>
                     <input
                       onChange={e => setConfig(prev => ({ ...prev, [f.key]: e.target.value }))}
                       placeholder={f.placeholder}
-                      style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid var(--border)", borderRadius: 8, fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }}
+                      style={{ width: "100%", padding: "0.55rem 0.875rem", border: "1.5px solid #dfece5", borderRadius: 8, fontSize: "0.85rem", outline: "none", boxSizing: "border-box" }}
                       value={config[f.key]}
                     />
                   </div>
                 ))}
               </div>
-              <button onClick={salvarConfig} style={{ marginTop: 20, padding: "0.6rem 2rem", background: "linear-gradient(135deg, #065f46, #10b981)", color: "#ffffff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.875rem", cursor: "pointer" }} type="button">
+              <button onClick={salvarConfig} style={{ marginTop: 20, padding: "0.6rem 2rem", background: "linear-gradient(135deg, #065f46, #10b981)", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, fontSize: "0.875rem", cursor: "pointer" }} type="button">
                 Salvar configuracoes
               </button>
             </Card>
 
             <Card style={{ marginTop: 14 }}>
-              <h3 style={{ margin: "0 0 12px", fontSize: "1rem", fontWeight: 700, color: "var(--ink)" }}>Informacoes do sistema</h3>
+              <h3 style={{ margin: "0 0 12px", fontSize: "1rem", fontWeight: 700, color: "#07170d" }}>Informacoes do sistema</h3>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
                 {[
                   { label: "Versao", value: "1.0.0" },
@@ -378,9 +378,9 @@ export default function AdminPage() {
                   { label: "Banco de dados", value: "PostgreSQL (Supabase)" },
                   { label: "Autenticacao", value: "Supabase Auth" },
                 ].map(i => (
-                  <div key={i.label} style={{ background: "var(--panel-2)", borderRadius: 8, padding: "10px 14px" }}>
-                    <div style={{ fontSize: "0.65rem", color: "var(--muted)", fontWeight: 600, textTransform: "uppercase" }}>{i.label}</div>
-                    <div style={{ fontSize: "0.85rem", color: "var(--ink)", fontWeight: 600, marginTop: 2 }}>{i.value}</div>
+                  <div key={i.label} style={{ background: "#f9fafb", borderRadius: 8, padding: "10px 14px" }}>
+                    <div style={{ fontSize: "0.65rem", color: "#6f8f7c", fontWeight: 600, textTransform: "uppercase" }}>{i.label}</div>
+                    <div style={{ fontSize: "0.85rem", color: "#07170d", fontWeight: 600, marginTop: 2 }}>{i.value}</div>
                   </div>
                 ))}
               </div>
@@ -392,7 +392,7 @@ export default function AdminPage() {
         {!loading && tab === "auditoria" && (
           <Card>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 700, color: "var(--ink)" }}>Log de atividades</h3>
+              <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: 700, color: "#07170d" }}>Log de atividades</h3>
               <span style={{ fontSize: "0.75rem", color: "#9ca3af" }}>Registros de acoes no sistema</span>
             </div>
             <EmptyBox msg="A auditoria sera preenchida automaticamente conforme usuarios realizem acoes no sistema." />
@@ -405,7 +405,7 @@ export default function AdminPage() {
         <div style={{
           position: "fixed", bottom: 24, right: 24, zIndex: 9999,
           display: "flex", alignItems: "center", gap: 10,
-          padding: "14px 20px", borderRadius: 12, background: "#34d399",
+          padding: "14px 20px", borderRadius: 12, background: "#065f46",
           color: "#fff", fontSize: "0.875rem", fontWeight: 600,
           boxShadow: "0 8px 30px rgba(0,0,0,0.2)", animation: "toastIn 0.3s ease",
         }}>

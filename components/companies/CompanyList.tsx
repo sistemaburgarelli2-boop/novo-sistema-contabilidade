@@ -19,7 +19,7 @@ export function CompanyList({ activeCompanyId, companies, onSelect }: CompanyLis
         <article
           key={company.id}
           style={{
-            border: "1px solid rgba(148,163,184,0.2)",
+            border: "1px solid #e5e7eb",
             borderRadius: 8,
             padding: 16,
           }}

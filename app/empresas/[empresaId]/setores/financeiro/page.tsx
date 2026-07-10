@@ -44,17 +44,17 @@ const PLANO_LABEL: Record<Plano, string> = {
 };
 
 const PLANO_COLOR: Record<Plano, { bg: string; color: string }> = {
-  basico:       { bg: "rgba(148,163,184,0.15)", color: "#374151" },
-  intermediario:{ bg: "rgba(96,165,250,0.15)", color: "#93c5fd" },
-  premium:      { bg: "rgba(232,121,249,0.15)", color: "#7e22ce" },
-  personalizado:{ bg: "rgba(251,191,36,0.15)", color: "#fbbf24" },
+  basico:       { bg: "#f3f4f6", color: "#374151" },
+  intermediario:{ bg: "#eff6ff", color: "#1d4ed8" },
+  premium:      { bg: "#fdf4ff", color: "#7e22ce" },
+  personalizado:{ bg: "#fffbeb", color: "#92400e" },
 };
 
 const S_MENSAL: Record<StatusMensal, { bg: string; color: string; label: string }> = {
-  em_dia:      { bg: "rgba(52,211,153,0.15)", color: "#34d399", label: "Em dia" },
-  atrasado:    { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", label: "Atrasado" },
-  inadimplente:{ bg: "rgba(248,113,113,0.15)", color: "#f87171", label: "Inadimplente" },
-  cancelado:   { bg: "rgba(148,163,184,0.15)", color: "var(--muted)", label: "Cancelado" },
+  em_dia:      { bg: "#f0fdf4", color: "#065f46", label: "Em dia" },
+  atrasado:    { bg: "#fffbeb", color: "#92400e", label: "Atrasado" },
+  inadimplente:{ bg: "#fef2f2", color: "#b91c1c", label: "Inadimplente" },
+  cancelado:   { bg: "#f3f4f6", color: "#6b7280", label: "Cancelado" },
 };
 
 const FORMA_ICON: Record<FormaPgto, string> = {
@@ -83,7 +83,7 @@ function TH({ children, right }: { children: React.ReactNode; right?: boolean })
 }
 
 function TD({ children, right, muted, bold, color }: { children: React.ReactNode; right?: boolean; muted?: boolean; bold?: boolean; color?: string }) {
-  return <td style={{ padding: "0.75rem 0.875rem", textAlign: right ? "right" : "left", color: color ?? (muted ? "#9ca3af" : "var(--ink)"), fontSize: "0.85rem", borderBottom: "1px solid #f0fdfe", fontWeight: bold ? 700 : 400 }}>{children}</td>;
+  return <td style={{ padding: "0.75rem 0.875rem", textAlign: right ? "right" : "left", color: color ?? (muted ? "#9ca3af" : "#07170d"), fontSize: "0.85rem", borderBottom: "1px solid #f0fdfe", fontWeight: bold ? 700 : 400 }}>{children}</td>;
 }
 
 function KpiCard({ label, value, sub, color, bg }: { label: string; value: string; sub: string; color: string; bg: string }) {
@@ -165,8 +165,8 @@ export default function FinanceiroPage() {
   /* ── Loading ── */
   if (loading) {
     return (
-      <SetorShell borda="#67e8f9" cor="#67e8f9" empresaId={empresaId} empresaNome="Empresa" fundo="#ecfeff" icone={ICONE} setorNome="Financeiro do Escritório" setorResumo="Carregando..." stats={[]}>
-        <div style={{ padding: "3rem", textAlign: "center", color: "#67e8f9", fontSize: "1rem", fontWeight: 700 }}>Carregando...</div>
+      <SetorShell borda="#67e8f9" cor="#0e7490" empresaId={empresaId} empresaNome="Empresa" fundo="#ecfeff" icone={ICONE} setorNome="Financeiro do Escritório" setorResumo="Carregando..." stats={[]}>
+        <div style={{ padding: "3rem", textAlign: "center", color: "#0e7490", fontSize: "1rem", fontWeight: 700 }}>Carregando...</div>
       </SetorShell>
     );
   }
@@ -175,7 +175,7 @@ export default function FinanceiroPage() {
   return (
     <SetorShell
       borda="#67e8f9"
-      cor="#67e8f9"
+      cor="#0e7490"
       empresaId={empresaId}
       empresaNome="Empresa"
       fundo="#ecfeff"
@@ -191,7 +191,7 @@ export default function FinanceiroPage() {
     >
 
       {/* ── Tabs ── */}
-      <div style={{ background: "var(--panel)", borderRadius: "12px 12px 0 0", border: "1px solid #c4b5fd", borderBottom: "none" }}>
+      <div style={{ background: "#fff", borderRadius: "12px 12px 0 0", border: "1px solid #c4b5fd", borderBottom: "none" }}>
         <div style={{ display: "flex", overflowX: "auto", padding: "0 6px" }}>
           {TABS_ESC.map((t) => (
             <button
@@ -199,8 +199,8 @@ export default function FinanceiroPage() {
               onClick={() => setTabEsc(t.id)}
               style={{
                 background: "none", border: "none", cursor: "pointer",
-                borderBottom: tabEsc === t.id ? "2px solid #c4b5fd" : "2px solid transparent",
-                color: tabEsc === t.id ? "#c4b5fd" : "#9ca3af",
+                borderBottom: tabEsc === t.id ? "2px solid #7c3aed" : "2px solid transparent",
+                color: tabEsc === t.id ? "#7c3aed" : "#9ca3af",
                 fontWeight: tabEsc === t.id ? 800 : 500,
                 fontSize: "0.8rem", padding: "0.85rem 0.9rem",
                 whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: "0.35rem",
@@ -211,23 +211,23 @@ export default function FinanceiroPage() {
               <span style={{ fontSize: "0.7rem", opacity: 0.7 }}>{t.icon}</span>
               {t.label}
               {t.id === "mensalidades" && inadimplentes > 0 && (
-                <span style={{ background: "#fca5a5", color: "#f87171", borderRadius: 999, fontSize: "0.62rem", fontWeight: 900, padding: "1px 6px" }}>{inadimplentes}</span>
+                <span style={{ background: "#fca5a5", color: "#b91c1c", borderRadius: 999, fontSize: "0.62rem", fontWeight: 900, padding: "1px 6px" }}>{inadimplentes}</span>
               )}
             </button>
           ))}
         </div>
       </div>
 
-      <div style={{ background: "var(--panel)", border: "1px solid #c4b5fd", borderTop: "none", borderRadius: "0 0 12px 12px", padding: "1.5rem" }}>
+      <div style={{ background: "#fff", border: "1px solid #c4b5fd", borderTop: "none", borderRadius: "0 0 12px 12px", padding: "1.5rem" }}>
 
         {/* ════════════ DASHBOARD ════════════ */}
         {tabEsc === "dash_esc" && (
           <div style={{ display: "grid", gap: "1.25rem" }}>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
-              <KpiCard label="MRR"             value={fmt(mrr)}              sub="Receita recorrente mensal" color="#c4b5fd" bg="rgba(196,181,253,0.15)" />
-              <KpiCard label="Inadimplentes"    value={String(inadimplentes)} sub={`de ${clientesAtivos} clientes`} color={inadimplentes > 0 ? "#f87171" : "#34d399"} bg={inadimplentes > 0 ? "rgba(248,113,113,0.15)" : "rgba(52,211,153,0.15)"} />
-              <KpiCard label="Clientes ativos"  value={String(clientesAtivos)} sub="Mensalidades ativas"      color="#67e8f9" bg="#ecfeff" />
-              <KpiCard label="Ticket médio"     value={fmt(ticketMedio)}      sub="Por cliente ativo"         color="#fbbf24" bg="rgba(251,191,36,0.15)" />
+              <KpiCard label="MRR"             value={fmt(mrr)}              sub="Receita recorrente mensal" color="#7c3aed" bg="#f5f3ff" />
+              <KpiCard label="Inadimplentes"    value={String(inadimplentes)} sub={`de ${clientesAtivos} clientes`} color={inadimplentes > 0 ? "#b91c1c" : "#065f46"} bg={inadimplentes > 0 ? "#fef2f2" : "#f0fdf4"} />
+              <KpiCard label="Clientes ativos"  value={String(clientesAtivos)} sub="Mensalidades ativas"      color="#0e7490" bg="#ecfeff" />
+              <KpiCard label="Ticket médio"     value={fmt(ticketMedio)}      sub="Por cliente ativo"         color="#92400e" bg="#fffbeb" />
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem" }}>
@@ -241,12 +241,12 @@ export default function FinanceiroPage() {
                     const count = mensalidades.filter((m) => m.plano === plano && m.status !== "cancelado").length;
                     const receita = mensalidades.filter((m) => m.plano === plano && m.status !== "cancelado").reduce((a, m) => a + m.valor, 0);
                     return (
-                      <div key={plano} style={{ padding: "7px 0", borderBottom: "1px solid rgba(196,181,253,0.15)" }}>
+                      <div key={plano} style={{ padding: "7px 0", borderBottom: "1px solid #f5f3ff" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
                           <span style={{ fontSize: "0.8rem", fontWeight: 700 }}>{PLANO_LABEL[plano]}</span>
-                          <span style={{ fontSize: "0.78rem", color: "#9ca3af" }}>{count} cliente(s) - <strong style={{ color: "#c4b5fd" }}>{fmt(receita)}</strong></span>
+                          <span style={{ fontSize: "0.78rem", color: "#9ca3af" }}>{count} cliente(s) - <strong style={{ color: "#7c3aed" }}>{fmt(receita)}</strong></span>
                         </div>
-                        <div style={{ height: 5, background: "rgba(196,181,253,0.15)", borderRadius: 999, overflow: "hidden" }}>
+                        <div style={{ height: 5, background: "#f5f3ff", borderRadius: 999, overflow: "hidden" }}>
                           <div style={{ height: "100%", width: `${mrr > 0 ? (receita / mrr) * 100 : 0}%`, background: PLANO_COLOR[plano].color, borderRadius: 999 }} />
                         </div>
                       </div>
@@ -262,9 +262,9 @@ export default function FinanceiroPage() {
                   {comissoes.filter((c) => c.status === "pendente").length === 0 ? (
                     <p style={{ textAlign: "center", color: "#9ca3af", padding: "1rem", fontSize: "0.85rem" }}>Nenhuma comissão pendente</p>
                   ) : comissoes.filter((c) => c.status === "pendente").map((c) => (
-                    <div key={c.id} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: "1px solid rgba(196,181,253,0.15)" }}>
+                    <div key={c.id} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: "1px solid #f5f3ff" }}>
                       <span style={{ fontSize: "0.82rem", fontWeight: 600 }}>{c.colaborador}</span>
-                      <strong style={{ fontSize: "0.82rem", color: "#c4b5fd" }}>{fmt(c.valor)}</strong>
+                      <strong style={{ fontSize: "0.82rem", color: "#7c3aed" }}>{fmt(c.valor)}</strong>
                     </div>
                   ))}
                 </div>
@@ -278,9 +278,9 @@ export default function FinanceiroPage() {
                 {log.length === 0 ? (
                   <p style={{ textAlign: "center", color: "#9ca3af", padding: "1rem", fontSize: "0.85rem" }}>Nenhum evento registrado</p>
                 ) : log.slice(0, 5).map((entry) => (
-                  <div key={entry.id} style={{ padding: "7px 1rem", borderBottom: "1px solid rgba(196,181,253,0.15)" }}>
-                    <p style={{ margin: "0 0 1px", fontSize: "0.8rem", fontWeight: 700, color: "var(--ink)" }}>{entry.acao}</p>
-                    <p style={{ margin: "0 0 1px", fontSize: "0.75rem", color: "var(--muted)" }}>{entry.detalhe}</p>
+                  <div key={entry.id} style={{ padding: "7px 1rem", borderBottom: "1px solid #f5f3ff" }}>
+                    <p style={{ margin: "0 0 1px", fontSize: "0.8rem", fontWeight: 700, color: "#07170d" }}>{entry.acao}</p>
+                    <p style={{ margin: "0 0 1px", fontSize: "0.75rem", color: "#6b7280" }}>{entry.detalhe}</p>
                     <p style={{ margin: 0, fontSize: "0.68rem", color: "#9ca3af" }}>{new Date(entry.data).toLocaleString("pt-BR")}</p>
                   </div>
                 ))}
@@ -294,7 +294,7 @@ export default function FinanceiroPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Mensalidades</h2>
-              <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#9ca3af" }}>MRR: <strong style={{ color: "#c4b5fd" }}>{fmt(mrr)}</strong> - {clientesAtivos} clientes</p></div>
+              <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#9ca3af" }}>MRR: <strong style={{ color: "#7c3aed" }}>{fmt(mrr)}</strong> - {clientesAtivos} clientes</p></div>
               <div style={{ display: "flex", gap: 8 }}>
                 <select className="input" onChange={(e) => setFiltMensalStatus(e.target.value as StatusMensal | "")} value={filtMensalStatus}>
                   <option value="">Todos</option>
@@ -307,10 +307,10 @@ export default function FinanceiroPage() {
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
               {[
-                { label: "Em dia",       count: mensalidades.filter((m) => m.status === "em_dia").length,      value: mensalidades.filter((m) => m.status === "em_dia").reduce((a, m) => a + m.valor, 0), color: "#34d399", bg: "rgba(52,211,153,0.15)" },
-                { label: "Atrasados",    count: mensalidades.filter((m) => m.status === "atrasado").length,    value: mensalidades.filter((m) => m.status === "atrasado").reduce((a, m) => a + m.valor, 0), color: "#fbbf24", bg: "rgba(251,191,36,0.15)" },
-                { label: "Inadimplentes",count: mensalidades.filter((m) => m.status === "inadimplente").length,value: mensalidades.filter((m) => m.status === "inadimplente").reduce((a, m) => a + m.valor, 0), color: "#f87171", bg: "rgba(248,113,113,0.15)" },
-                { label: "MRR total",    count: clientesAtivos,                                                 value: mrr, color: "#c4b5fd", bg: "rgba(196,181,253,0.15)" },
+                { label: "Em dia",       count: mensalidades.filter((m) => m.status === "em_dia").length,      value: mensalidades.filter((m) => m.status === "em_dia").reduce((a, m) => a + m.valor, 0), color: "#065f46", bg: "#f0fdf4" },
+                { label: "Atrasados",    count: mensalidades.filter((m) => m.status === "atrasado").length,    value: mensalidades.filter((m) => m.status === "atrasado").reduce((a, m) => a + m.valor, 0), color: "#92400e", bg: "#fffbeb" },
+                { label: "Inadimplentes",count: mensalidades.filter((m) => m.status === "inadimplente").length,value: mensalidades.filter((m) => m.status === "inadimplente").reduce((a, m) => a + m.valor, 0), color: "#b91c1c", bg: "#fef2f2" },
+                { label: "MRR total",    count: clientesAtivos,                                                 value: mrr, color: "#7c3aed", bg: "#f5f3ff" },
               ].map((k) => (
                 <div key={k.label} style={{ background: k.bg, borderTop: `3px solid ${k.color}`, borderRadius: 10, padding: "0.875rem 1rem", border: `1px solid ${k.color}22` }}>
                   <p style={{ margin: "0 0 3px", fontSize: "0.65rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase" }}>{k.label}</p>
@@ -330,7 +330,7 @@ export default function FinanceiroPage() {
                     <tr key={m.id} style={{ background: m.status === "inadimplente" ? "#fff5f5" : m.status === "atrasado" ? "#fffdf0" : "transparent" }}>
                       <TD><div><p style={{ margin: "0 0 1px", fontWeight: 700 }}>{m.cliente}</p><p style={{ margin: 0, fontSize: "0.7rem", color: "#9ca3af" }}>{m.email}</p></div></TD>
                       <TD><span style={{ fontSize: "0.72rem", fontWeight: 700, borderRadius: 999, padding: "2px 8px", ...PLANO_COLOR[m.plano] }}>{PLANO_LABEL[m.plano]}</span></TD>
-                      <TD right bold color="#c4b5fd">{fmt(m.valor)}</TD>
+                      <TD right bold color="#7c3aed">{fmt(m.valor)}</TD>
                       <TD muted>{new Date(m.vencimento).toLocaleDateString("pt-BR")}</TD>
                       <TD muted><span style={{ fontSize: "0.82rem" }}>{FORMA_ICON[m.forma]} {m.forma}</span></TD>
                       <TD><Badge {...S_MENSAL[m.status]} /></TD>
@@ -358,7 +358,7 @@ export default function FinanceiroPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div><h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Comissões de Colaboradores</h2>
-              <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#9ca3af" }}>Total pendente: <strong style={{ color: "#c4b5fd" }}>{fmt(comissoes.filter((c) => c.status === "pendente").reduce((a, c) => a + c.valor, 0))}</strong></p></div>
+              <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#9ca3af" }}>Total pendente: <strong style={{ color: "#7c3aed" }}>{fmt(comissoes.filter((c) => c.status === "pendente").reduce((a, c) => a + c.valor, 0))}</strong></p></div>
               <button type="button">+ Nova comissão</button>
             </div>
 
@@ -371,11 +371,11 @@ export default function FinanceiroPage() {
                     const total = comissoes.filter((c) => c.colaborador === col).reduce((a, c) => a + c.valor, 0);
                     const pendente = comissoes.filter((c) => c.colaborador === col && c.status === "pendente").reduce((a, c) => a + c.valor, 0);
                     return (
-                      <div key={col} style={{ background: "rgba(196,181,253,0.15)", border: "1px solid #c4b5fd", borderRadius: 10, padding: "0.875rem 1rem" }}>
-                        <div style={{ width: 32, height: 32, borderRadius: 10, background: "#c4b5fd", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: "0.75rem", marginBottom: 8 }}>
+                      <div key={col} style={{ background: "#f5f3ff", border: "1px solid #c4b5fd", borderRadius: 10, padding: "0.875rem 1rem" }}>
+                        <div style={{ width: 32, height: 32, borderRadius: 10, background: "#7c3aed", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: "0.75rem", marginBottom: 8 }}>
                           {col.split(" ").map((w) => w[0]).join("").slice(0, 2)}
                         </div>
-                        <p style={{ margin: "0 0 2px", fontWeight: 800, fontSize: "0.875rem", color: "var(--ink)" }}>{col}</p>
+                        <p style={{ margin: "0 0 2px", fontWeight: 800, fontSize: "0.875rem", color: "#07170d" }}>{col}</p>
                         <p style={{ margin: 0, fontSize: "0.75rem", color: "#9ca3af" }}>Total: {fmt(total)} - Pend: {fmt(pendente)}</p>
                       </div>
                     );
@@ -389,8 +389,8 @@ export default function FinanceiroPage() {
                         <TD bold>{c.colaborador}</TD>
                         <TD muted>{c.tipo}</TD>
                         <TD muted>{c.mes}</TD>
-                        <TD right bold color="#c4b5fd">{fmt(c.valor)}</TD>
-                        <TD><Badge {...(c.status === "pago" ? { bg: "rgba(52,211,153,0.15)", color: "#34d399", label: "Pago" } : { bg: "rgba(196,181,253,0.15)", color: "#c4b5fd", label: "Pendente" })} /></TD>
+                        <TD right bold color="#7c3aed">{fmt(c.valor)}</TD>
+                        <TD><Badge {...(c.status === "pago" ? { bg: "#f0fdf4", color: "#065f46", label: "Pago" } : { bg: "#f5f3ff", color: "#7c3aed", label: "Pendente" })} /></TD>
                         <TD right>{c.status === "pendente" && <button className="small-action" onClick={() => pagarComissao(c.id)} type="button">✓ Pagar</button>}</TD>
                       </tr>
                     ))}
@@ -408,9 +408,9 @@ export default function FinanceiroPage() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
               {[
-                { label: "Margem operacional", value: mrr > 0 ? `${((mrr / (mrr || 1)) * 100).toFixed(1)}%` : "—", color: "#34d399", bg: "rgba(52,211,153,0.15)" },
-                { label: "Taxa inadimplência", value: clientesAtivos > 0 ? `${((inadimplentes / clientesAtivos) * 100).toFixed(1)}%` : "0%", color: inadimplentes > 0 ? "#f87171" : "#34d399", bg: inadimplentes > 0 ? "rgba(248,113,113,0.15)" : "rgba(52,211,153,0.15)" },
-                { label: "Ticket médio", value: fmt(ticketMedio), color: "#67e8f9", bg: "#ecfeff" },
+                { label: "Margem operacional", value: mrr > 0 ? `${((mrr / (mrr || 1)) * 100).toFixed(1)}%` : "—", color: "#065f46", bg: "#f0fdf4" },
+                { label: "Taxa inadimplência", value: clientesAtivos > 0 ? `${((inadimplentes / clientesAtivos) * 100).toFixed(1)}%` : "0%", color: inadimplentes > 0 ? "#b91c1c" : "#065f46", bg: inadimplentes > 0 ? "#fef2f2" : "#f0fdf4" },
+                { label: "Ticket médio", value: fmt(ticketMedio), color: "#0e7490", bg: "#ecfeff" },
               ].map((ind) => (
                 <div key={ind.label} style={{ background: ind.bg, border: `1px solid ${ind.color}22`, borderTop: `3px solid ${ind.color}`, borderRadius: 12, padding: "1rem 1.25rem" }}>
                   <p style={{ margin: "0 0 4px", fontSize: "0.68rem", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase" }}>{ind.label}</p>
@@ -431,11 +431,11 @@ export default function FinanceiroPage() {
                 <button
                   key={r.label}
                   onClick={() => audit(`Relatório: ${r.label}`, "Relatórios", "Gerado")}
-                  style={{ background: "var(--panel)", border: "1px solid #c4b5fd", borderRadius: 12, padding: "1.25rem", textAlign: "left", cursor: "pointer", display: "flex", flexDirection: "column", gap: 8 }}
+                  style={{ background: "#fff", border: "1px solid #c4b5fd", borderRadius: 12, padding: "1.25rem", textAlign: "left", cursor: "pointer", display: "flex", flexDirection: "column", gap: 8 }}
                   type="button"
                 >
                   <span style={{ fontSize: "1.5rem" }}>{r.icon}</span>
-                  <strong style={{ fontSize: "0.9rem", color: "#c4b5fd" }}>{r.label}</strong>
+                  <strong style={{ fontSize: "0.9rem", color: "#7c3aed" }}>{r.label}</strong>
                   <span style={{ fontSize: "0.78rem", color: "#9ca3af" }}>{r.desc}</span>
                 </button>
               ))}

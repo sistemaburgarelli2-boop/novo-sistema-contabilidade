@@ -58,7 +58,7 @@ export default function PortalDashboard() {
             <div
               key={card.label}
               style={{
-                background: "var(--panel)",
+                background: "#fff",
                 border: "1px solid var(--border)",
                 borderRadius: 12,
                 padding: "18px 20px",
@@ -73,7 +73,7 @@ export default function PortalDashboard() {
               <span style={{
                 background: "rgba(156,163,175,0.1)",
                 borderRadius: 20,
-                color: "var(--muted)",
+                color: "#6b7280",
                 fontSize: card.value.length <= 2 ? 22 : 15,
                 fontWeight: 800,
                 padding: card.value.length <= 2 ? "4px 14px" : "5px 14px",

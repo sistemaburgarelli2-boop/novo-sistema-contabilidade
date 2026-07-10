@@ -71,7 +71,7 @@ export default function PortalChamados() {
             background: "rgba(16,185,129,0.08)",
             border: "1px solid rgba(16,185,129,0.25)",
             borderRadius: 10,
-            color: "#34d399",
+            color: "#065f46",
             display: "flex",
             fontSize: 14,
             fontWeight: 600,

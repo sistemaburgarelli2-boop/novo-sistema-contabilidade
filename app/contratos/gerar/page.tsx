@@ -6,10 +6,10 @@ import { BotaoVoltar } from "@/components/ui/BotaoVoltar";
 
 /* ─── CSS Variables ──────────────────────────────────────────── */
 const V = {
-  bg: "var(--bg)", panel: "var(--panel)", ink: "var(--ink)", muted: "var(--muted)",
-  green700: "#2ee58f", green500: "#10b981", green400: "#18d19b",
-  gold: "#d4ae4a", border: "var(--border)", danger: "#ef445f",
-  blue: "#3b82f6", blueBg: "rgba(96,165,250,0.15)",
+  bg: "#f3f8f5", panel: "#ffffff", ink: "#07170d", muted: "#6f8f7c",
+  green700: "#075f3c", green500: "#10b981", green400: "#18d19b",
+  gold: "#d4ae4a", border: "#dfece5", danger: "#ef445f",
+  blue: "#3b82f6", blueBg: "#eff6ff",
 };
 
 /* ─── Tipos de Contrato (MOCK) ──────────────────────────────── */
@@ -269,7 +269,7 @@ export default function GerarContratoPage() {
             onClick={() => setCatFiltro(null)}
             style={{
               padding: "6px 14px", borderRadius: 20, border: `1px solid ${V.border}`,
-              background: !catFiltro ? V.green700 : V.panel, color: !catFiltro ? "var(--panel)" : V.ink,
+              background: !catFiltro ? V.green700 : V.panel, color: !catFiltro ? "#fff" : V.ink,
               fontSize: 13, cursor: "pointer", fontWeight: 500,
             }}
           >
@@ -305,7 +305,7 @@ export default function GerarContratoPage() {
                 style={{
                   padding: 16, borderRadius: 10, cursor: "pointer",
                   border: `2px solid ${sel ? V.green500 : V.border}`,
-                  background: sel ? "rgba(52,211,153,0.15)" : V.panel,
+                  background: sel ? "#f0fdf4" : V.panel,
                   transition: "all .15s",
                 }}
               >
@@ -472,7 +472,7 @@ export default function GerarContratoPage() {
         onClick={addParte}
         style={{
           padding: "8px 20px", borderRadius: 8, border: `1px dashed ${V.green500}`,
-          background: "rgba(52,211,153,0.15)", color: V.green700, fontWeight: 600,
+          background: "#f0fdf4", color: V.green700, fontWeight: 600,
           fontSize: 14, cursor: "pointer", marginBottom: 16,
         }}
       >
@@ -533,7 +533,7 @@ export default function GerarContratoPage() {
           <h3 style={{ fontSize: 15, color: V.ink, marginBottom: 8 }}>Resumo das Partes</h3>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
-              <tr style={{ background: "var(--panel-2)", textAlign: "left" }}>
+              <tr style={{ background: "#f8faf9", textAlign: "left" }}>
                 {["Nome","Documento","E-mail","Papel"].map((h) => (
                   <th key={h} style={{ padding: "8px 10px", borderBottom: `1px solid ${V.border}`, color: V.muted, fontWeight: 600 }}>{h}</th>
                 ))}
@@ -632,7 +632,7 @@ export default function GerarContratoPage() {
           width: `${10000 / zoom}%`,
         }}>
           <div style={{
-            background: "var(--panel)", border: `1px solid ${V.border}`, borderRadius: 4,
+            background: "#fff", border: `1px solid ${V.border}`, borderRadius: 4,
             padding: "48px 56px", maxWidth: 700, margin: "0 auto",
             boxShadow: "0 2px 12px rgba(0,0,0,.08)", fontFamily: "'Times New Roman', serif",
             fontSize: 14, lineHeight: 1.8, color: "#1a1a1a",
@@ -741,7 +741,7 @@ export default function GerarContratoPage() {
       return (
         <div style={{ textAlign: "center", padding: "40px 0" }}>
           <div style={{
-            width: 80, height: 80, borderRadius: "50%", background: "rgba(74,222,128,0.15)",
+            width: 80, height: 80, borderRadius: "50%", background: "#dcfce7",
             display: "inline-flex", alignItems: "center", justifyContent: "center",
             marginBottom: 20, fontSize: 40,
           }}>
@@ -752,7 +752,7 @@ export default function GerarContratoPage() {
             Seu contrato foi gerado com sucesso e está pronto para uso.
           </p>
           <div style={{
-            background: "var(--panel-2)", borderRadius: 10, padding: 20,
+            background: "#f8faf9", borderRadius: 10, padding: 20,
             display: "inline-block", textAlign: "left", marginBottom: 24,
           }}>
             <div style={{ fontSize: 13, color: V.muted, marginBottom: 4 }}>Número do Contrato</div>
@@ -763,7 +763,7 @@ export default function GerarContratoPage() {
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
             <button style={{
               padding: "10px 24px", borderRadius: 8, border: "none",
-              background: V.green700, color: "#ffffff", fontWeight: 600,
+              background: V.green700, color: "#fff", fontWeight: 600,
               fontSize: 14, cursor: "pointer",
             }}>
               Baixar PDF
@@ -804,7 +804,7 @@ export default function GerarContratoPage() {
 
         {preco > 0 ? (
           <div style={{
-            background: "var(--panel-2)", borderRadius: 12, padding: 24,
+            background: "#f8faf9", borderRadius: 12, padding: 24,
             border: `1px solid ${V.border}`, marginBottom: 24,
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
@@ -822,7 +822,7 @@ export default function GerarContratoPage() {
                       flex: 1, padding: "10px 0", borderRadius: 8, fontWeight: 600, fontSize: 14,
                       cursor: "pointer",
                       border: pagamento === m ? `2px solid ${V.green500}` : `1px solid ${V.border}`,
-                      background: pagamento === m ? "rgba(52,211,153,0.15)" : V.panel,
+                      background: pagamento === m ? "#f0fdf4" : V.panel,
                       color: pagamento === m ? V.green700 : V.ink,
                     }}
                   >
@@ -853,7 +853,7 @@ export default function GerarContratoPage() {
               onClick={() => setConcluido(true)}
               style={{
                 width: "100%", padding: "14px 0", borderRadius: 10, border: "none",
-                background: V.green700, color: "#ffffff", fontWeight: 700,
+                background: V.green700, color: "#fff", fontWeight: 700,
                 fontSize: 16, cursor: "pointer", marginTop: 8,
               }}
             >
@@ -863,7 +863,7 @@ export default function GerarContratoPage() {
         ) : (
           <div style={{ textAlign: "center", padding: "20px 0" }}>
             <div style={{
-              background: "rgba(52,211,153,0.15)", borderRadius: 12, padding: 24,
+              background: "#f0fdf4", borderRadius: 12, padding: 24,
               border: `1px solid ${V.border}`, marginBottom: 20, display: "inline-block",
             }}>
               <div style={{ fontSize: 16, fontWeight: 600, color: V.green700, marginBottom: 4 }}>
@@ -876,7 +876,7 @@ export default function GerarContratoPage() {
               onClick={() => setConcluido(true)}
               style={{
                 padding: "14px 40px", borderRadius: 10, border: "none",
-                background: V.green700, color: "#ffffff", fontWeight: 700,
+                background: V.green700, color: "#fff", fontWeight: 700,
                 fontSize: 16, cursor: "pointer",
               }}
             >
@@ -1033,14 +1033,14 @@ export default function GerarContratoPage() {
                   display: "flex", alignItems: "center", gap: 10,
                   padding: "10px 8px", borderRadius: 8, marginBottom: 4,
                   cursor: done ? "pointer" : "default",
-                  background: active ? "rgba(52,211,153,0.15)" : "transparent",
+                  background: active ? "#f0fdf4" : "transparent",
                 }}
               >
                 <div style={{
                   width: 28, height: 28, borderRadius: "50%",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: 13, fontWeight: 700,
-                  background: done ? V.green500 : active ? V.blue : "rgba(148,163,184,0.2)",
+                  background: done ? V.green500 : active ? V.blue : "#e5e7eb",
                   color: done || active ? "#fff" : V.muted,
                 }}>
                   {done ? "✓" : s.num}
@@ -1061,7 +1061,7 @@ export default function GerarContratoPage() {
               Progresso: {pct}%
             </div>
             <div style={{
-              height: 6, borderRadius: 3, background: "rgba(148,163,184,0.2)", overflow: "hidden",
+              height: 6, borderRadius: 3, background: "#e5e7eb", overflow: "hidden",
             }}>
               <div style={{
                 height: "100%", borderRadius: 3,
@@ -1105,7 +1105,7 @@ export default function GerarContratoPage() {
                   disabled={!canNext()}
                   style={{
                     padding: "10px 24px", borderRadius: 8, border: "none",
-                    background: canNext() ? V.green700 : "var(--border)",
+                    background: canNext() ? V.green700 : "#ccc",
                     color: "#fff", fontWeight: 600, fontSize: 14,
                     cursor: canNext() ? "pointer" : "not-allowed",
                   }}

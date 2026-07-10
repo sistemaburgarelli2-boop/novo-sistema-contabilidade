@@ -6,9 +6,9 @@ import { BotaoVoltar } from "@/components/ui/BotaoVoltar";
 
 /* ─── Cores ─────────────────────────────────────────────────── */
 const V = {
-  bg: "var(--bg)", panel: "var(--panel)", ink: "var(--ink)", muted: "var(--muted)",
-  green700: "#2ee58f", green500: "#10b981", green400: "#18d19b",
-  gold: "#d4ae4a", border: "var(--border)", danger: "#ef445f",
+  bg: "#f3f8f5", panel: "#ffffff", ink: "#07170d", muted: "#6f8f7c",
+  green700: "#075f3c", green500: "#10b981", green400: "#18d19b",
+  gold: "#d4ae4a", border: "#dfece5", danger: "#ef445f",
   amber: "#f59e0b", red: "#ef4444",
 };
 
@@ -107,7 +107,7 @@ const sCard: React.CSSProperties = {
   background: V.panel, border: `1px solid ${V.border}`, borderRadius: 12, padding: 20, marginBottom: 16,
 };
 const sBtnPrimary: React.CSSProperties = {
-  padding: "10px 24px", background: V.green700, color: "#ffffff", border: "none",
+  padding: "10px 24px", background: V.green700, color: "#fff", border: "none",
   borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer",
 };
 const sBtnSecondary: React.CSSProperties = {
@@ -132,7 +132,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
         position: "relative", transition: "background .2s",
       }}>
         <div style={{
-          width: 18, height: 18, borderRadius: 9, background: "var(--panel)", position: "absolute",
+          width: 18, height: 18, borderRadius: 9, background: "#fff", position: "absolute",
           top: 2, left: checked ? 20 : 2, transition: "left .2s", boxShadow: "0 1px 3px rgba(0,0,0,.2)",
         }} />
       </div>
@@ -351,7 +351,7 @@ export default function ConsultoriaNovaPage() {
             return (
               <label key={o} style={{
                 display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", borderRadius: 8,
-                border: `1px solid ${checked ? V.green500 : V.border}`, background: checked ? "rgba(46,229,143,0.12)" : V.panel,
+                border: `1px solid ${checked ? V.green500 : V.border}`, background: checked ? "#edf7f1" : V.panel,
                 cursor: "pointer", fontSize: 13,
               }}>
                 <input type="checkbox" checked={checked} onChange={() => {
@@ -485,7 +485,7 @@ export default function ConsultoriaNovaPage() {
         <div style={{ overflowX: "auto", marginBottom: 24 }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
-              <tr style={{ background: V.green700, color: "#ffffff" }}>
+              <tr style={{ background: V.green700, color: "#fff" }}>
                 <th style={{ padding: "10px 12px", textAlign: "left", borderRadius: "8px 0 0 0" }}>Item</th>
                 {regimes.map((r, i) => (
                   <th key={r.nome} style={{
@@ -506,7 +506,7 @@ export default function ConsultoriaNovaPage() {
                 { label: "Custo total", key: "custoTotal" },
                 { label: "Margem líquida", key: "margem" },
               ].map((row, ri) => (
-                <tr key={row.key} style={{ background: ri % 2 === 0 ? "var(--panel-2)" : V.panel }}>
+                <tr key={row.key} style={{ background: ri % 2 === 0 ? "#f8fdf9" : V.panel }}>
                   <td style={{ padding: "8px 12px", fontWeight: 600, color: V.ink }}>{row.label}</td>
                   {regimes.map(r => {
                     const val = r[row.key as keyof typeof r];
@@ -559,7 +559,7 @@ export default function ConsultoriaNovaPage() {
                 {isBest && (
                   <span style={{
                     position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)",
-                    background: V.green500, color: "#ffffff", fontSize: 10, fontWeight: 700,
+                    background: V.green500, color: "#fff", fontSize: 10, fontWeight: 700,
                     padding: "2px 10px", borderRadius: 10,
                   }}>RECOMENDADO</span>
                 )}
@@ -584,7 +584,7 @@ export default function ConsultoriaNovaPage() {
               <label key={r.nome} style={{
                 display: "flex", alignItems: "center", gap: 8, padding: "10px 16px", borderRadius: 8,
                 border: `1px solid ${form.regime_selecionado === r.nome ? V.green500 : V.border}`,
-                background: form.regime_selecionado === r.nome ? "rgba(46,229,143,0.12)" : V.panel,
+                background: form.regime_selecionado === r.nome ? "#edf7f1" : V.panel,
                 cursor: "pointer", fontSize: 13, fontWeight: 600,
               }}>
                 <input type="radio" name="regime" checked={form.regime_selecionado === r.nome}
@@ -604,9 +604,9 @@ export default function ConsultoriaNovaPage() {
   const renderStep5 = () => {
     const result = viabilidadeScore;
     const resultMap = {
-      viavel: { label: "Viável", color: V.green500, bg: "rgba(46,229,143,0.12)" },
+      viavel: { label: "Viável", color: V.green500, bg: "#edf7f1" },
       ajustes: { label: "Viável com ajustes", color: V.amber, bg: "#fef9ee" },
-      nao_recomendado: { label: "Não recomendado", color: V.red, bg: "rgba(248,113,113,0.15)" },
+      nao_recomendado: { label: "Não recomendado", color: V.red, bg: "#fef2f2" },
     };
     const r = resultMap[result];
 
@@ -846,7 +846,7 @@ export default function ConsultoriaNovaPage() {
                 <span>Semana {i + 1}: {r.titulo}</span>
                 <span style={{
                   fontSize: 11, padding: "2px 8px", borderRadius: 10,
-                  background: r.status === "Concluído" ? "rgba(46,229,143,0.12)" : r.status === "Em andamento" ? "#fef9ee" : "rgba(148,163,184,0.15)",
+                  background: r.status === "Concluído" ? "#edf7f1" : r.status === "Em andamento" ? "#fef9ee" : "#f3f4f6",
                   color: r.status === "Concluído" ? V.green700 : r.status === "Em andamento" ? V.gold : V.muted,
                   fontWeight: 600,
                 }}>{r.status}</span>
@@ -875,7 +875,7 @@ export default function ConsultoriaNovaPage() {
         {/* Capa */}
         <div style={{
           ...sCard, textAlign: "center", padding: "40px 24px",
-          background: `linear-gradient(135deg, ${V.green700} 0%, #0a3d2a 100%)`, color: "#ffffff", borderRadius: 16,
+          background: `linear-gradient(135deg, ${V.green700} 0%, #0a3d2a 100%)`, color: "#fff", borderRadius: 16,
         }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: V.gold, marginBottom: 8, letterSpacing: 2, textTransform: "uppercase" }}>
             Fatturati Burgarelli
@@ -923,9 +923,9 @@ export default function ConsultoriaNovaPage() {
           <label style={sLabel}>Decisão</label>
           <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
             {[
-              { label: "Aprovar", value: "Aprovado", color: V.green500, bg: "rgba(46,229,143,0.12)" },
+              { label: "Aprovar", value: "Aprovado", color: V.green500, bg: "#edf7f1" },
               { label: "Solicitar ajustes", value: "Ajustes", color: V.amber, bg: "#fef9ee" },
-              { label: "Rejeitar", value: "Rejeitado", color: V.red, bg: "rgba(248,113,113,0.15)" },
+              { label: "Rejeitar", value: "Rejeitado", color: V.red, bg: "#fef2f2" },
             ].map(opt => (
               <button key={opt.value} onClick={() => set("status_aprovacao", opt.value)} style={{
                 flex: 1, padding: "14px 16px", borderRadius: 10, fontSize: 14, fontWeight: 700,
@@ -961,9 +961,9 @@ export default function ConsultoriaNovaPage() {
 
         {/* Conversão */}
         {approved && (
-          <div style={{ ...sCard, background: "rgba(46,229,143,0.12)", border: `2px solid ${V.green500}`, textAlign: "center", padding: 32 }}>
+          <div style={{ ...sCard, background: "#edf7f1", border: `2px solid ${V.green500}`, textAlign: "center", padding: 32 }}>
             <a href="/empresas/novo" style={{
-              display: "inline-block", padding: "16px 48px", background: V.green500, color: "#ffffff",
+              display: "inline-block", padding: "16px 48px", background: V.green500, color: "#fff",
               borderRadius: 12, fontSize: 18, fontWeight: 700, textDecoration: "none",
               boxShadow: "0 4px 16px rgba(16,185,129,.3)",
             }}>
@@ -1010,7 +1010,7 @@ export default function ConsultoriaNovaPage() {
           <div key={s.num} onClick={() => setStep(s.num)} style={{
             display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8,
             cursor: "pointer", marginBottom: 4, transition: "background .15s",
-            background: isActive ? "rgba(46,229,143,0.12)" : "transparent",
+            background: isActive ? "#edf7f1" : "transparent",
           }}>
             <div style={{
               width: 24, height: 24, borderRadius: 12, fontSize: 11, fontWeight: 700,
@@ -1058,7 +1058,7 @@ export default function ConsultoriaNovaPage() {
             <div style={{ fontSize: 11, fontWeight: 600, color: V.muted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Objetivo</div>
             <div style={{
               display: "inline-block", padding: "4px 10px", borderRadius: 12, fontSize: 12,
-              background: "rgba(46,229,143,0.12)", color: V.green700, fontWeight: 600,
+              background: "#edf7f1", color: V.green700, fontWeight: 600,
             }}>{form.objetivo_principal}</div>
           </div>
         )}
@@ -1099,7 +1099,7 @@ export default function ConsultoriaNovaPage() {
             <div style={{ fontSize: 11, fontWeight: 600, color: V.muted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Regime</div>
             <div style={{
               display: "inline-block", padding: "6px 12px", borderRadius: 8, fontSize: 13,
-              background: V.green700, color: "#ffffff", fontWeight: 700,
+              background: V.green700, color: "#fff", fontWeight: 700,
             }}>{form.regime_selecionado}</div>
           </div>
         )}
@@ -1134,7 +1134,7 @@ export default function ConsultoriaNovaPage() {
             <div style={{ fontSize: 11, fontWeight: 600, color: V.muted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Status</div>
             <div style={{
               display: "inline-block", padding: "4px 10px", borderRadius: 12, fontSize: 12, fontWeight: 700,
-              background: form.status_aprovacao === "Aprovado" ? "rgba(46,229,143,0.12)" : form.status_aprovacao === "Ajustes" ? "#fef9ee" : "rgba(248,113,113,0.15)",
+              background: form.status_aprovacao === "Aprovado" ? "#edf7f1" : form.status_aprovacao === "Ajustes" ? "#fef9ee" : "#fef2f2",
               color: form.status_aprovacao === "Aprovado" ? V.green500 : form.status_aprovacao === "Ajustes" ? V.amber : V.red,
             }}>{form.status_aprovacao}</div>
           </div>
@@ -1143,7 +1143,7 @@ export default function ConsultoriaNovaPage() {
         {/* Auto-save */}
         <div style={{
           marginTop: 32, padding: "8px 12px", borderRadius: 8, fontSize: 11,
-          background: saved ? "rgba(46,229,143,0.12)" : "var(--panel-2)",
+          background: saved ? "#edf7f1" : "#f9fafb",
           color: saved ? V.green500 : V.muted,
           display: "flex", alignItems: "center", gap: 6,
         }}>
@@ -1199,7 +1199,7 @@ export default function ConsultoriaNovaPage() {
           position: "fixed", bottom: 24, right: 24, zIndex: 9999,
           display: "flex", alignItems: "center", gap: 10,
           padding: "14px 20px", borderRadius: 12,
-          background: toast.tipo === "sucesso" ? "#34d399" : "#93c5fd",
+          background: toast.tipo === "sucesso" ? "#065f46" : "#1e40af",
           color: "#fff", fontSize: "0.875rem", fontWeight: 600,
           boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
           animation: "toastIn 0.3s ease",
