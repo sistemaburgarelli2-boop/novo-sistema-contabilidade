@@ -12,6 +12,7 @@ import type {
   OperadorRegra, PapelParte, Parte, ParteContrato, Regra, StatusContrato,
 } from "./types";
 import { SEED_CLAUSULAS, SEED_MODELOS, SEED_REGRAS } from "./seed";
+import { ConstrutorModelo } from "./ConstrutorModelo";
 import {
   DOC_CSS, LS_KEYS, abrirImpressao, baixarArquivo, dataBR, exportarDOCX,
   exportarHTML, exportarTXT, fmtBRL, gerarDocumentoHTML, loadLS, maskCEP,
@@ -255,7 +256,14 @@ export function GeradorContratos() {
         />
       )}
       {guia === "modelos" && (
-        <GuiaModelos modelos={modelos} setModelos={setModelos} clausulas={clausulas} />
+        <GuiaModelos
+          modelos={modelos}
+          setModelos={setModelos}
+          clausulas={clausulas}
+          setClausulas={setClausulas}
+          regras={regras}
+          setRegras={setRegras}
+        />
       )}
       {guia === "clausulas" && (
         <GuiaClausulas clausulas={clausulas} setClausulas={setClausulas} />
@@ -1369,11 +1377,14 @@ function GuiaContratos({
 /* ═══ GUIA: MODELOS ═══════════════════════════════════════════ */
 
 function GuiaModelos({
-  modelos, setModelos, clausulas,
+  modelos, setModelos, clausulas, setClausulas, regras, setRegras,
 }: {
   modelos: ModeloContrato[];
   setModelos: React.Dispatch<React.SetStateAction<ModeloContrato[]>>;
   clausulas: Clausula[];
+  setClausulas: React.Dispatch<React.SetStateAction<Clausula[]>>;
+  regras: Regra[];
+  setRegras: React.Dispatch<React.SetStateAction<Regra[]>>;
 }) {
   const [editando, setEditando] = useState<ModeloContrato | null>(null);
 
@@ -1482,6 +1493,9 @@ function GuiaModelos({
           <EditorModelo
             inicial={editando}
             clausulas={clausulas}
+            setClausulas={setClausulas}
+            regras={regras}
+            setRegras={setRegras}
             onSalvar={(m) => {
               setModelos((prev) => {
                 const existe = prev.some((x) => x.id === m.id);
@@ -1508,27 +1522,22 @@ const TIPOS_CAMPO: { v: CampoModelo["tipo"]; label: string }[] = [
 ];
 
 function EditorModelo({
-  inicial, clausulas, onSalvar,
+  inicial, clausulas, setClausulas, regras, setRegras, onSalvar,
 }: {
   inicial: ModeloContrato;
   clausulas: Clausula[];
+  setClausulas: React.Dispatch<React.SetStateAction<Clausula[]>>;
+  regras: Regra[];
+  setRegras: React.Dispatch<React.SetStateAction<Regra[]>>;
   onSalvar: (m: ModeloContrato) => void;
 }) {
   const [m, setM] = useState<ModeloContrato>({ ...inicial });
+  const [construtorAberto, setConstrutorAberto] = useState(false);
   const set = (patch: Partial<ModeloContrato>) => setM((prev) => ({ ...prev, ...patch }));
 
-  const toggleClausula = (id: string, tipo: "obrig" | "opc") => {
-    const obrig = new Set(m.clausulasObrigatorias);
-    const opc = new Set(m.clausulasOpcionais);
-    if (tipo === "obrig") {
-      if (obrig.has(id)) obrig.delete(id);
-      else { obrig.add(id); opc.delete(id); }
-    } else {
-      if (opc.has(id)) opc.delete(id);
-      else { opc.add(id); obrig.delete(id); }
-    }
-    set({ clausulasObrigatorias: [...obrig], clausulasOpcionais: [...opc] });
-  };
+  const totalClausulasEstrutura = m.estrutura
+    ? m.estrutura.capitulos.reduce((s, c) => s + c.itens.length, 0)
+    : m.clausulasObrigatorias.length + m.clausulasOpcionais.length;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -1610,36 +1619,57 @@ function EditorModelo({
         )}
       </div>
 
-      {/* Cláusulas do modelo */}
-      <div style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: 14 }}>
-        <strong style={{ fontSize: "0.86rem" }}>Cláusulas do modelo</strong>
-        <p style={{ fontSize: "0.72rem", color: "#94a3b8", margin: "4px 0 10px" }}>
-          Obrigatórias entram automaticamente; opcionais aparecem como sugestão no construtor.
-        </p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 260, overflow: "auto" }}>
-          {clausulas.filter((c) => c.status === "ativa").map((c) => {
-            const obrig = m.clausulasObrigatorias.includes(c.id);
-            const opc = m.clausulasOpcionais.includes(c.id);
-            return (
-              <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: "0.8rem" }}>
-                <span style={{ flex: 1, color: "#334155" }}>{c.titulo} <span style={{ color: "#94a3b8" }}>({c.categoria})</span></span>
-                <label style={{ display: "flex", gap: 4, alignItems: "center", fontSize: "0.72rem" }}>
-                  <input type="checkbox" checked={obrig} onChange={() => toggleClausula(c.id, "obrig")} /> Obrigatória
-                </label>
-                <label style={{ display: "flex", gap: 4, alignItems: "center", fontSize: "0.72rem" }}>
-                  <input type="checkbox" checked={opc} onChange={() => toggleClausula(c.id, "opc")} /> Opcional
-                </label>
-              </div>
-            );
-          })}
+      {/* Cláusulas do modelo — Construtor Visual (CLM) */}
+      <div style={{
+        border: "1px solid #e2e8f0", borderRadius: 12, padding: 18,
+        background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)", color: "#fff",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <strong style={{ fontSize: "0.98rem", display: "block" }}>🎨 Cláusulas do Modelo — Construtor Visual</strong>
+            <p style={{ fontSize: "0.78rem", color: "#cbd5e1", margin: "4px 0 0", lineHeight: 1.5 }}>
+              Monte o contrato arrastando cláusulas, organize em capítulos, defina status,
+              dependências, regras automáticas e IA jurídica, com preview em tempo real.
+            </p>
+            <div style={{ display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap" }}>
+              <span style={{ ...chipStyle("rgba(255,255,255,0.12)", "#fff") }}>
+                {totalClausulasEstrutura} cláusula(s)
+              </span>
+              <span style={{ ...chipStyle("rgba(255,255,255,0.12)", "#fff") }}>
+                {m.estrutura ? `${m.estrutura.capitulos.length} capítulo(s)` : "estrutura simples"}
+              </span>
+            </div>
+          </div>
+          <button
+            style={{ background: "#10b981", color: "#fff", border: "none", borderRadius: 10, padding: "12px 22px", fontSize: "0.88rem", fontWeight: 700, cursor: "pointer" }}
+            onClick={() => setConstrutorAberto(true)}
+          >
+            {totalClausulasEstrutura > 0 ? "Abrir Construtor Visual →" : "Montar contrato →"}
+          </button>
         </div>
       </div>
 
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
         <button style={btnPrimary} onClick={() => onSalvar(m)}>Salvar modelo</button>
       </div>
+
+      {construtorAberto && (
+        <ConstrutorModelo
+          modelo={m}
+          clausulas={clausulas}
+          setClausulas={setClausulas}
+          regras={regras}
+          setRegras={setRegras}
+          onSalvar={(mm) => setM(mm)}
+          onFechar={() => setConstrutorAberto(false)}
+        />
+      )}
     </div>
   );
+}
+
+function chipStyle(bg: string, color: string): React.CSSProperties {
+  return { display: "inline-block", background: bg, color, borderRadius: 999, padding: "3px 10px", fontSize: "0.72rem", fontWeight: 700 };
 }
 
 /* ═══ GUIA: CLÁUSULAS (biblioteca + editor) ═══════════════════ */

@@ -53,6 +53,46 @@ export type Regra = {
   ativa: boolean;
 };
 
+/* ── Construtor visual de cláusulas do modelo (CLM) ── */
+
+export type StatusClausulaModelo =
+  | "obrigatoria" // 🟢
+  | "opcional" // 🟡
+  | "condicional" // 🔵
+  | "ia" // 🟣
+  | "desativada"; // 🔴
+
+export type ItemClausulaModelo = {
+  id: string; // id único do item dentro do modelo (permite repetição)
+  clausulaId: string | null; // referência à biblioteca (null = avulsa/IA)
+  titulo: string;
+  categoria: string;
+  texto: string;
+  status: StatusClausulaModelo;
+  exibirNoIndice: boolean;
+  permitirExclusao: boolean;
+  permitirEdicao: boolean;
+  fixa: boolean; // não pode ser reordenada/removida no contrato
+  podeRepetir: boolean;
+  podeOcultar: boolean;
+  oculta: boolean; // ocultada da renderização
+  dependeDe: string[]; // ids de itens dos quais depende
+  autor: string;
+  versao: number;
+  criadaEm: string;
+  atualizadaEm: string;
+};
+
+export type CapituloModelo = {
+  id: string;
+  titulo: string; // ex: "Das Partes"
+  itens: ItemClausulaModelo[];
+};
+
+export type EstruturaModelo = {
+  capitulos: CapituloModelo[];
+};
+
 export type ModeloContrato = {
   id: string;
   nome: string;
@@ -66,8 +106,9 @@ export type ModeloContrato = {
   preambulo: string; // texto de abertura com variáveis
   fechamento: string; // texto de fechamento com variáveis
   campos: CampoModelo[];
-  clausulasObrigatorias: string[]; // ids de cláusulas
-  clausulasOpcionais: string[]; // ids de cláusulas
+  clausulasObrigatorias: string[]; // ids de cláusulas (compat. assistente)
+  clausulasOpcionais: string[]; // ids de cláusulas (compat. assistente)
+  estrutura?: EstruturaModelo; // construtor visual (capítulos + itens)
   minAssinantes: number;
 };
 
