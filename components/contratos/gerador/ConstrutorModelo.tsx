@@ -16,6 +16,7 @@ import {
   DOC_CSS, abrirImpressao, exportarDOCX, exportarHTML, ordinalClausula,
   substituirVariaveis, uid,
 } from "./utils";
+import { CaixaDialogo, type Dialogo } from "./Dialogo";
 
 /* ─── Meta de status (indicadores coloridos) ─────────────────── */
 
@@ -190,76 +191,6 @@ type PayloadDrag =
   | { kind: "lib"; clausulaId: string }
   | { kind: "item"; itemId: string }
   | { kind: "chapter"; capId: string };
-
-type Dialogo =
-  | { tipo: "confirm"; titulo: string; msg: string; perigo: boolean; okLabel: string; icone: string; onOk: () => void }
-  | { tipo: "prompt"; titulo: string; msg: string; valor: string; okLabel: string; icone: string; onOk: (v: string) => void };
-
-/* ─── Caixa de diálogo (substitui confirm/prompt nativos) ────── */
-function CaixaDialogo({ dialogo, onClose }: { dialogo: Dialogo; onClose: () => void }) {
-  const [valor, setValor] = useState(dialogo.tipo === "prompt" ? dialogo.valor : "");
-  const confirmar = () => {
-    if (dialogo.tipo === "prompt") {
-      if (!valor.trim()) return;
-      dialogo.onOk(valor.trim());
-    } else {
-      dialogo.onOk();
-    }
-    onClose();
-  };
-  const corOk = dialogo.tipo === "confirm" && dialogo.perigo ? "#dc2626" : "#10b981";
-  return (
-    <div
-      style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", zIndex: 360, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
-      onClick={onClose}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{ background: "#fff", borderRadius: 16, width: "min(440px, 96vw)", boxShadow: "0 24px 64px rgba(0,0,0,0.28)", overflow: "hidden" }}
-      >
-        <div style={{ padding: "22px 24px 8px", display: "flex", gap: 14, alignItems: "flex-start" }}>
-          <div style={{
-            width: 44, height: 44, borderRadius: 12, flexShrink: 0, display: "grid", placeItems: "center",
-            fontSize: "1.4rem", background: dialogo.tipo === "confirm" && dialogo.perigo ? "#fef2f2" : "#ecfdf5",
-          }}>
-            {dialogo.icone}
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <strong style={{ fontSize: "1.02rem", color: "#0f172a", display: "block" }}>{dialogo.titulo}</strong>
-            {dialogo.msg && <p style={{ fontSize: "0.86rem", color: "#64748b", margin: "6px 0 0", lineHeight: 1.5 }}>{dialogo.msg}</p>}
-          </div>
-        </div>
-
-        {dialogo.tipo === "prompt" && (
-          <div style={{ padding: "10px 24px 4px" }}>
-            <input
-              autoFocus
-              value={valor}
-              onChange={(e) => setValor(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") confirmar(); if (e.key === "Escape") onClose(); }}
-              style={{ width: "100%", padding: "10px 12px", borderRadius: 9, border: "1px solid #cbd5e1", fontSize: "0.9rem", color: "#0f172a", boxSizing: "border-box", outline: "none" }}
-            />
-          </div>
-        )}
-
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: "16px 24px 20px" }}>
-          <button
-            onClick={onClose}
-            style={{ background: "#fff", color: "#334155", border: "1px solid #e2e8f0", borderRadius: 9, padding: "9px 18px", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={confirmar}
-            style={{ background: corOk, color: "#fff", border: "none", borderRadius: 9, padding: "9px 20px", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer" }}
-          >
-            {dialogo.okLabel}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export function ConstrutorModelo({
   modelo, clausulas, setClausulas, regras, setRegras, onSalvar, onFechar,

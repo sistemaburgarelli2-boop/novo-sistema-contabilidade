@@ -13,6 +13,7 @@ import type {
 } from "./types";
 import { SEED_CLAUSULAS, SEED_MODELOS, SEED_REGRAS } from "./seed";
 import { ConstrutorModelo } from "./ConstrutorModelo";
+import { DialogoProvider, useDialogo } from "./Dialogo";
 import {
   DOC_CSS, LS_KEYS, abrirImpressao, baixarArquivo, dataBR, exportarDOCX,
   exportarHTML, exportarTXT, fmtBRL, gerarDocumentoHTML, loadLS, maskCEP,
@@ -219,6 +220,7 @@ export function GeradorContratos({ abrirNovoSignal }: { abrirNovoSignal?: number
   }
 
   return (
+    <DialogoProvider>
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {/* Sub-guias do gerador */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -283,6 +285,7 @@ export function GeradorContratos({ abrirNovoSignal }: { abrirNovoSignal?: number
         <GuiaRegras regras={regras} setRegras={setRegras} clausulas={clausulas} />
       )}
     </div>
+    </DialogoProvider>
   );
 }
 
@@ -1225,6 +1228,7 @@ function GuiaContratos({
   partes: Parte[];
   editarContrato: (c: Contrato) => void;
 }) {
+  const dlg = useDialogo();
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState<StatusContrato | "todos">("todos");
   const [visualizando, setVisualizando] = useState<Contrato | null>(null);
@@ -1262,8 +1266,11 @@ function GuiaContratos({
   };
 
   const excluir = (c: Contrato) => {
-    if (!window.confirm(`Excluir o contrato ${c.numero}? Esta ação não pode ser desfeita.`)) return;
-    setContratos((prev) => prev.filter((x) => x.id !== c.id));
+    dlg.confirmar(
+      `Excluir o contrato ${c.numero} — "${c.titulo}"? Esta ação não pode ser desfeita.`,
+      () => setContratos((prev) => prev.filter((x) => x.id !== c.id)),
+      { titulo: "Excluir contrato", perigo: true, okLabel: "Excluir" },
+    );
   };
 
   const htmlDe = (c: Contrato) => {
@@ -1352,22 +1359,27 @@ function GuiaContratos({
                   <button
                     style={btnSmall}
                     onClick={() => {
-                      if (!window.confirm(`Restaurar a versão ${v.versao}? Uma nova versão será criada com esse conteúdo.`)) return;
-                      const agora = new Date().toISOString();
-                      setContratos((prev) => prev.map((c) => {
-                        if (c.id !== historicoDe.id) return c;
-                        const novaVersao = c.versao + 1;
-                        return {
-                          ...c,
-                          dados: v.dados, clausulas: v.clausulas, versao: novaVersao, atualizadoEm: agora,
-                          versoes: [...c.versoes, {
-                            versao: novaVersao, data: agora, autor: "Administrador",
-                            descricao: `Restauração da versão ${v.versao}`,
-                            clausulas: v.clausulas, dados: v.dados,
-                          }],
-                        };
-                      }));
-                      setHistoricoDe(null);
+                      dlg.confirmar(
+                        `Restaurar a versão ${v.versao}? Uma nova versão será criada com esse conteúdo.`,
+                        () => {
+                          const agora = new Date().toISOString();
+                          setContratos((prev) => prev.map((c) => {
+                            if (c.id !== historicoDe.id) return c;
+                            const novaVersao = c.versao + 1;
+                            return {
+                              ...c,
+                              dados: v.dados, clausulas: v.clausulas, versao: novaVersao, atualizadoEm: agora,
+                              versoes: [...c.versoes, {
+                                versao: novaVersao, data: agora, autor: "Administrador",
+                                descricao: `Restauração da versão ${v.versao}`,
+                                clausulas: v.clausulas, dados: v.dados,
+                              }],
+                            };
+                          }));
+                          setHistoricoDe(null);
+                        },
+                        { titulo: "Restaurar versão", okLabel: "Restaurar", icone: "↩️" },
+                      );
                     }}
                   >
                     ↩️ Restaurar esta versão
@@ -1394,6 +1406,7 @@ function GuiaModelos({
   regras: Regra[];
   setRegras: React.Dispatch<React.SetStateAction<Regra[]>>;
 }) {
+  const dlg = useDialogo();
   const [editando, setEditando] = useState<ModeloContrato | null>(null);
 
   const duplicar = (m: ModeloContrato) => {
@@ -1401,8 +1414,11 @@ function GuiaModelos({
   };
 
   const excluir = (m: ModeloContrato) => {
-    if (!window.confirm(`Excluir o modelo "${m.nome}"?`)) return;
-    setModelos((prev) => prev.filter((x) => x.id !== m.id));
+    dlg.confirmar(
+      `Excluir o modelo "${m.nome}"? Contratos já criados a partir dele não serão afetados.`,
+      () => setModelos((prev) => prev.filter((x) => x.id !== m.id)),
+      { titulo: "Excluir modelo", perigo: true, okLabel: "Excluir" },
+    );
   };
 
   const exportarModelo = (m: ModeloContrato) => {
@@ -1425,7 +1441,7 @@ function GuiaModelos({
         if (!m?.nome || !Array.isArray(m.campos)) throw new Error("formato inválido");
         setModelos((prev) => [...prev, { ...m, id: uid() }]);
       } catch {
-        window.alert("Arquivo de modelo inválido.");
+        dlg.alertar("Importação falhou", "O arquivo selecionado não é um modelo válido. Exporte um modelo pelo botão 📤 Exportar e tente novamente.", "📥");
       }
     };
     reader.readAsText(file);
@@ -1696,6 +1712,7 @@ function GuiaClausulas({
   clausulas: Clausula[];
   setClausulas: React.Dispatch<React.SetStateAction<Clausula[]>>;
 }) {
+  const dlg = useDialogo();
   const [busca, setBusca] = useState("");
   const [filtroCat, setFiltroCat] = useState("todas");
   const [soFavoritas, setSoFavoritas] = useState(false);
@@ -1782,8 +1799,11 @@ function GuiaClausulas({
                 <button
                   style={{ ...btnSmall, color: "#b91c1c" }}
                   onClick={() => {
-                    if (!window.confirm(`Excluir a cláusula "${c.titulo}"?`)) return;
-                    setClausulas((prev) => prev.filter((x) => x.id !== c.id));
+                    dlg.confirmar(
+                      `Excluir a cláusula "${c.titulo}" da biblioteca? Modelos que a utilizam deixarão de encontrá-la.`,
+                      () => setClausulas((prev) => prev.filter((x) => x.id !== c.id)),
+                      { titulo: "Excluir cláusula", perigo: true, okLabel: "Excluir" },
+                    );
                   }}
                 >
                   🗑️
@@ -1902,6 +1922,7 @@ function GuiaPartes({
   partes: Parte[];
   setPartes: React.Dispatch<React.SetStateAction<Parte[]>>;
 }) {
+  const dlg = useDialogo();
   const [busca, setBusca] = useState("");
   const [editando, setEditando] = useState<Parte | null>(null);
   const [criando, setCriando] = useState(false);
@@ -1954,8 +1975,11 @@ function GuiaPartes({
                 <button
                   style={{ ...btnSmall, color: "#b91c1c" }}
                   onClick={() => {
-                    if (!window.confirm(`Excluir "${p.nome}" do cadastro?`)) return;
-                    setPartes((prev) => prev.filter((x) => x.id !== p.id));
+                    dlg.confirmar(
+                      `Excluir "${p.nome}" do cadastro de pessoas? Contratos existentes que usam esta pessoa perderão a referência.`,
+                      () => setPartes((prev) => prev.filter((x) => x.id !== p.id)),
+                      { titulo: "Excluir pessoa", perigo: true, okLabel: "Excluir" },
+                    );
                   }}
                 >
                   🗑️ Excluir
@@ -1994,6 +2018,7 @@ function GuiaRegras({
   setRegras: React.Dispatch<React.SetStateAction<Regra[]>>;
   clausulas: Clausula[];
 }) {
+  const dlg = useDialogo();
   const [editando, setEditando] = useState<Regra | null>(null);
 
   const novaRegra = (): Regra => ({
@@ -2045,8 +2070,11 @@ function GuiaRegras({
                 <button
                   style={{ ...btnSmall, color: "#b91c1c" }}
                   onClick={() => {
-                    if (!window.confirm(`Excluir a regra "${r.nome}"?`)) return;
-                    setRegras((prev) => prev.filter((x) => x.id !== r.id));
+                    dlg.confirmar(
+                      `Excluir a regra "${r.nome}"? Ela deixará de ser aplicada em novos contratos.`,
+                      () => setRegras((prev) => prev.filter((x) => x.id !== r.id)),
+                      { titulo: "Excluir regra", perigo: true, okLabel: "Excluir" },
+                    );
                   }}
                 >
                   🗑️
