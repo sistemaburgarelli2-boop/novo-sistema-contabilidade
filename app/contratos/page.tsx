@@ -269,7 +269,7 @@ export default function ContratosPage() {
         )}
         {tab === "solicitacoes" && <EmptyState message="Sem solicitacoes" />}
         {tab === "assinaturas" && <EmptyState message="Sem assinaturas pendentes" />}
-        {tab === "templates" && <EmptyState message="Nenhum template cadastrado" />}
+        {tab === "templates" && <GeradorContratos guiaInicial="modelos" />}
         {tab === "historico" && <EmptyState message="Sem registros" />}
       </div>
     </AppShell>

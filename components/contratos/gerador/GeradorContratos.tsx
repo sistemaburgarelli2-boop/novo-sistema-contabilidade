@@ -174,8 +174,11 @@ function regraAtende(regra: Regra, dados: Record<string, string>): boolean {
 
 /* ═══ COMPONENTE PRINCIPAL ════════════════════════════════════ */
 
-export function GeradorContratos({ abrirNovoSignal }: { abrirNovoSignal?: number } = {}) {
-  const [guia, setGuia] = useState<GuiaGerador>("dashboard");
+export function GeradorContratos({
+  abrirNovoSignal,
+  guiaInicial,
+}: { abrirNovoSignal?: number; guiaInicial?: GuiaGerador } = {}) {
+  const [guia, setGuia] = useState<GuiaGerador>(guiaInicial ?? "dashboard");
   const [pronto, setPronto] = useState(false);
 
   const [contratos, setContratos] = useState<Contrato[]>([]);
