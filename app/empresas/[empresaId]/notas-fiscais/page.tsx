@@ -496,7 +496,28 @@ export default function NotasFiscaisPage() {
             </div>
 
             <div style={{ background: "#eef2ff", borderRadius: 8, padding: "0.75rem 1rem", marginBottom: "1.25rem", fontSize: "0.8rem", color: "#4338ca" }}>
-              Para MEI: acesse <strong>nfse.gov.br</strong> com sua conta gov.br (nivel Prata ou Ouro), copie o token de acesso da API e cole abaixo.
+              Para MEI: acesse o{" "}
+              <a
+                href="https://www.nfse.gov.br/EmissorNacional/"
+                rel="noreferrer"
+                style={{ color: "#4338ca", fontWeight: 700, textDecoration: "underline" }}
+                target="_blank"
+              >
+                Emissor Nacional de NFS-e
+              </a>{" "}
+              com sua conta gov.br (nivel Prata ou Ouro), copie o token de acesso da API e cole abaixo.
+              <div style={{ marginTop: "0.4rem", fontSize: "0.72rem", opacity: 0.85 }}>
+                O endereco correto e{" "}
+                <strong>www.nfse.gov.br</strong> (com &quot;www&quot;) - o dominio sem &quot;www&quot; nao existe. Portal oficial:{" "}
+                <a
+                  href="https://www.gov.br/nfse"
+                  rel="noreferrer"
+                  style={{ color: "#4338ca", textDecoration: "underline" }}
+                  target="_blank"
+                >
+                  www.gov.br/nfse
+                </a>
+              </div>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
