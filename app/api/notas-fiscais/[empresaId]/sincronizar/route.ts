@@ -3,6 +3,10 @@ import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import { consultarNFSeEmitidas, consultarNFSeRecebidas, nfseToInsert } from "@/modules/notas-fiscais/nfse-nacional.service";
 import type { AmbienteNFSe } from "@/modules/notas-fiscais/nfse-nacional.types";
 
+function motivo(reason: unknown) {
+  return reason instanceof Error ? reason.message : String(reason);
+}
+
 export async function POST(request: Request, { params }: { params: Promise<{ empresaId: string }> }) {
   try {
     const { empresaId } = await params;
@@ -32,34 +36,60 @@ export async function POST(request: Request, { params }: { params: Promise<{ emp
     const cnpj = empresa.cnpj.replace(/\D/g, "");
     const config = { ambiente: ambiente ?? "producao" as AmbienteNFSe, token };
 
-    const [emitidas, recebidas] = await Promise.all([
-      consultarNFSeEmitidas(config, { cnpj, dataInicio, dataFim }).catch(() => []),
-      consultarNFSeRecebidas(config, { cnpj, dataInicio, dataFim }).catch(() => []),
+    // Uma falha de consulta nao pode ser confundida com "nenhuma nota no periodo":
+    // o usuario fecharia competencia acreditando que o periodo esta vazio.
+    const [resEmitidas, resRecebidas] = await Promise.allSettled([
+      consultarNFSeEmitidas(config, { cnpj, dataInicio, dataFim }),
+      consultarNFSeRecebidas(config, { cnpj, dataInicio, dataFim }),
     ]);
 
-    const notasParaInserir = [
+    const falhas: string[] = [];
+    if (resEmitidas.status === "rejected") {
+      falhas.push(`Consulta de notas emitidas falhou: ${motivo(resEmitidas.reason)}`);
+    }
+    if (resRecebidas.status === "rejected") {
+      falhas.push(`Consulta de notas recebidas falhou: ${motivo(resRecebidas.reason)}`);
+    }
+    if (falhas.length === 2) return fail(falhas.join(" | "), 502);
+
+    const emitidas = resEmitidas.status === "fulfilled" ? resEmitidas.value : [];
+    const recebidas = resRecebidas.status === "fulfilled" ? resRecebidas.value : [];
+
+    const encontradas = [
       ...emitidas.map((nf) => nfseToInsert(nf, empresaId, "emitida")),
       ...recebidas.map((nf) => nfseToInsert(nf, empresaId, "recebida")),
     ];
 
-    let inseridas = 0;
-    let duplicadas = 0;
+    // Sem chave de acesso nao ha como deduplicar entre sincronizacoes: importar
+    // geraria uma copia nova a cada execucao. Melhor reportar do que duplicar.
+    const semChave = encontradas.filter((n) => !n.chave_acesso);
+    const comChave = encontradas.filter((n) => n.chave_acesso);
 
-    for (const nota of notasParaInserir) {
-      const { error } = await supabase.from("notas_fiscais").upsert(nota, { onConflict: "chave_acesso", ignoreDuplicates: true });
-      if (error) {
-        duplicadas++;
-      } else {
-        inseridas++;
-      }
+    // Deduplica dentro do proprio lote (a mesma nota pode vir como emitida e
+    // recebida quando prestador e tomador sao a mesma empresa).
+    const notasParaInserir = [...new Map(comChave.map((n) => [n.chave_acesso, n])).values()];
+
+    let inseridas = 0;
+    if (notasParaInserir.length > 0) {
+      // ON CONFLICT DO NOTHING ... RETURNING devolve apenas as linhas realmente
+      // inseridas, entao a contagem sai exata em vez de inferida do erro.
+      const { data: gravadas, error } = await supabase
+        .from("notas_fiscais")
+        .upsert(notasParaInserir, { onConflict: "empresa_id,chave_acesso", ignoreDuplicates: true })
+        .select("id");
+
+      if (error) return fail(`Falha ao gravar notas importadas: ${error.message}`, 500);
+      inseridas = gravadas?.length ?? 0;
     }
 
     return ok({
       emitidas_encontradas: emitidas.length,
       recebidas_encontradas: recebidas.length,
       inseridas,
-      duplicadas,
-      total: notasParaInserir.length,
+      duplicadas: notasParaInserir.length - inseridas,
+      ignoradas_sem_chave: semChave.length,
+      total: encontradas.length,
+      avisos: falhas,
     });
   } catch (e) {
     return fail(e instanceof Error ? e.message : "Erro ao sincronizar", 500);

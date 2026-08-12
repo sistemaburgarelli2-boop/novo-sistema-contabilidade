@@ -161,7 +161,8 @@ export default function NotasFiscaisPage() {
   const [detalhes, setDetalhes] = useState<NotaFiscal | null>(null);
   const [showSync, setShowSync] = useState(false);
   const [syncing, setSyncing] = useState(false);
-  const [syncResult, setSyncResult] = useState<{ inseridas: number; total: number } | null>(null);
+  const [syncResult, setSyncResult] = useState<{ inseridas: number; duplicadas: number; ignoradas: number; total: number; avisos: string[] } | null>(null);
+  const [syncErro, setSyncErro] = useState<string | null>(null);
   const [syncToken, setSyncToken] = useState("");
   const [syncDataInicio, setSyncDataInicio] = useState(() => {
     const d = new Date();
@@ -192,6 +193,7 @@ export default function NotasFiscaisPage() {
     if (!syncToken) return;
     setSyncing(true);
     setSyncResult(null);
+    setSyncErro(null);
     try {
       const res = await fetch(`/api/notas-fiscais/${empresaId}/sincronizar`, {
         method: "POST",
@@ -199,17 +201,25 @@ export default function NotasFiscaisPage() {
         body: JSON.stringify({ token: syncToken, dataInicio: syncDataInicio, dataFim: syncDataFim }),
       });
       const json = await res.json();
-      if (res.ok) {
-        setSyncResult({ inseridas: json.data.inseridas, total: json.data.total });
-        const reload = await fetch(`/api/notas-fiscais/${empresaId}`);
-        if (reload.ok) {
-          const r = await reload.json();
-          setNotas(r.data.notas ?? []);
-          setResumo(r.data.resumo);
-        }
+      if (!res.ok) {
+        setSyncErro(json.error || json.message || `Falha na sincronizacao (HTTP ${res.status}).`);
+        return;
       }
-    } catch {
-      // silently fail
+      setSyncResult({
+        inseridas: json.data.inseridas,
+        duplicadas: json.data.duplicadas,
+        ignoradas: json.data.ignoradas_sem_chave ?? 0,
+        total: json.data.total,
+        avisos: json.data.avisos ?? [],
+      });
+      const reload = await fetch(`/api/notas-fiscais/${empresaId}`);
+      if (reload.ok) {
+        const r = await reload.json();
+        setNotas(r.data.notas ?? []);
+        setResumo(r.data.resumo);
+      }
+    } catch (e) {
+      setSyncErro(e instanceof Error ? e.message : "Nao foi possivel contatar o servidor.");
     } finally {
       setSyncing(false);
     }
@@ -552,9 +562,22 @@ export default function NotasFiscaisPage() {
                 </div>
               </div>
 
+              {syncErro && (
+                <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: "0.75rem 1rem", fontSize: "0.82rem", color: "#991b1b" }}>
+                  <strong>Nao foi possivel sincronizar.</strong>
+                  <div style={{ marginTop: "0.3rem", wordBreak: "break-word" }}>{syncErro}</div>
+                </div>
+              )}
+
               {syncResult && (
                 <div style={{ background: "#f0fdf4", borderRadius: 8, padding: "0.75rem 1rem", fontSize: "0.82rem", color: "#166534" }}>
                   {syncResult.inseridas} nota{syncResult.inseridas !== 1 ? "s" : ""} importada{syncResult.inseridas !== 1 ? "s" : ""} de {syncResult.total} encontrada{syncResult.total !== 1 ? "s" : ""}.
+                  {syncResult.duplicadas > 0 && ` ${syncResult.duplicadas} ja estava${syncResult.duplicadas !== 1 ? "m" : ""} no sistema.`}
+                  {syncResult.ignoradas > 0 && ` ${syncResult.ignoradas} ignorada${syncResult.ignoradas !== 1 ? "s" : ""} por falta de chave de acesso.`}
+                  {syncResult.total === 0 && " Nenhuma nota no periodo consultado."}
+                  {syncResult.avisos.map((aviso) => (
+                    <div key={aviso} style={{ marginTop: "0.4rem", color: "#92400e" }}>Atencao: {aviso}</div>
+                  ))}
                 </div>
               )}
 
