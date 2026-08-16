@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect, useCallback, Suspense } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { buscarEmpresaTenant, listarEmpresasTenant } from "@/services/empresaClientService";
 import type { Empresa } from "@/modules/empresas/empresas.types";
@@ -237,9 +237,19 @@ function Stepper({ atual, onIr }: { atual: number; onIr: (n: number) => void }) 
 
 /* ─────────────────────────── Página ─────────────────────────── */
 export default function EmitirNotaPage() {
+  return (
+    <Suspense fallback={<AppShell><div style={{ textAlign: "center", padding: 60, color: P.inativo }}>Carregando...</div></AppShell>}>
+      <EmitirNotaConteudo />
+    </Suspense>
+  );
+}
+
+function EmitirNotaConteudo() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const empresaId = params.empresaId as string;
+  const simplificada = searchParams.get("modo") === "simplificada";
 
   const [empresa, setEmpresa] = useState<Empresa | null>(null);
   const [carregando, setCarregando] = useState(true);
@@ -390,6 +400,80 @@ export default function EmitirNotaPage() {
     ? clientesFiltrados(destCnpj).slice(0, 6)
     : [];
 
+  /** Campo CPF/CNPJ do tomador com sugestões e busca nos clientes cadastrados. */
+  const campoDocumentoTomador = () => (
+    <>
+      <div style={{ display: "flex", gap: 6 }}>
+        <div style={{ position: "relative", flex: 1 }}>
+          <input style={{ ...inputStyle, paddingRight: 34 }} value={destCnpj}
+            onChange={e => {
+              setDestCnpj(e.target.value);
+              setClienteVinculado(null);
+              setSugestoesAbertas(true);
+            }}
+            onFocus={() => setSugestoesAbertas(true)}
+            onBlur={() => setTimeout(() => setSugestoesAbertas(false), 150)}
+            autoComplete="off"
+            placeholder={tomadorLocal === "exterior" ? "Número de identificação" : "00.000.000/0000-00"} />
+          <svg width={15} height={15} viewBox="0 0 24 24" fill="none" style={{ position: "absolute", right: 10, top: 10, pointerEvents: "none" }}>
+            <circle cx="11" cy="11" r="7" stroke={P.inativo} strokeWidth="2" />
+            <path d="M20 20l-3.5-3.5" stroke={P.inativo} strokeWidth="2" strokeLinecap="round" />
+          </svg>
+
+          {/* Sugestões dos clientes cadastrados */}
+          {sugestoesAbertas && sugestoes.length > 0 && (
+            <div style={{
+              position: "absolute", top: 38, left: 0, right: 0, zIndex: 30,
+              background: "#fff", border: `1px solid ${P.borda}`, borderRadius: 3,
+              boxShadow: "0 6px 18px rgba(0,0,0,.12)", maxHeight: 240, overflowY: "auto",
+            }}>
+              {sugestoes.map(c => (
+                <div key={c.id}
+                  onMouseDown={() => aplicarCliente(c)}
+                  style={{ padding: "8px 12px", cursor: "pointer", borderBottom: `1px solid ${P.borda}` }}
+                  onMouseEnter={e => (e.currentTarget.style.background = "#f0f3fb")}
+                  onMouseLeave={e => (e.currentTarget.style.background = "#fff")}
+                >
+                  <div style={{ fontSize: 13.5, color: P.texto, fontWeight: 600 }}>{c.nome}</div>
+                  <div style={{ fontSize: 12, color: P.inativo }}>
+                    {c.documento || "sem documento"}{c.cidade ? ` · ${c.cidade}/${c.uf}` : ""}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={() => { setBuscaCliente(""); setModalClientes(true); }}
+          title="Buscar em clientes cadastrados"
+          style={{
+            width: 38, height: 36, background: "#dcdcdc", border: `1px solid ${P.inputBorda}`,
+            borderRadius: 2, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+          <svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+            <path d="M17 20v-2a4 4 0 00-3-3.87M9 20v-2a4 4 0 013-3.87m0 0a3 3 0 100-6 3 3 0 000 6zM6.5 11a2.5 2.5 0 100-5 2.5 2.5 0 000 5zm11 0a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke="#6f6f6f" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </div>
+      {clienteVinculado && (
+        <div style={{
+          display: "flex", alignItems: "center", gap: 8, marginTop: 6,
+          fontSize: 12.5, color: "#1b7a4b",
+        }}>
+          <svg width={13} height={13} viewBox="0 0 24 24" fill="none">
+            <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Dados carregados do cadastro de <strong>{clienteVinculado.nome}</strong>
+          <button type="button" onClick={limparCliente} style={{
+            background: "none", border: "none", color: P.danger, fontSize: 12.5,
+            cursor: "pointer", textDecoration: "underline", padding: 0,
+          }}>limpar</button>
+        </div>
+      )}
+    </>
+  );
+
   const addItem = () => setItens(prev => [...prev, { ...emptyItem }]);
   const removeItem = (idx: number) => {
     if (itens.length <= 1) return;
@@ -411,8 +495,9 @@ export default function EmitirNotaPage() {
   const valorTotal = subtotal;
   const usandoSefaz = modelo === "nfse" && !!tokenGovBr.trim();
 
-  /* ── Validação da etapa 1 ── */
+  /* ── Validação da etapa 1 (emissão completa) ── */
   function validarEtapa1(): string | null {
+    if (simplificada) return validarSimplificada();
     if (!preencherIbsCbs) return "Informe se deseja preencher as informações IBS/CBS.";
     if (!dataCompetencia) return "Informe a data de competência.";
     if (informarDps && (!serieDps.trim() || !numeroDps.trim())) return "Informe a série e o número da DPS.";
@@ -425,6 +510,16 @@ export default function EmitirNotaPage() {
     if (preencherIbsCbs === "sim" && !destProprioAdquirente) {
       return "Informe se o destinatário é o próprio adquirente.";
     }
+    return null;
+  }
+
+  /* ── Validação da emissão simplificada ── */
+  function validarSimplificada(): string | null {
+    if (!dataCompetencia) return "Informe a data de competência.";
+    if (!destCnpj.trim()) return "Informe o CPF/CNPJ do tomador.";
+    if (!destNome.trim()) return "Informe o nome/razão social do tomador.";
+    if (!itens.some(i => i.descricao.trim())) return "Descreva o serviço prestado.";
+    if (subtotal <= 0) return "Informe o valor do serviço.";
     return null;
   }
 
@@ -449,9 +544,14 @@ export default function EmitirNotaPage() {
   }
 
   async function emitirNota() {
-    const e1 = validarEtapa1();
-    if (e1) { setErro(e1); setEtapa(1); return; }
-    if (subtotal <= 0) { setErro("Adicione pelo menos um item com valor."); setEtapa(2); return; }
+    if (simplificada) {
+      const eSimples = validarSimplificada();
+      if (eSimples) { setErro(eSimples); return; }
+    } else {
+      const e1 = validarEtapa1();
+      if (e1) { setErro(e1); setEtapa(1); return; }
+      if (subtotal <= 0) { setErro("Adicione pelo menos um item com valor."); setEtapa(2); return; }
+    }
 
     setEmitindo(true);
     setErro(null);
@@ -684,10 +784,170 @@ export default function EmitirNotaPage() {
   return (
     <AppShell>
       <div style={{ background: "#fff", border: `1px solid ${P.borda}`, borderRadius: 4, maxWidth: 1180, margin: "0 auto" }}>
-        <Stepper atual={etapa} onIr={setEtapa} />
+        {simplificada ? (
+          <div style={{
+            padding: "22px 26px 4px", display: "flex", justifyContent: "space-between",
+            alignItems: "center", gap: 16, flexWrap: "wrap",
+          }}>
+            <div>
+              <h2 style={{ margin: 0, fontSize: 19, fontWeight: 700, color: P.texto }}>Emissão simplificada</h2>
+              <p style={{ margin: "4px 0 0", fontSize: 13, color: P.inativo }}>
+                Apenas os campos essenciais. Para o formulário no padrão do portal nacional, use a emissão completa.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => router.push(`/empresas/${empresaId}/notas-fiscais/emitir?modo=completa`)}
+              style={{
+                padding: "8px 16px", background: "#fff", color: P.azul, border: `1px solid ${P.azul}`,
+                borderRadius: 3, fontSize: 13.5, fontWeight: 600, cursor: "pointer",
+              }}
+            >
+              Trocar para emissão completa
+            </button>
+          </div>
+        ) : (
+          <Stepper atual={etapa} onIr={setEtapa} />
+        )}
+
+        {/* ═══════════ EMISSÃO SIMPLIFICADA ═══════════ */}
+        {simplificada && (
+          <>
+            <Secao titulo="Dados da nota">
+              <div style={grid(3)}>
+                <Field label="Data de competência" required>
+                  <input style={inputStyle} type="date" value={dataCompetencia}
+                    onChange={e => setDataCompetencia(e.target.value)} />
+                </Field>
+                <Field label="Modelo" required>
+                  <select style={inputStyle} value={modelo} onChange={e => setModelo(e.target.value as "nfse" | "55" | "65")}>
+                    <option value="nfse">NFS-e (Serviços)</option>
+                    <option value="55">NF-e (Produtos)</option>
+                    <option value="65">NFC-e (Consumidor)</option>
+                  </select>
+                </Field>
+                <Field label="Natureza da operação">
+                  <input style={inputStyle} value={natureza} onChange={e => setNatureza(e.target.value)}
+                    placeholder={modelo === "nfse" ? "Prestação de serviços" : "Venda de mercadorias"} />
+                </Field>
+              </div>
+            </Secao>
+
+            <Secao titulo="Tomador">
+              <div style={grid(2)}>
+                <Field label="CPF/CNPJ" required>
+                  {campoDocumentoTomador()}
+                </Field>
+                <Field label="Nome/Razão Social" required>
+                  <input style={inputStyle} value={destNome} onChange={e => setDestNome(e.target.value)}
+                    placeholder="Nome ou razão social do tomador" />
+                </Field>
+              </div>
+              <div style={grid(2)}>
+                <Field label="Telefone">
+                  <input style={inputStyle} value={destTelefone} onChange={e => setDestTelefone(e.target.value)}
+                    placeholder="(00) 00000-0000" />
+                </Field>
+                <Field label="E-mail">
+                  <input style={inputStyle} type="email" value={destEmail} onChange={e => setDestEmail(e.target.value)}
+                    placeholder="email@empresa.com" />
+                </Field>
+              </div>
+            </Secao>
+
+            <Secao titulo={modelo === "nfse" ? "Serviço" : "Produtos"}>
+              {itens.map((item, idx) => (
+                <div key={idx} style={{
+                  background: "#fff", border: `1px solid ${P.borda}`, borderRadius: 3,
+                  padding: 16, marginBottom: 12,
+                }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: P.inativo }}>Item {idx + 1}</span>
+                    {itens.length > 1 && (
+                      <button type="button" onClick={() => removeItem(idx)} style={{
+                        background: "none", border: "none", color: P.danger, fontSize: 13,
+                        fontWeight: 600, cursor: "pointer",
+                      }}>Remover</button>
+                    )}
+                  </div>
+                  <Field label="Descrição" required>
+                    <input style={inputStyle} value={item.descricao}
+                      onChange={e => updateItem(idx, "descricao", e.target.value)}
+                      placeholder={modelo === "nfse" ? "Descrição do serviço prestado" : "Descrição do produto"} />
+                  </Field>
+                  <div style={grid(modelo === "nfse" ? 4 : 3)}>
+                    <Field label="Quantidade">
+                      <input style={inputStyle} type="number" min={1} value={item.quantidade}
+                        onChange={e => updateItem(idx, "quantidade", parseFloat(e.target.value) || 0)} />
+                    </Field>
+                    <Field label="Valor unitário (R$)" required>
+                      <input style={inputStyle} type="number" step="0.01" min={0} value={item.valor_unitario || ""}
+                        onChange={e => updateItem(idx, "valor_unitario", parseFloat(e.target.value) || 0)} />
+                    </Field>
+                    {modelo === "nfse" ? (
+                      <>
+                        <Field label="Cód. serviço">
+                          <input style={inputStyle} value={item.codigo_servico}
+                            onChange={e => updateItem(idx, "codigo_servico", e.target.value)} placeholder="Ex: 01.07" />
+                        </Field>
+                        <Field label="Alíquota ISS (%)">
+                          <input style={inputStyle} type="number" step="0.01" min={0} max={10} value={item.aliquota_iss}
+                            onChange={e => updateItem(idx, "aliquota_iss", parseFloat(e.target.value) || 0)} />
+                        </Field>
+                      </>
+                    ) : (
+                      <Field label="Subtotal">
+                        <div style={{ ...inputStyle, display: "flex", alignItems: "center" }}>
+                          {formatBRL(item.quantidade * item.valor_unitario)}
+                        </div>
+                      </Field>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <button type="button" onClick={addItem} style={{
+                background: "#fff", color: P.azul, border: `1px solid ${P.azul}`,
+                borderRadius: 3, padding: "8px 16px", fontSize: 13.5, fontWeight: 600, cursor: "pointer",
+              }}>
+                + Adicionar item
+              </button>
+
+              <div style={{
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                marginTop: 18, paddingTop: 14, borderTop: `2px solid ${P.borda}`,
+                fontSize: 17, fontWeight: 800, color: P.texto,
+              }}>
+                <span>Valor total</span>
+                <span style={{ color: P.azul }}>{formatBRL(valorTotal)}</span>
+              </div>
+            </Secao>
+
+            <Secao titulo="Emissão">
+              <Field label="Observações">
+                <textarea style={{ ...inputStyle, minHeight: 70, height: "auto", resize: "vertical" }}
+                  value={observacoes} onChange={e => setObservacoes(e.target.value)}
+                  placeholder="Informações complementares..." />
+              </Field>
+              {modelo === "nfse" && (
+                <div style={grid(2)}>
+                  <Field label="Token gov.br (opcional)" hint="Sem token a nota é registrada apenas internamente.">
+                    <input style={inputStyle} type="password" value={tokenGovBr}
+                      onChange={e => setTokenGovBr(e.target.value)} placeholder="Cole o token para transmitir à SEFAZ" />
+                  </Field>
+                  <Field label="Ambiente">
+                    <select style={inputStyle} value={ambiente} onChange={e => setAmbiente(e.target.value as "homologacao" | "producao")}>
+                      <option value="homologacao">Homologação (testes)</option>
+                      <option value="producao">Produção (real)</option>
+                    </select>
+                  </Field>
+                </div>
+              )}
+            </Secao>
+          </>
+        )}
 
         {/* ═══════════ ETAPA 1 — PESSOAS ═══════════ */}
-        {etapa === 1 && (
+        {!simplificada && etapa === 1 && (
           <>
             <Secao titulo="Informações gerais">
               <div style={{ marginBottom: 18 }}>
@@ -828,74 +1088,7 @@ export default function EmitirNotaPage() {
                 <>
                   <div style={grid(2)}>
                     <Field label={tomadorLocal === "brasil" ? "CPF/CNPJ" : "Identificação (NIF)"} required>
-                      <div style={{ display: "flex", gap: 6 }}>
-                        <div style={{ position: "relative", flex: 1 }}>
-                          <input style={{ ...inputStyle, paddingRight: 34 }} value={destCnpj}
-                            onChange={e => {
-                              setDestCnpj(e.target.value);
-                              setClienteVinculado(null);
-                              setSugestoesAbertas(true);
-                            }}
-                            onFocus={() => setSugestoesAbertas(true)}
-                            onBlur={() => setTimeout(() => setSugestoesAbertas(false), 150)}
-                            autoComplete="off"
-                            placeholder={tomadorLocal === "brasil" ? "00.000.000/0000-00" : "Número de identificação"} />
-                          <svg width={15} height={15} viewBox="0 0 24 24" fill="none" style={{ position: "absolute", right: 10, top: 10, pointerEvents: "none" }}>
-                            <circle cx="11" cy="11" r="7" stroke={P.inativo} strokeWidth="2" />
-                            <path d="M20 20l-3.5-3.5" stroke={P.inativo} strokeWidth="2" strokeLinecap="round" />
-                          </svg>
-
-                          {/* Sugestões dos clientes cadastrados */}
-                          {sugestoesAbertas && sugestoes.length > 0 && (
-                            <div style={{
-                              position: "absolute", top: 38, left: 0, right: 0, zIndex: 30,
-                              background: "#fff", border: `1px solid ${P.borda}`, borderRadius: 3,
-                              boxShadow: "0 6px 18px rgba(0,0,0,.12)", maxHeight: 240, overflowY: "auto",
-                            }}>
-                              {sugestoes.map(c => (
-                                <div key={c.id}
-                                  onMouseDown={() => aplicarCliente(c)}
-                                  style={{ padding: "8px 12px", cursor: "pointer", borderBottom: `1px solid ${P.borda}` }}
-                                  onMouseEnter={e => (e.currentTarget.style.background = "#f0f3fb")}
-                                  onMouseLeave={e => (e.currentTarget.style.background = "#fff")}
-                                >
-                                  <div style={{ fontSize: 13.5, color: P.texto, fontWeight: 600 }}>{c.nome}</div>
-                                  <div style={{ fontSize: 12, color: P.inativo }}>
-                                    {c.documento || "sem documento"}{c.cidade ? ` · ${c.cidade}/${c.uf}` : ""}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => { setBuscaCliente(""); setModalClientes(true); }}
-                          title="Buscar em clientes cadastrados"
-                          style={{
-                            width: 38, height: 36, background: "#dcdcdc", border: `1px solid ${P.inputBorda}`,
-                            borderRadius: 2, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                          }}>
-                          <svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                            <path d="M17 20v-2a4 4 0 00-3-3.87M9 20v-2a4 4 0 013-3.87m0 0a3 3 0 100-6 3 3 0 000 6zM6.5 11a2.5 2.5 0 100-5 2.5 2.5 0 000 5zm11 0a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke="#6f6f6f" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        </button>
-                      </div>
-                      {clienteVinculado && (
-                        <div style={{
-                          display: "flex", alignItems: "center", gap: 8, marginTop: 6,
-                          fontSize: 12.5, color: "#1b7a4b",
-                        }}>
-                          <svg width={13} height={13} viewBox="0 0 24 24" fill="none">
-                            <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                          Dados carregados do cadastro de <strong>{clienteVinculado.nome}</strong>
-                          <button type="button" onClick={limparCliente} style={{
-                            background: "none", border: "none", color: P.danger, fontSize: 12.5,
-                            cursor: "pointer", textDecoration: "underline", padding: 0,
-                          }}>limpar</button>
-                        </div>
-                      )}
+                      {campoDocumentoTomador()}
                     </Field>
                     <Field label="Indicador Municipal">
                       <select style={inputStyle} value={indicadorMunicipalTom} onChange={e => setIndicadorMunicipalTom(e.target.value)}>
@@ -989,7 +1182,7 @@ export default function EmitirNotaPage() {
         )}
 
         {/* ═══════════ ETAPA 2 — SERVIÇO ═══════════ */}
-        {etapa === 2 && (
+        {!simplificada && etapa === 2 && (
           <>
             <Secao titulo="Dados do serviço">
               <div style={grid(2)}>
@@ -1076,7 +1269,7 @@ export default function EmitirNotaPage() {
         )}
 
         {/* ═══════════ ETAPA 3 — VALORES ═══════════ */}
-        {etapa === 3 && (
+        {!simplificada && etapa === 3 && (
           <>
             {modelo !== "nfse" && (
               <Secao titulo="Alíquotas de impostos">
@@ -1142,7 +1335,7 @@ export default function EmitirNotaPage() {
         )}
 
         {/* ═══════════ ETAPA 4 — EMITIR NFS-e ═══════════ */}
-        {etapa === 4 && (
+        {!simplificada && etapa === 4 && (
           <>
             {modelo === "nfse" && (
               <Secao titulo="Integração NFS-e Nacional (gov.br)">
@@ -1222,7 +1415,7 @@ export default function EmitirNotaPage() {
           padding: "18px 26px 26px", gap: 12,
         }}>
           <button
-            onClick={() => etapa === 1 ? router.push(`/empresas/${empresaId}/notas-fiscais`) : voltar()}
+            onClick={() => (simplificada || etapa === 1) ? router.push(`/empresas/${empresaId}/notas-fiscais`) : voltar()}
             style={{
               padding: "10px 22px", background: "#fff", color: "#5a5a5a",
               border: `1px solid ${P.borda}`, borderRadius: 3, fontSize: 14.5, cursor: "pointer",
@@ -1232,10 +1425,10 @@ export default function EmitirNotaPage() {
             <svg width={12} height={12} viewBox="0 0 24 24" fill="none">
               <path d="M15 5l-7 7 7 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            {etapa === 1 ? "Cancelar" : "Voltar"}
+            {(simplificada || etapa === 1) ? "Cancelar" : "Voltar"}
           </button>
 
-          {etapa < 4 ? (
+          {!simplificada && etapa < 4 ? (
             <button
               onClick={avancar}
               style={{

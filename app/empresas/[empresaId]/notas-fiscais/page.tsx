@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { SetorShell } from "@/components/empresas/SetorShell";
 
 /* ─── Tipos ───────────────────────────────────────────────────── */
@@ -149,6 +149,7 @@ function LoadingSkeleton() {
 
 export default function NotasFiscaisPage() {
   const params = useParams();
+  const router = useRouter();
   const empresaId = params.empresaId as string;
 
   const [tab, setTab] = useState<Tab>("todas");
@@ -159,6 +160,7 @@ export default function NotasFiscaisPage() {
   const [filtroModelo, setFiltroModelo] = useState("");
   const [busca, setBusca] = useState("");
   const [detalhes, setDetalhes] = useState<NotaFiscal | null>(null);
+  const [showEmitir, setShowEmitir] = useState(false);
   const [showSync, setShowSync] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<{ inseridas: number; duplicadas: number; ignoradas: number; total: number; avisos: string[] } | null>(null);
@@ -313,13 +315,14 @@ export default function NotasFiscaisPage() {
           <>
             {/* ── Botões de ação ── */}
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginBottom: "1rem" }}>
-              <a
-                href={`/empresas/${empresaId}/notas-fiscais/emitir`}
-                style={{ display: "flex", alignItems: "center", gap: 6, padding: "0.5rem 1rem", background: "linear-gradient(135deg, #065f46, #10b981)", color: "#fff", border: "none", borderRadius: 8, fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", textDecoration: "none" }}
+              <button
+                onClick={() => setShowEmitir(true)}
+                style={{ display: "flex", alignItems: "center", gap: 6, padding: "0.5rem 1rem", background: "linear-gradient(135deg, #065f46, #10b981)", color: "#fff", border: "none", borderRadius: 8, fontSize: "0.82rem", fontWeight: 700, cursor: "pointer" }}
+                type="button"
               >
                 <svg fill="none" height={16} viewBox="0 0 24 24" width={16}><path d="M12 5v14M5 12h14" stroke="currentColor" strokeLinecap="round" strokeWidth={2.5}/></svg>
                 Emitir nota fiscal
-              </a>
+              </button>
               <button
                 onClick={() => { setShowSync(true); setSyncResult(null); }}
                 style={{ display: "flex", alignItems: "center", gap: 6, padding: "0.5rem 1rem", background: "linear-gradient(135deg, #4f46e5, #6366f1)", color: "#fff", border: "none", borderRadius: 8, fontSize: "0.82rem", fontWeight: 700, cursor: "pointer" }}
@@ -487,6 +490,67 @@ export default function NotasFiscaisPage() {
                 <strong>Chave de acesso:</strong> {detalhes.chave_acesso}
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {/* ── Modal: tipo de emissao ── */}
+      {showEmitir && (
+        <div
+          onClick={() => setShowEmitir(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, padding: "1rem" }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background: "#fff", borderRadius: 14, width: "100%", maxWidth: 560, padding: "2rem", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
+              <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#07170d" }}>Como deseja emitir a nota?</h3>
+              <button onClick={() => setShowEmitir(false)} style={{ background: "none", border: "none", fontSize: "1.5rem", color: "#9ca3af", cursor: "pointer", lineHeight: 1 }} type="button">x</button>
+            </div>
+            <p style={{ margin: "0 0 1.5rem", fontSize: "0.82rem", color: "#6f8f7c" }}>
+              Escolha o formato do formulario de emissao da NFS-e.
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
+              {[
+                {
+                  modo: "simplificada",
+                  titulo: "Emissao simplificada",
+                  desc: "Formulario rapido em uma unica tela, apenas com os campos essenciais: tomador, servico e valor.",
+                  cor: "#065f46",
+                  bg: "#f0fdf4",
+                  borda: "#86efac",
+                  icone: (
+                    <svg fill="none" height={22} viewBox="0 0 24 24" width={22}><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}/></svg>
+                  ),
+                },
+                {
+                  modo: "completa",
+                  titulo: "Emissao completa",
+                  desc: "Assistente em 4 etapas no padrao do portal NFS-e Nacional: pessoas, servico, valores e emissao.",
+                  cor: "#37418c",
+                  bg: "#eef2ff",
+                  borda: "#c7d2fe",
+                  icone: (
+                    <svg fill="none" height={22} viewBox="0 0 24 24" width={22}><path d="M7 3h7l4 4v14H7V3z" stroke="currentColor" strokeLinejoin="round" strokeWidth={1.8}/><path d="M9.5 12h5M9.5 15h5M9.5 9h2.5" stroke="currentColor" strokeLinecap="round" strokeWidth={1.6}/></svg>
+                  ),
+                },
+              ].map((op) => (
+                <button
+                  key={op.modo}
+                  onClick={() => router.push(`/empresas/${empresaId}/notas-fiscais/emitir?modo=${op.modo}`)}
+                  style={{ display: "flex", alignItems: "flex-start", gap: 14, textAlign: "left", padding: "1rem 1.1rem", background: op.bg, border: `1.5px solid ${op.borda}`, borderRadius: 12, cursor: "pointer", width: "100%" }}
+                  type="button"
+                >
+                  <span style={{ color: op.cor, flexShrink: 0, marginTop: 2 }}>{op.icone}</span>
+                  <span style={{ flex: 1 }}>
+                    <span style={{ display: "block", fontSize: "0.92rem", fontWeight: 700, color: op.cor, marginBottom: 3 }}>{op.titulo}</span>
+                    <span style={{ display: "block", fontSize: "0.78rem", color: "#4b5563", lineHeight: 1.45 }}>{op.desc}</span>
+                  </span>
+                  <svg fill="none" height={18} style={{ color: op.cor, flexShrink: 0, marginTop: 4 }} viewBox="0 0 24 24" width={18}><path d="M9 5l7 7-7 7" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2}/></svg>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
