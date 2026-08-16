@@ -1,5 +1,5 @@
 import { fail, ok } from "@/lib/apiResponse";
-import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { exigirAcessoEmpresa, statusDoErroAcesso } from "@/lib/empresaAcesso";
 import { consultarNFSeEmitidas, consultarNFSeRecebidas, nfseToInsert } from "@/modules/notas-fiscais/nfse-nacional.service";
 import type { AmbienteNFSe } from "@/modules/notas-fiscais/nfse-nacional.types";
 
@@ -10,9 +10,7 @@ function motivo(reason: unknown) {
 export async function POST(request: Request, { params }: { params: Promise<{ empresaId: string }> }) {
   try {
     const { empresaId } = await params;
-    const supabase = await createSupabaseServerClient();
-    const { data: { user }, error: authErr } = await supabase.auth.getUser();
-    if (authErr || !user) return fail("Nao autenticado.", 401);
+    const { supabase, admin } = await exigirAcessoEmpresa(empresaId);
 
     const body = await request.json();
     const { token, dataInicio, dataFim, ambiente } = body as {
@@ -73,7 +71,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ emp
     if (notasParaInserir.length > 0) {
       // ON CONFLICT DO NOTHING ... RETURNING devolve apenas as linhas realmente
       // inseridas, entao a contagem sai exata em vez de inferida do erro.
-      const { data: gravadas, error } = await supabase
+      const { data: gravadas, error } = await admin
         .from("notas_fiscais")
         .upsert(notasParaInserir, { onConflict: "empresa_id,chave_acesso", ignoreDuplicates: true })
         .select("id");
@@ -92,6 +90,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ emp
       avisos: falhas,
     });
   } catch (e) {
-    return fail(e instanceof Error ? e.message : "Erro ao sincronizar", 500);
+    const msg = e instanceof Error ? e.message : "Erro ao sincronizar";
+    return fail(msg, statusDoErroAcesso(msg));
   }
 }

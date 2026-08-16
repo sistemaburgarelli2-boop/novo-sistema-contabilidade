@@ -1,14 +1,12 @@
 import { fail, ok } from "@/lib/apiResponse";
-import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { exigirAcessoEmpresa, statusDoErroAcesso } from "@/lib/empresaAcesso";
 import { emitirNFSe } from "@/modules/notas-fiscais/nfse-nacional.service";
 import type { EmissaoNFSePayload } from "@/modules/notas-fiscais/nfse-nacional.types";
 
 export async function POST(request: Request, { params }: { params: Promise<{ empresaId: string }> }) {
   try {
     const { empresaId } = await params;
-    const supabase = await createSupabaseServerClient();
-    const { data: { user }, error: authErr } = await supabase.auth.getUser();
-    if (authErr || !user) return fail("Nao autenticado.", 401);
+    const { admin } = await exigirAcessoEmpresa(empresaId);
 
     const body = await request.json();
     const {
@@ -67,7 +65,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ emp
     const valorServicos = payload.servicos.reduce((s, sv) => s + sv.valorTotal, 0);
     const valorISS = payload.servicos.reduce((s, sv) => s + (sv.valorTotal * sv.aliquotaISS / 100), 0);
 
-    const { data, error } = await supabase.from("notas_fiscais").insert({
+    const { data, error } = await admin.from("notas_fiscais").insert({
       empresa_id: empresaId,
       tipo: "emitida",
       numero: resultado.numero || "",
@@ -106,6 +104,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ emp
       },
     }, 201);
   } catch (e) {
-    return fail(e instanceof Error ? e.message : "Erro", 500);
+    const msg = e instanceof Error ? e.message : "Erro";
+    return fail(msg, statusDoErroAcesso(msg));
   }
 }

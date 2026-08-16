@@ -1,4 +1,5 @@
 import { fail, ok } from "@/lib/apiResponse";
+import { exigirAcessoEmpresa, statusDoErroAcesso } from "@/lib/empresaAcesso";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
 
 export async function GET(request: Request, { params }: { params: Promise<{ empresaId: string }> }) {
@@ -54,14 +55,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ empr
 export async function POST(request: Request, { params }: { params: Promise<{ empresaId: string }> }) {
   try {
     const { empresaId } = await params;
-    const supabase = await createSupabaseServerClient();
-    const { data: { user }, error: authErr } = await supabase.auth.getUser();
-    if (authErr || !user) return fail("Nao autenticado.", 401);
+    const { admin } = await exigirAcessoEmpresa(empresaId);
 
     const body = await request.json();
 
     // Gerar número sequencial
-    const { data: ultima } = await supabase
+    const { data: ultima } = await admin
       .from("notas_fiscais")
       .select("numero")
       .eq("empresa_id", empresaId)
@@ -102,7 +101,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ emp
       situacao: "pendente",
     };
 
-    const { data, error } = await supabase
+    const { data, error } = await admin
       .from("notas_fiscais")
       .insert(registro)
       .select("*")
@@ -111,16 +110,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ emp
     if (error) return fail(error.message, 500);
     return ok(data, 201);
   } catch (e) {
-    return fail(e instanceof Error ? e.message : "Erro", 500);
+    const msg = e instanceof Error ? e.message : "Erro";
+    return fail(msg, statusDoErroAcesso(msg));
   }
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ empresaId: string }> }) {
   try {
     const { empresaId } = await params;
-    const supabase = await createSupabaseServerClient();
-    const { data: { user }, error: authErr } = await supabase.auth.getUser();
-    if (authErr || !user) return fail("Nao autenticado.", 401);
+    const { admin } = await exigirAcessoEmpresa(empresaId);
 
     const body = await request.json();
     const { notaId, situacao } = body;
@@ -129,7 +127,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ em
     const validos = ["pendente", "escriturada", "conciliada", "ignorada"];
     if (!validos.includes(situacao)) return fail("Situacao invalida.");
 
-    const { data, error } = await supabase
+    const { data, error } = await admin
       .from("notas_fiscais")
       .update({ situacao })
       .eq("id", notaId)
@@ -140,6 +138,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ em
     if (error) return fail(error.message, 500);
     return ok(data);
   } catch (e) {
-    return fail(e instanceof Error ? e.message : "Erro", 500);
+    const msg = e instanceof Error ? e.message : "Erro";
+    return fail(msg, statusDoErroAcesso(msg));
   }
 }
