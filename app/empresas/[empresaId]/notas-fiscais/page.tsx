@@ -184,13 +184,19 @@ function acaoDocStyle(cor: string): React.CSSProperties {
     display: "inline-flex", alignItems: "center", gap: 6, padding: "0.5rem 0.9rem",
     background: cor, color: "#fff", border: "none", borderRadius: 6,
     fontSize: "0.78rem", fontWeight: 600, textDecoration: "none", cursor: "pointer",
+    // Sem isto, <button> herda a sombra verde de globals.css.
+    boxShadow: "none", minHeight: 0,
   };
 }
 
+// O globals.css estiliza todo <button> (min-height 40, padding lateral 20 e
+// sombra verde), o que esmagava o icone ate sumir. Estes zeros sao o que
+// mantem o botao do mesmo tamanho dos links ao lado.
 const acaoIconeStyle: React.CSSProperties = {
   display: "inline-flex", alignItems: "center", justifyContent: "center",
-  width: 26, height: 26, borderRadius: 6, border: "1px solid #dfece5",
-  color: "#37418c", background: "#fff", textDecoration: "none",
+  width: 28, height: 28, minHeight: 28, minWidth: 28, flexShrink: 0,
+  padding: 0, boxSizing: "border-box", borderRadius: 6, border: "1px solid #dfece5",
+  color: "#37418c", background: "#fff", textDecoration: "none", boxShadow: "none",
 };
 
 function IconeDanfse() {
