@@ -6,12 +6,24 @@ import { AppShell } from "@/components/layout/AppShell";
 import { buscarEmpresaTenant } from "@/services/empresaClientService";
 import type { Empresa } from "@/modules/empresas/empresas.types";
 
-const V = {
-  bg: "#f3f8f5", panel: "#ffffff", ink: "#07170d", muted: "#6f8f7c",
-  green700: "#075f3c", green500: "#10b981", border: "#dfece5", danger: "#ef445f",
-  gold: "#d4ae4a",
+/* ─────────────────────────── Paleta do portal NFS-e ─────────────────────────── */
+const P = {
+  azul: "#37418c",          // azul do stepper ativo / botão avançar
+  azulTexto: "#3f4b96",
+  verde: "#6f9a72",         // títulos das seções
+  cinzaSecao: "#f5f5f5",
+  borda: "#e0e0e0",
+  bordaSecao: "#e4e4e4",
+  input: "#e9e9e9",
+  inputBorda: "#dcdcdc",
+  texto: "#3c3c3c",
+  labelCor: "#4a4a4a",
+  inativo: "#9e9e9e",
+  danger: "#c62828",
+  botaoCinza: "#6f6f6f",
 };
 
+/* ─────────────────────────── Tipos ─────────────────────────── */
 type ItemServico = {
   descricao: string;
   quantidade: number;
@@ -25,32 +37,160 @@ const emptyItem: ItemServico = {
   codigo_servico: "", aliquota_iss: 5,
 };
 
+type SimNao = "" | "sim" | "nao";
+type Localizacao = "brasil" | "exterior" | "nao_informado";
+type Municipio = { id: number; nome: string };
+
+/* ─────────────────────────── Estilos base ─────────────────────────── */
 const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "10px 12px", border: `1px solid ${V.border}`,
-  borderRadius: 8, fontSize: 14, color: V.ink, background: V.panel, outline: "none",
+  width: "100%", padding: "8px 10px", border: `1px solid ${P.inputBorda}`,
+  borderRadius: 2, fontSize: 14, color: P.texto, background: P.input, outline: "none",
+  boxSizing: "border-box", height: 36,
 };
 
 const labelStyle: React.CSSProperties = {
-  display: "block", fontSize: 13, fontWeight: 600, color: V.ink, marginBottom: 4,
+  display: "block", fontSize: 13.5, color: P.labelCor, marginBottom: 5,
 };
 
-const gridRow = (cols: number): React.CSSProperties => ({
-  display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 16, marginBottom: 16,
-});
-
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+function Field({ label, required, hint, children }: {
+  label: string; required?: boolean; hint?: string; children: React.ReactNode;
+}) {
   return (
-    <div>
-      <label style={labelStyle}>{label}{required && <span style={{ color: V.danger, marginLeft: 2 }}>*</span>}</label>
+    <div style={{ marginBottom: 14 }}>
+      <label style={labelStyle}>
+        {label}
+        {required && <span style={{ color: P.danger, marginLeft: 3 }}>*</span>}
+        {hint && <Ajuda titulo={hint} />}
+      </label>
       {children}
     </div>
   );
 }
 
+function Ajuda({ titulo }: { titulo: string }) {
+  return (
+    <span title={titulo} style={{
+      display: "inline-flex", alignItems: "center", justifyContent: "center",
+      width: 14, height: 14, borderRadius: "50%", border: `1px solid ${P.inativo}`,
+      color: P.inativo, fontSize: 10, fontWeight: 700, marginLeft: 6, cursor: "help",
+      verticalAlign: "middle",
+    }}>?</span>
+  );
+}
+
+function Secao({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+  return (
+    <section style={{
+      background: P.cinzaSecao, border: `1px solid ${P.bordaSecao}`,
+      borderLeft: "none", borderRight: "none", padding: "18px 26px", marginBottom: 10,
+    }}>
+      <h3 style={{
+        margin: "0 0 14px", fontSize: 16, fontWeight: 500, color: P.verde,
+        textTransform: "uppercase", letterSpacing: 0.3,
+      }}>{titulo}</h3>
+      {children}
+    </section>
+  );
+}
+
+function Radio({ label, checked, onChange, name }: {
+  label: string; checked: boolean; onChange: () => void; name: string;
+}) {
+  return (
+    <label style={{
+      display: "flex", alignItems: "center", gap: 8, fontSize: 13.5,
+      color: P.labelCor, cursor: "pointer", marginBottom: 7,
+    }}>
+      <input type="radio" name={name} checked={checked} onChange={onChange}
+        style={{ accentColor: P.azul, width: 14, height: 14, margin: 0, cursor: "pointer" }} />
+      {label}
+    </label>
+  );
+}
+
+function Check({ label, checked, onChange }: {
+  label: string; checked: boolean; onChange: (v: boolean) => void;
+}) {
+  return (
+    <label style={{
+      display: "flex", alignItems: "center", gap: 8, fontSize: 13.5,
+      color: P.labelCor, cursor: "pointer",
+    }}>
+      <input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)}
+        style={{ accentColor: P.azul, width: 14, height: 14, margin: 0, cursor: "pointer" }} />
+      {label}
+    </label>
+  );
+}
+
+const grid = (cols: number): React.CSSProperties => ({
+  display: "grid", gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gap: "0 28px",
+});
+
 function formatBRL(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+/* ─────────────────────────── Stepper ─────────────────────────── */
+const ETAPAS = [
+  { n: 1, nome: "Pessoas" },
+  { n: 2, nome: "Serviço" },
+  { n: 3, nome: "Valores" },
+  { n: 4, nome: "Emitir NFS-e" },
+];
+
+function IconeEtapa({ n, ativo }: { n: number; ativo: boolean }) {
+  const cor = ativo ? "#fff" : "#8a8a8a";
+  const props = { width: 22, height: 22, viewBox: "0 0 24 24", fill: "none" as const };
+  if (n === 1) return (
+    <svg {...props}><path d="M17 20v-2a4 4 0 00-3-3.87M9 20v-2a4 4 0 013-3.87m0 0a3 3 0 100-6 3 3 0 000 6zM6.5 11a2.5 2.5 0 100-5 2.5 2.5 0 000 5zm11 0a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke={cor} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+  );
+  if (n === 2) return (
+    <svg {...props}><path d="M14.7 6.3a4 4 0 01-5.4 5.4L5 16l3 3 4.3-4.3a4 4 0 015.4-5.4l-2.5 2.5-2.1-2.1L14.7 6.3z" stroke={cor} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+  );
+  if (n === 3) return (
+    <svg {...props}><path d="M12 4v16M15.5 8.5c0-1.4-1.6-2.2-3.5-2.2s-3.5.8-3.5 2.2 1.6 2 3.5 2.4 3.5 1 3.5 2.6-1.6 2.3-3.5 2.3-3.5-.9-3.5-2.3" stroke={cor} strokeWidth="1.6" strokeLinecap="round" /></svg>
+  );
+  return (
+    <svg {...props}><path d="M7 3h7l4 4v14H7V3z" stroke={cor} strokeWidth="1.6" strokeLinejoin="round" /><path d="M9.5 12h5M9.5 15h5M9.5 9h2.5" stroke={cor} strokeWidth="1.4" strokeLinecap="round" /></svg>
+  );
+}
+
+function Stepper({ atual, onIr }: { atual: number; onIr: (n: number) => void }) {
+  return (
+    <div style={{ display: "flex", alignItems: "flex-start", padding: "24px 40px 18px", background: "#fff" }}>
+      {ETAPAS.map((e, i) => (
+        <div key={e.n} style={{ display: "flex", alignItems: "flex-start", flex: i < ETAPAS.length - 1 ? 1 : "0 0 auto" }}>
+          <div
+            onClick={() => e.n < atual && onIr(e.n)}
+            style={{
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+              minWidth: 96, cursor: e.n < atual ? "pointer" : "default",
+            }}
+          >
+            <div style={{
+              width: 46, height: 46, borderRadius: "50%",
+              background: e.n === atual ? P.azul : "#fff",
+              border: `2px solid ${e.n === atual ? P.azul : "#bdbdbd"}`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <IconeEtapa n={e.n} ativo={e.n === atual} />
+            </div>
+            <span style={{
+              fontSize: 13.5, color: e.n === atual ? P.azulTexto : "#6f6f6f",
+              fontWeight: e.n === atual ? 600 : 400, whiteSpace: "nowrap",
+            }}>{e.nome}</span>
+          </div>
+          {i < ETAPAS.length - 1 && (
+            <div style={{ flex: 1, height: 1, background: "#d8d8d8", marginTop: 23 }} />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ─────────────────────────── Página ─────────────────────────── */
 export default function EmitirNotaPage() {
   const params = useParams();
   const router = useRouter();
@@ -58,6 +198,7 @@ export default function EmitirNotaPage() {
 
   const [empresa, setEmpresa] = useState<Empresa | null>(null);
   const [carregando, setCarregando] = useState(true);
+  const [etapa, setEtapa] = useState(1);
   const [emitindo, setEmitindo] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState<{ numero: string; chave: string; protocolo?: string; viaSefaz?: boolean; notaId?: string } | null>(null);
@@ -65,56 +206,90 @@ export default function EmitirNotaPage() {
   const [emailEnviado, setEmailEnviado] = useState(false);
   const [erroEmail, setErroEmail] = useState<string | null>(null);
 
-  // Dados da nota
-  const [modelo, setModelo] = useState<"nfse" | "55" | "65">("nfse");
-  const [natureza, setNatureza] = useState("Prestação de serviços");
-  const [dataEmissao, setDataEmissao] = useState(new Date().toISOString().slice(0, 10));
+  /* ── Etapa 1: Informações gerais ── */
+  const [preencherIbsCbs, setPreencherIbsCbs] = useState<SimNao>("");
+  const [dataCompetencia, setDataCompetencia] = useState(new Date().toISOString().slice(0, 10));
+  const [informarDps, setInformarDps] = useState(false);
+  const [serieDps, setSerieDps] = useState("");
+  const [numeroDps, setNumeroDps] = useState("");
 
-  // Destinatário
-  const [destNome, setDestNome] = useState("");
+  /* ── Etapa 1: Emitente ── */
+  const [emitenteComo, setEmitenteComo] = useState<"prestador" | "tomador" | "intermediario">("prestador");
+  const [codigoMunicipio, setCodigoMunicipio] = useState("");
+  const [indicadorMunicipalEmit, setIndicadorMunicipalEmit] = useState("");
+  const [cpfEmitente, setCpfEmitente] = useState("");
+  const [nomeEmitente, setNomeEmitente] = useState("");
+  const [detalhesEmitente, setDetalhesEmitente] = useState(false);
+  const [municipios, setMunicipios] = useState<Municipio[]>([]);
+  const [erroMunicipios, setErroMunicipios] = useState(false);
+
+  /* ── Etapa 1: Compras governamentais ── */
+  const [compraGov, setCompraGov] = useState<SimNao>("");
+
+  /* ── Etapa 1: Tomador / Adquirente ── */
+  const [tomadorLocal, setTomadorLocal] = useState<Localizacao>("brasil");
   const [destCnpj, setDestCnpj] = useState("");
-  const [destEmail, setDestEmail] = useState("");
+  const [indicadorMunicipalTom, setIndicadorMunicipalTom] = useState("");
+  const [destNome, setDestNome] = useState("");
   const [destTelefone, setDestTelefone] = useState("");
+  const [destEmail, setDestEmail] = useState("");
+  const [informarEndereco, setInformarEndereco] = useState(false);
   const [destEndereco, setDestEndereco] = useState("");
+  const [destNumero, setDestNumero] = useState("");
+  const [destBairro, setDestBairro] = useState("");
+  const [destCep, setDestCep] = useState("");
   const [destCidade, setDestCidade] = useState("");
   const [destUf, setDestUf] = useState("");
 
-  // Itens/Serviços
-  const [itens, setItens] = useState<ItemServico[]>([{ ...emptyItem }]);
+  /* ── Etapa 1: Destinatário / Intermediário ── */
+  const [destProprioAdquirente, setDestProprioAdquirente] = useState<SimNao>("");
+  const [intermediarioLocal, setIntermediarioLocal] = useState<Localizacao>("nao_informado");
+  const [intermediarioCnpj, setIntermediarioCnpj] = useState("");
+  const [intermediarioNome, setIntermediarioNome] = useState("");
 
-  // Impostos manuais (para NF-e)
+  /* ── Etapas 2 a 4 ── */
+  const [modelo, setModelo] = useState<"nfse" | "55" | "65">("nfse");
+  const [natureza, setNatureza] = useState("Prestação de serviços");
+  const [itens, setItens] = useState<ItemServico[]>([{ ...emptyItem }]);
+  const [observacoes, setObservacoes] = useState("");
   const [aliquotaPis, setAliquotaPis] = useState(0.65);
   const [aliquotaCofins, setAliquotaCofins] = useState(3);
   const [aliquotaIcms, setAliquotaIcms] = useState(0);
-
-  // NFS-e Nacional (gov.br)
   const [tokenGovBr, setTokenGovBr] = useState("");
   const [ambiente, setAmbiente] = useState<"homologacao" | "producao">("homologacao");
   const [inscricaoMunicipal, setInscricaoMunicipal] = useState("");
-  const [codigoMunicipio, setCodigoMunicipio] = useState("");
-
-  // Observações
-  const [observacoes, setObservacoes] = useState("");
 
   useEffect(() => {
     buscarEmpresaTenant(empresaId)
-      .then(setEmpresa)
+      .then(emp => {
+        setEmpresa(emp);
+        setNomeEmitente(emp?.nome_legal || "");
+        setCpfEmitente(emp?.cnpj || "");
+      })
       .catch(() => router.push("/empresas"))
       .finally(() => setCarregando(false));
   }, [empresaId, router]);
 
-  const addItem = () => setItens(prev => [...prev, { ...emptyItem }]);
+  // Municípios do estado da empresa (IBGE)
+  useEffect(() => {
+    const uf = empresa?.estado;
+    if (!uf) return;
+    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`)
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then((lista: Municipio[]) => setMunicipios(lista.map(m => ({ id: m.id, nome: m.nome }))))
+      .catch(() => setErroMunicipios(true));
+  }, [empresa?.estado]);
 
+  const addItem = () => setItens(prev => [...prev, { ...emptyItem }]);
   const removeItem = (idx: number) => {
     if (itens.length <= 1) return;
     setItens(prev => prev.filter((_, i) => i !== idx));
   };
-
   const updateItem = useCallback((idx: number, field: keyof ItemServico, value: string | number) => {
     setItens(prev => prev.map((item, i) => i === idx ? { ...item, [field]: value } : item));
   }, []);
 
-  // Cálculos
+  /* ── Cálculos ── */
   const subtotal = itens.reduce((s, item) => s + item.quantidade * item.valor_unitario, 0);
   const totalISS = modelo === "nfse"
     ? itens.reduce((s, item) => s + (item.quantidade * item.valor_unitario * item.aliquota_iss / 100), 0)
@@ -124,25 +299,55 @@ export default function EmitirNotaPage() {
   const totalCOFINS = subtotal * aliquotaCofins / 100;
   const totalImpostos = totalISS + totalICMS + totalPIS + totalCOFINS;
   const valorTotal = subtotal;
-
   const usandoSefaz = modelo === "nfse" && !!tokenGovBr.trim();
 
-  async function emitirNota() {
-    if (!destNome || !destCnpj) {
-      setErro("Preencha nome e CNPJ/CPF do destinatário.");
-      return;
+  /* ── Validação da etapa 1 ── */
+  function validarEtapa1(): string | null {
+    if (!preencherIbsCbs) return "Informe se deseja preencher as informações IBS/CBS.";
+    if (!dataCompetencia) return "Informe a data de competência.";
+    if (informarDps && (!serieDps.trim() || !numeroDps.trim())) return "Informe a série e o número da DPS.";
+    if (!codigoMunicipio) return "Selecione o município do emitente.";
+    if (!compraGov) return "Informe se a operação é uma compra governamental.";
+    if (tomadorLocal !== "nao_informado") {
+      if (!destCnpj.trim()) return "Informe o CPF/CNPJ do tomador/adquirente.";
+      if (!destNome.trim()) return "Informe o nome/razão social do tomador/adquirente.";
     }
-    if (subtotal <= 0) {
+    if (preencherIbsCbs === "sim" && !destProprioAdquirente) {
+      return "Informe se o destinatário é o próprio adquirente.";
+    }
+    return null;
+  }
+
+  function avancar() {
+    if (etapa === 1) {
+      const e = validarEtapa1();
+      if (e) { setErro(e); return; }
+    }
+    if (etapa === 2 && subtotal <= 0) {
       setErro("Adicione pelo menos um item com valor.");
       return;
     }
+    setErro(null);
+    setEtapa(n => Math.min(4, n + 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function voltar() {
+    setErro(null);
+    setEtapa(n => Math.max(1, n - 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  async function emitirNota() {
+    const e1 = validarEtapa1();
+    if (e1) { setErro(e1); setEtapa(1); return; }
+    if (subtotal <= 0) { setErro("Adicione pelo menos um item com valor."); setEtapa(2); return; }
 
     setEmitindo(true);
     setErro(null);
 
     try {
       if (usandoSefaz) {
-        // Emissão real via API NFS-e Nacional (gov.br)
         const res = await fetch(`/api/notas-fiscais/${empresaId}/emitir`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -152,7 +357,7 @@ export default function EmitirNotaPage() {
             prestador: {
               cnpj: empresa?.cnpj || "",
               nomeRazaoSocial: empresa?.nome_legal || "",
-              inscricaoMunicipal: inscricaoMunicipal || undefined,
+              inscricaoMunicipal: inscricaoMunicipal || indicadorMunicipalEmit || undefined,
               codigoMunicipio: codigoMunicipio || "3550308",
               uf: empresa?.estado || "SP",
             },
@@ -173,7 +378,7 @@ export default function EmitirNotaPage() {
               valorTotal: item.quantidade * item.valor_unitario,
               aliquotaISS: item.aliquota_iss,
             })),
-            competencia: dataEmissao.slice(0, 7),
+            competencia: dataCompetencia.slice(0, 7),
             natureza_operacao: natureza,
             observacoes: observacoes || undefined,
           }),
@@ -191,14 +396,13 @@ export default function EmitirNotaPage() {
           notaId: json.data.nota?.id || "",
         });
       } else {
-        // Emissão apenas local (sem SEFAZ)
         const res = await fetch(`/api/notas-fiscais/${empresaId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             modelo,
             natureza_operacao: natureza,
-            data_emissao: new Date(dataEmissao + "T12:00:00").toISOString(),
+            data_emissao: new Date(dataCompetencia + "T12:00:00").toISOString(),
             emitente_cnpj: empresa?.cnpj || "",
             emitente_nome: empresa?.nome_legal || "",
             destinatario_cnpj: destCnpj,
@@ -230,24 +434,25 @@ export default function EmitirNotaPage() {
   }
 
   if (carregando) {
-    return <AppShell><div style={{ textAlign: "center", padding: 60, color: V.muted }}>Carregando...</div></AppShell>;
+    return <AppShell><div style={{ textAlign: "center", padding: 60, color: P.inativo }}>Carregando...</div></AppShell>;
   }
 
+  /* ── Tela de sucesso ── */
   if (sucesso) {
     return (
       <AppShell>
         <div style={{ maxWidth: 600, margin: "40px auto", textAlign: "center" }}>
           <div style={{
-            width: 100, height: 100, borderRadius: "50%", background: V.green500 + "18",
+            width: 100, height: 100, borderRadius: "50%", background: "#10b98118",
             display: "inline-flex", alignItems: "center", justifyContent: "center",
-            marginBottom: 24, border: `3px solid ${V.green500}`,
+            marginBottom: 24, border: "3px solid #10b981",
           }}>
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-              <path d="M5 13l4 4L19 7" stroke={V.green500} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M5 13l4 4L19 7" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <h2 style={{ margin: "0 0 8px", color: V.ink, fontSize: 24 }}>Nota fiscal emitida!</h2>
-          <p style={{ color: V.muted, fontSize: 15, marginBottom: 8 }}>
+          <h2 style={{ margin: "0 0 8px", color: P.texto, fontSize: 24 }}>Nota fiscal emitida!</h2>
+          <p style={{ color: P.inativo, fontSize: 15, marginBottom: 8 }}>
             Nota nº <strong>{sucesso.numero}</strong> emitida com sucesso.
           </p>
           {sucesso.viaSefaz ? (
@@ -266,24 +471,24 @@ export default function EmitirNotaPage() {
             </div>
           )}
           <div style={{
-            background: V.bg, border: `1px solid ${V.border}`, borderRadius: 10,
+            background: P.cinzaSecao, border: `1px solid ${P.borda}`, borderRadius: 10,
             padding: 16, marginBottom: 24, fontSize: 12, fontFamily: "monospace",
-            wordBreak: "break-all", color: V.muted,
+            wordBreak: "break-all", color: P.inativo,
           }}>
             Chave de acesso: {sucesso.chave}
             {sucesso.protocolo && <><br />Protocolo: {sucesso.protocolo}</>}
           </div>
-          {/* Enviar por e-mail */}
+
           {destEmail && !emailEnviado && (
             <div style={{
-              background: V.panel, border: `1px solid ${V.border}`, borderRadius: 10,
+              background: "#fff", border: `1px solid ${P.borda}`, borderRadius: 10,
               padding: 20, marginBottom: 20, textAlign: "left",
             }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: V.ink, marginBottom: 12 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: P.texto, marginBottom: 12 }}>
                 Enviar nota por e-mail
               </div>
-              <div style={{ fontSize: 13, color: V.muted, marginBottom: 12 }}>
-                Destinatário: <strong style={{ color: V.ink }}>{destNome}</strong> — {destEmail}
+              <div style={{ fontSize: 13, color: P.inativo, marginBottom: 12 }}>
+                Destinatário: <strong style={{ color: P.texto }}>{destNome}</strong> — {destEmail}
               </div>
               {erroEmail && (
                 <div style={{ background: "#fef2f2", color: "#b91c1c", padding: "8px 12px", borderRadius: 6, fontSize: 13, marginBottom: 12 }}>
@@ -305,11 +510,8 @@ export default function EmitirNotaPage() {
                       }),
                     });
                     const json = await res.json();
-                    if (!res.ok) {
-                      setErroEmail(json.error || "Erro ao enviar e-mail.");
-                    } else {
-                      setEmailEnviado(true);
-                    }
+                    if (!res.ok) setErroEmail(json.error || "Erro ao enviar e-mail.");
+                    else setEmailEnviado(true);
                   } catch {
                     setErroEmail("Erro de conexão.");
                   } finally {
@@ -318,12 +520,12 @@ export default function EmitirNotaPage() {
                 }}
                 disabled={enviandoEmail}
                 style={{
-                  padding: "10px 20px", background: "#1e40af", color: "#fff",
-                  border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer",
+                  padding: "10px 20px", background: P.azul, color: "#fff",
+                  border: "none", borderRadius: 4, fontSize: 14, fontWeight: 600, cursor: "pointer",
                   opacity: enviandoEmail ? 0.7 : 1, display: "flex", alignItems: "center", gap: 8,
                 }}
               >
-                <svg fill="none" height={16} viewBox="0 0 24 24" width={16}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" strokeWidth="2"/><path d="M22 6l-10 7L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                <svg fill="none" height={16} viewBox="0 0 24 24" width={16}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" strokeWidth="2" /><path d="M22 6l-10 7L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
                 {enviandoEmail ? "Enviando..." : `Enviar para ${destEmail}`}
               </button>
             </div>
@@ -335,17 +537,8 @@ export default function EmitirNotaPage() {
               padding: "12px 16px", marginBottom: 20, fontSize: 14, fontWeight: 600, color: "#166534",
               display: "flex", alignItems: "center", gap: 8,
             }}>
-              <svg fill="none" height={18} viewBox="0 0 24 24" width={18}><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <svg fill="none" height={18} viewBox="0 0 24 24" width={18}><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
               E-mail enviado para {destEmail}
-            </div>
-          )}
-
-          {!destEmail && (
-            <div style={{
-              background: V.bg, border: `1px solid ${V.border}`, borderRadius: 10,
-              padding: "12px 16px", marginBottom: 20, fontSize: 13, color: V.muted,
-            }}>
-              Para enviar por e-mail, preencha o e-mail do destinatário ao emitir a nota.
             </div>
           )}
 
@@ -353,17 +546,20 @@ export default function EmitirNotaPage() {
             <button
               onClick={() => router.push(`/empresas/${empresaId}/notas-fiscais`)}
               style={{
-                padding: "10px 24px", background: V.green700, color: "#fff",
-                border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer",
+                padding: "10px 24px", background: P.azul, color: "#fff",
+                border: "none", borderRadius: 4, fontSize: 14, fontWeight: 600, cursor: "pointer",
               }}
             >
               Ver notas fiscais
             </button>
             <button
-              onClick={() => { setSucesso(null); setEmailEnviado(false); setItens([{ ...emptyItem }]); setDestNome(""); setDestCnpj(""); setDestEmail(""); }}
+              onClick={() => {
+                setSucesso(null); setEmailEnviado(false); setEtapa(1);
+                setItens([{ ...emptyItem }]); setDestNome(""); setDestCnpj(""); setDestEmail("");
+              }}
               style={{
-                padding: "10px 24px", background: "transparent", color: V.green700,
-                border: `1px solid ${V.border}`, borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer",
+                padding: "10px 24px", background: "transparent", color: P.azul,
+                border: `1px solid ${P.borda}`, borderRadius: 4, fontSize: 14, fontWeight: 600, cursor: "pointer",
               }}
             >
               Emitir outra
@@ -374,359 +570,541 @@ export default function EmitirNotaPage() {
     );
   }
 
+  /* ─────────────────────────── Render ─────────────────────────── */
   return (
     <AppShell>
-      <div style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
-        {/* Formulário principal */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ background: "#fff", border: `1px solid ${P.borda}`, borderRadius: 4, maxWidth: 1180, margin: "0 auto" }}>
+        <Stepper atual={etapa} onIr={setEtapa} />
 
-          {/* Header */}
-          <div style={{
-            background: "linear-gradient(135deg, #1e40af, #3b82f6)", borderRadius: 16,
-            padding: "24px 32px", color: "#fff", display: "flex", justifyContent: "space-between",
-            alignItems: "center", flexWrap: "wrap", gap: 16,
-          }}>
-            <div>
-              <div style={{ fontSize: 13, opacity: 0.8, marginBottom: 4 }}>Emissão de Nota Fiscal</div>
-              <div style={{ fontSize: 24, fontWeight: 800 }}>{empresa?.nome_legal}</div>
-              <div style={{ fontSize: 13, opacity: 0.7, marginTop: 4 }}>
-                {empresa?.cnpj || "CNPJ não cadastrado"} · {empresa?.regime_tributario || "Regime não definido"}
+        {/* ═══════════ ETAPA 1 — PESSOAS ═══════════ */}
+        {etapa === 1 && (
+          <>
+            <Secao titulo="Informações gerais">
+              <div style={{ marginBottom: 18 }}>
+                <label style={labelStyle}>
+                  Preencher as informações IBS/CBS?<span style={{ color: P.danger, marginLeft: 3 }}>*</span>
+                </label>
+                <Radio name="ibscbs" label="Sim" checked={preencherIbsCbs === "sim"} onChange={() => setPreencherIbsCbs("sim")} />
+                <Radio name="ibscbs" label="Não" checked={preencherIbsCbs === "nao"} onChange={() => setPreencherIbsCbs("nao")} />
               </div>
-            </div>
-            <button
-              onClick={() => router.push(`/empresas/${empresaId}/notas-fiscais`)}
-              style={{
-                background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)",
-                borderRadius: 8, color: "#fff", padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer",
-              }}
-            >
-              ← Voltar
-            </button>
-          </div>
 
-          {/* Tipo e dados gerais */}
-          <div style={{ background: V.panel, border: `1px solid ${V.border}`, borderRadius: 14, padding: 24 }}>
-            <h3 style={{ margin: "0 0 16px", fontSize: 16, fontWeight: 700 }}>Dados da nota</h3>
-            <div style={gridRow(3)}>
-              <Field label="Modelo" required>
-                <select style={inputStyle} value={modelo} onChange={e => setModelo(e.target.value as "nfse" | "55" | "65")}>
-                  <option value="nfse">NFS-e (Serviços)</option>
-                  <option value="55">NF-e (Produtos)</option>
-                  <option value="65">NFC-e (Consumidor)</option>
-                </select>
-              </Field>
-              <Field label="Natureza da operação">
-                <input style={inputStyle} value={natureza} onChange={e => setNatureza(e.target.value)}
-                  placeholder={modelo === "nfse" ? "Prestação de serviços" : "Venda de mercadorias"} />
-              </Field>
-              <Field label="Data de emissão" required>
-                <input style={inputStyle} type="date" value={dataEmissao} onChange={e => setDataEmissao(e.target.value)} />
-              </Field>
-            </div>
-          </div>
+              <div style={{ maxWidth: 390 }}>
+                <Field label="Data de Competência" required hint="Mês/ano de competência da prestação do serviço.">
+                  <input style={inputStyle} type="date" value={dataCompetencia}
+                    onChange={e => setDataCompetencia(e.target.value)} />
+                </Field>
+              </div>
 
-          {/* Destinatário */}
-          <div style={{ background: V.panel, border: `1px solid ${V.border}`, borderRadius: 14, padding: 24 }}>
-            <h3 style={{ margin: "0 0 16px", fontSize: 16, fontWeight: 700 }}>Destinatário / Tomador</h3>
-            <div style={gridRow(2)}>
-              <Field label="Nome / Razão social" required>
-                <input style={inputStyle} value={destNome} onChange={e => setDestNome(e.target.value)} placeholder="Nome do cliente" />
-              </Field>
-              <Field label="CNPJ / CPF" required>
-                <input style={inputStyle} value={destCnpj} onChange={e => setDestCnpj(e.target.value)} placeholder="00.000.000/0000-00" />
-              </Field>
-            </div>
-            <div style={gridRow(3)}>
-              <Field label="E-mail">
-                <input style={inputStyle} value={destEmail} onChange={e => setDestEmail(e.target.value)} placeholder="email@empresa.com" />
-              </Field>
-              <Field label="Telefone">
-                <input style={inputStyle} value={destTelefone} onChange={e => setDestTelefone(e.target.value)} placeholder="(00) 0000-0000" />
-              </Field>
-              <Field label="UF">
-                <input style={inputStyle} value={destUf} onChange={e => setDestUf(e.target.value)} placeholder="SP" maxLength={2} />
-              </Field>
-            </div>
-            <div style={gridRow(2)}>
-              <Field label="Endereço">
-                <input style={inputStyle} value={destEndereco} onChange={e => setDestEndereco(e.target.value)} placeholder="Rua, nº, bairro" />
-              </Field>
-              <Field label="Cidade">
-                <input style={inputStyle} value={destCidade} onChange={e => setDestCidade(e.target.value)} placeholder="Cidade" />
-              </Field>
-            </div>
-          </div>
+              <Check label="Informar série e número da DPS" checked={informarDps} onChange={setInformarDps} />
 
-          {/* Itens / Serviços */}
-          <div style={{ background: V.panel, border: `1px solid ${V.border}`, borderRadius: 14, padding: 24 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>
-                {modelo === "nfse" ? "Serviços" : "Produtos"}
-              </h3>
-              <button onClick={addItem} style={{
-                background: V.green500 + "15", color: V.green700, border: `1px solid ${V.green500}40`,
-                borderRadius: 8, padding: "6px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer",
-              }}>
-                + Adicionar item
-              </button>
-            </div>
-
-            {itens.map((item, idx) => (
-              <div key={idx} style={{
-                background: V.bg, border: `1px solid ${V.border}`, borderRadius: 10,
-                padding: 16, marginBottom: 12,
-              }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: V.muted }}>Item {idx + 1}</span>
-                  {itens.length > 1 && (
-                    <button onClick={() => removeItem(idx)} style={{
-                      background: "none", border: "none", color: V.danger, fontSize: 13,
-                      fontWeight: 600, cursor: "pointer",
-                    }}>Remover</button>
-                  )}
+              {informarDps && (
+                <div style={{ ...grid(2), maxWidth: 700, marginTop: 14 }}>
+                  <Field label="Série da DPS" required>
+                    <input style={inputStyle} value={serieDps} onChange={e => setSerieDps(e.target.value)}
+                      placeholder="Ex: 00001" maxLength={5} />
+                  </Field>
+                  <Field label="Número da DPS" required>
+                    <input style={inputStyle} value={numeroDps} onChange={e => setNumeroDps(e.target.value)}
+                      placeholder="Ex: 000000001" maxLength={15} />
+                  </Field>
                 </div>
-                <div style={gridRow(1)}>
+              )}
+            </Secao>
+
+            <Secao titulo="Emitente da NFS-e">
+              <div style={{ marginBottom: 18 }}>
+                <label style={labelStyle}>
+                  Você irá emitir esta NFS-e como?<span style={{ color: P.danger, marginLeft: 3 }}>*</span>
+                  <Ajuda titulo="Define o papel do emitente na operação." />
+                </label>
+                <Radio name="emitcomo" label="Prestador/Fornecedor" checked={emitenteComo === "prestador"} onChange={() => setEmitenteComo("prestador")} />
+                <Radio name="emitcomo" label="Tomador/Adquirente" checked={emitenteComo === "tomador"} onChange={() => setEmitenteComo("tomador")} />
+                <Radio name="emitcomo" label="Intermediário" checked={emitenteComo === "intermediario"} onChange={() => setEmitenteComo("intermediario")} />
+              </div>
+
+              <div style={grid(2)}>
+                <Field label="Município" required>
+                  {municipios.length > 0 ? (
+                    <select style={inputStyle} value={codigoMunicipio} onChange={e => setCodigoMunicipio(e.target.value)}>
+                      <option value="">Selecione...</option>
+                      {municipios.map(m => (
+                        <option key={m.id} value={String(m.id)}>{m.nome}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input style={inputStyle} value={codigoMunicipio}
+                      onChange={e => setCodigoMunicipio(e.target.value.replace(/\D/g, ""))}
+                      placeholder={erroMunicipios ? "Código IBGE (ex: 3550308)" : "Carregando municípios..."}
+                      maxLength={7} />
+                  )}
+                </Field>
+                <Field label="Indicador Municipal">
+                  <select style={inputStyle} value={indicadorMunicipalEmit} onChange={e => setIndicadorMunicipalEmit(e.target.value)}>
+                    <option value="">Selecione...</option>
+                    <option value="1">Inscrição Municipal</option>
+                    <option value="2">Sem Inscrição Municipal</option>
+                    <option value="3">Isento de Inscrição Municipal</option>
+                  </select>
+                </Field>
+              </div>
+
+              <div style={grid(2)}>
+                <Field label="CPF">
+                  <input style={inputStyle} value={cpfEmitente} onChange={e => setCpfEmitente(e.target.value)}
+                    placeholder="000.000.000-00" />
+                </Field>
+                <Field label="Nome">
+                  <input style={inputStyle} value={nomeEmitente} onChange={e => setNomeEmitente(e.target.value)}
+                    placeholder="Nome do emitente" />
+                </Field>
+              </div>
+
+              <button
+                onClick={() => setDetalhesEmitente(v => !v)}
+                style={{
+                  padding: "9px 18px", background: P.botaoCinza, color: "#fff", border: "none",
+                  borderRadius: 3, fontSize: 14, cursor: "pointer", marginTop: 4,
+                }}
+              >
+                {detalhesEmitente ? "Ocultar detalhes do emitente" : "Exibir detalhes do emitente"}
+              </button>
+
+              {detalhesEmitente && (
+                <div style={{ marginTop: 18, paddingTop: 16, borderTop: `1px solid ${P.borda}` }}>
+                  <div style={grid(2)}>
+                    <Field label="Razão social">
+                      <input style={{ ...inputStyle, background: "#f0f0f0" }} value={empresa?.nome_legal || ""} readOnly />
+                    </Field>
+                    <Field label="CNPJ">
+                      <input style={{ ...inputStyle, background: "#f0f0f0" }} value={empresa?.cnpj || ""} readOnly />
+                    </Field>
+                  </div>
+                  <div style={grid(3)}>
+                    <Field label="Inscrição Municipal">
+                      <input style={inputStyle} value={inscricaoMunicipal}
+                        onChange={e => setInscricaoMunicipal(e.target.value)} placeholder="Número da IM" />
+                    </Field>
+                    <Field label="Regime tributário">
+                      <input style={{ ...inputStyle, background: "#f0f0f0" }} value={empresa?.regime_tributario || "—"} readOnly />
+                    </Field>
+                    <Field label="UF">
+                      <input style={{ ...inputStyle, background: "#f0f0f0" }} value={empresa?.estado || "—"} readOnly />
+                    </Field>
+                  </div>
+                </div>
+              )}
+            </Secao>
+
+            <Secao titulo="Compras governamentais">
+              <label style={labelStyle}>
+                A operação se trata de uma compra governamental?
+                <Ajuda titulo="Operações destinadas a órgãos da administração pública." />
+              </label>
+              <Radio name="compragov" label="Sim" checked={compraGov === "sim"} onChange={() => setCompraGov("sim")} />
+              <Radio name="compragov" label="Não" checked={compraGov === "nao"} onChange={() => setCompraGov("nao")} />
+            </Secao>
+
+            <Secao titulo="Tomador/Adquirente do serviço">
+              <div style={{ marginBottom: 18 }}>
+                <label style={labelStyle}>
+                  Onde está localizado o estabelecimento/domicílio?<span style={{ color: P.danger, marginLeft: 3 }}>*</span>
+                </label>
+                <Radio name="tomloc" label="Brasil" checked={tomadorLocal === "brasil"} onChange={() => setTomadorLocal("brasil")} />
+                <Radio name="tomloc" label="Exterior" checked={tomadorLocal === "exterior"} onChange={() => setTomadorLocal("exterior")} />
+                <Radio name="tomloc" label="Tomador/Adquirente não informado" checked={tomadorLocal === "nao_informado"} onChange={() => setTomadorLocal("nao_informado")} />
+              </div>
+
+              {tomadorLocal !== "nao_informado" && (
+                <>
+                  <div style={grid(2)}>
+                    <Field label={tomadorLocal === "brasil" ? "CPF/CNPJ" : "Identificação (NIF)"} required>
+                      <div style={{ display: "flex", gap: 6 }}>
+                        <div style={{ position: "relative", flex: 1 }}>
+                          <input style={{ ...inputStyle, paddingRight: 34 }} value={destCnpj}
+                            onChange={e => setDestCnpj(e.target.value)}
+                            placeholder={tomadorLocal === "brasil" ? "00.000.000/0000-00" : "Número de identificação"} />
+                          <svg width={15} height={15} viewBox="0 0 24 24" fill="none" style={{ position: "absolute", right: 10, top: 10, pointerEvents: "none" }}>
+                            <circle cx="11" cy="11" r="7" stroke={P.inativo} strokeWidth="2" />
+                            <path d="M20 20l-3.5-3.5" stroke={P.inativo} strokeWidth="2" strokeLinecap="round" />
+                          </svg>
+                        </div>
+                        <button title="Buscar em clientes cadastrados" style={{
+                          width: 38, height: 36, background: "#dcdcdc", border: `1px solid ${P.inputBorda}`,
+                          borderRadius: 2, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                        }}>
+                          <svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+                            <path d="M17 20v-2a4 4 0 00-3-3.87M9 20v-2a4 4 0 013-3.87m0 0a3 3 0 100-6 3 3 0 000 6zM6.5 11a2.5 2.5 0 100-5 2.5 2.5 0 000 5zm11 0a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke="#6f6f6f" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </button>
+                      </div>
+                    </Field>
+                    <Field label="Indicador Municipal">
+                      <select style={inputStyle} value={indicadorMunicipalTom} onChange={e => setIndicadorMunicipalTom(e.target.value)}>
+                        <option value="">Selecione...</option>
+                        <option value="1">Inscrição Municipal</option>
+                        <option value="2">Sem Inscrição Municipal</option>
+                        <option value="3">Isento de Inscrição Municipal</option>
+                      </select>
+                    </Field>
+                  </div>
+
+                  <Field label="Nome/Razão Social" required>
+                    <input style={inputStyle} value={destNome} onChange={e => setDestNome(e.target.value)}
+                      placeholder="Nome ou razão social do tomador" />
+                  </Field>
+
+                  <div style={grid(2)}>
+                    <Field label="Telefone">
+                      <input style={inputStyle} value={destTelefone} onChange={e => setDestTelefone(e.target.value)}
+                        placeholder="(00) 00000-0000" />
+                    </Field>
+                    <Field label="E-mail">
+                      <input style={inputStyle} type="email" value={destEmail} onChange={e => setDestEmail(e.target.value)}
+                        placeholder="email@empresa.com" />
+                    </Field>
+                  </div>
+
+                  <Check label="Informar endereço" checked={informarEndereco} onChange={setInformarEndereco} />
+
+                  {informarEndereco && (
+                    <div style={{ marginTop: 14 }}>
+                      <div style={grid(3)}>
+                        <Field label="CEP">
+                          <input style={inputStyle} value={destCep} onChange={e => setDestCep(e.target.value)} placeholder="00000-000" />
+                        </Field>
+                        <Field label="Logradouro">
+                          <input style={inputStyle} value={destEndereco} onChange={e => setDestEndereco(e.target.value)} placeholder="Rua / Avenida" />
+                        </Field>
+                        <Field label="Número">
+                          <input style={inputStyle} value={destNumero} onChange={e => setDestNumero(e.target.value)} placeholder="Nº" />
+                        </Field>
+                      </div>
+                      <div style={grid(3)}>
+                        <Field label="Bairro">
+                          <input style={inputStyle} value={destBairro} onChange={e => setDestBairro(e.target.value)} placeholder="Bairro" />
+                        </Field>
+                        <Field label="Município">
+                          <input style={inputStyle} value={destCidade} onChange={e => setDestCidade(e.target.value)} placeholder="Cidade" />
+                        </Field>
+                        <Field label="UF">
+                          <input style={inputStyle} value={destUf} onChange={e => setDestUf(e.target.value.toUpperCase())} placeholder="SP" maxLength={2} />
+                        </Field>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </Secao>
+
+            <Secao titulo="Destinatário do serviço">
+              <label style={labelStyle}>
+                Para fins de apuração do IBS/CBS, o destinatário é o próprio adquirente?
+                <Ajuda titulo="Marque 'Não' quando o serviço for prestado a terceiro diferente do adquirente." />
+              </label>
+              <Radio name="destadq" label="Sim" checked={destProprioAdquirente === "sim"} onChange={() => setDestProprioAdquirente("sim")} />
+              <Radio name="destadq" label="Não" checked={destProprioAdquirente === "nao"} onChange={() => setDestProprioAdquirente("nao")} />
+            </Secao>
+
+            <Secao titulo="Intermediário do serviço">
+              <label style={labelStyle}>
+                Onde está localizado o estabelecimento/domicílio?<span style={{ color: P.danger, marginLeft: 3 }}>*</span>
+              </label>
+              <Radio name="interloc" label="Brasil" checked={intermediarioLocal === "brasil"} onChange={() => setIntermediarioLocal("brasil")} />
+              <Radio name="interloc" label="Exterior" checked={intermediarioLocal === "exterior"} onChange={() => setIntermediarioLocal("exterior")} />
+              <Radio name="interloc" label="Intermediário não informado" checked={intermediarioLocal === "nao_informado"} onChange={() => setIntermediarioLocal("nao_informado")} />
+
+              {intermediarioLocal !== "nao_informado" && (
+                <div style={{ ...grid(2), marginTop: 14 }}>
+                  <Field label={intermediarioLocal === "brasil" ? "CPF/CNPJ" : "Identificação (NIF)"}>
+                    <input style={inputStyle} value={intermediarioCnpj} onChange={e => setIntermediarioCnpj(e.target.value)}
+                      placeholder="00.000.000/0000-00" />
+                  </Field>
+                  <Field label="Nome/Razão Social">
+                    <input style={inputStyle} value={intermediarioNome} onChange={e => setIntermediarioNome(e.target.value)}
+                      placeholder="Nome do intermediário" />
+                  </Field>
+                </div>
+              )}
+            </Secao>
+          </>
+        )}
+
+        {/* ═══════════ ETAPA 2 — SERVIÇO ═══════════ */}
+        {etapa === 2 && (
+          <>
+            <Secao titulo="Dados do serviço">
+              <div style={grid(2)}>
+                <Field label="Modelo do documento" required>
+                  <select style={inputStyle} value={modelo} onChange={e => setModelo(e.target.value as "nfse" | "55" | "65")}>
+                    <option value="nfse">NFS-e (Serviços)</option>
+                    <option value="55">NF-e (Produtos)</option>
+                    <option value="65">NFC-e (Consumidor)</option>
+                  </select>
+                </Field>
+                <Field label="Natureza da operação">
+                  <input style={inputStyle} value={natureza} onChange={e => setNatureza(e.target.value)}
+                    placeholder={modelo === "nfse" ? "Prestação de serviços" : "Venda de mercadorias"} />
+                </Field>
+              </div>
+            </Secao>
+
+            <Secao titulo={modelo === "nfse" ? "Serviços prestados" : "Produtos"}>
+              {itens.map((item, idx) => (
+                <div key={idx} style={{
+                  background: "#fff", border: `1px solid ${P.borda}`, borderRadius: 3,
+                  padding: 16, marginBottom: 12,
+                }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: P.inativo }}>Item {idx + 1}</span>
+                    {itens.length > 1 && (
+                      <button onClick={() => removeItem(idx)} style={{
+                        background: "none", border: "none", color: P.danger, fontSize: 13,
+                        fontWeight: 600, cursor: "pointer",
+                      }}>Remover</button>
+                    )}
+                  </div>
                   <Field label="Descrição" required>
                     <input style={inputStyle} value={item.descricao}
                       onChange={e => updateItem(idx, "descricao", e.target.value)}
                       placeholder={modelo === "nfse" ? "Descrição do serviço prestado" : "Descrição do produto"} />
                   </Field>
+                  <div style={grid(modelo === "nfse" ? 4 : 3)}>
+                    <Field label="Quantidade">
+                      <input style={inputStyle} type="number" min={1} value={item.quantidade}
+                        onChange={e => updateItem(idx, "quantidade", parseFloat(e.target.value) || 0)} />
+                    </Field>
+                    <Field label="Valor unitário (R$)">
+                      <input style={inputStyle} type="number" step="0.01" min={0} value={item.valor_unitario || ""}
+                        onChange={e => updateItem(idx, "valor_unitario", parseFloat(e.target.value) || 0)} />
+                    </Field>
+                    {modelo === "nfse" ? (
+                      <>
+                        <Field label="Cód. serviço">
+                          <input style={inputStyle} value={item.codigo_servico}
+                            onChange={e => updateItem(idx, "codigo_servico", e.target.value)} placeholder="Ex: 01.07" />
+                        </Field>
+                        <Field label="Alíquota ISS (%)">
+                          <input style={inputStyle} type="number" step="0.01" min={0} max={10} value={item.aliquota_iss}
+                            onChange={e => updateItem(idx, "aliquota_iss", parseFloat(e.target.value) || 0)} />
+                        </Field>
+                      </>
+                    ) : (
+                      <Field label="Subtotal">
+                        <div style={{ ...inputStyle, display: "flex", alignItems: "center" }}>
+                          {formatBRL(item.quantidade * item.valor_unitario)}
+                        </div>
+                      </Field>
+                    )}
+                  </div>
                 </div>
-                <div style={gridRow(modelo === "nfse" ? 4 : 3)}>
-                  <Field label="Quantidade">
-                    <input style={inputStyle} type="number" min={1} value={item.quantidade}
-                      onChange={e => updateItem(idx, "quantidade", parseFloat(e.target.value) || 0)} />
+              ))}
+              <button onClick={addItem} style={{
+                background: "#fff", color: P.azul, border: `1px solid ${P.azul}`,
+                borderRadius: 3, padding: "8px 16px", fontSize: 13.5, fontWeight: 600, cursor: "pointer",
+              }}>
+                + Adicionar item
+              </button>
+            </Secao>
+
+            <Secao titulo="Informações complementares">
+              <Field label="Observações">
+                <textarea style={{ ...inputStyle, minHeight: 90, height: "auto", resize: "vertical" }}
+                  value={observacoes} onChange={e => setObservacoes(e.target.value)}
+                  placeholder="Informações complementares da nota fiscal..." />
+              </Field>
+            </Secao>
+          </>
+        )}
+
+        {/* ═══════════ ETAPA 3 — VALORES ═══════════ */}
+        {etapa === 3 && (
+          <>
+            {modelo !== "nfse" && (
+              <Secao titulo="Alíquotas de impostos">
+                <div style={grid(3)}>
+                  <Field label="ICMS (%)">
+                    <input style={inputStyle} type="number" step="0.01" min={0} value={aliquotaIcms}
+                      onChange={e => setAliquotaIcms(parseFloat(e.target.value) || 0)} />
                   </Field>
-                  <Field label="Valor unitário (R$)">
-                    <input style={inputStyle} type="number" step="0.01" min={0} value={item.valor_unitario || ""}
-                      onChange={e => updateItem(idx, "valor_unitario", parseFloat(e.target.value) || 0)} />
+                  <Field label="PIS (%)">
+                    <input style={inputStyle} type="number" step="0.01" min={0} value={aliquotaPis}
+                      onChange={e => setAliquotaPis(parseFloat(e.target.value) || 0)} />
                   </Field>
-                  {modelo === "nfse" && (
-                    <Field label="Cód. serviço">
-                      <input style={inputStyle} value={item.codigo_servico}
-                        onChange={e => updateItem(idx, "codigo_servico", e.target.value)}
-                        placeholder="Ex: 01.07" />
-                    </Field>
-                  )}
-                  {modelo === "nfse" && (
-                    <Field label="Alíquota ISS (%)">
-                      <input style={inputStyle} type="number" step="0.01" min={0} max={10}
-                        value={item.aliquota_iss}
-                        onChange={e => updateItem(idx, "aliquota_iss", parseFloat(e.target.value) || 0)} />
-                    </Field>
-                  )}
-                  {modelo !== "nfse" && (
-                    <Field label="Subtotal">
-                      <div style={{ ...inputStyle, background: V.bg, display: "flex", alignItems: "center" }}>
-                        {formatBRL(item.quantidade * item.valor_unitario)}
-                      </div>
-                    </Field>
-                  )}
+                  <Field label="COFINS (%)">
+                    <input style={inputStyle} type="number" step="0.01" min={0} value={aliquotaCofins}
+                      onChange={e => setAliquotaCofins(parseFloat(e.target.value) || 0)} />
+                  </Field>
                 </div>
-              </div>
-            ))}
-          </div>
+              </Secao>
+            )}
 
-          {/* Impostos (NF-e / NFC-e) */}
-          {modelo !== "nfse" && (
-            <div style={{ background: V.panel, border: `1px solid ${V.border}`, borderRadius: 14, padding: 24 }}>
-              <h3 style={{ margin: "0 0 16px", fontSize: 16, fontWeight: 700 }}>Alíquotas de impostos</h3>
-              <div style={gridRow(3)}>
-                <Field label="ICMS (%)">
-                  <input style={inputStyle} type="number" step="0.01" min={0} value={aliquotaIcms}
-                    onChange={e => setAliquotaIcms(parseFloat(e.target.value) || 0)} />
-                </Field>
-                <Field label="PIS (%)">
-                  <input style={inputStyle} type="number" step="0.01" min={0} value={aliquotaPis}
-                    onChange={e => setAliquotaPis(parseFloat(e.target.value) || 0)} />
-                </Field>
-                <Field label="COFINS (%)">
-                  <input style={inputStyle} type="number" step="0.01" min={0} value={aliquotaCofins}
-                    onChange={e => setAliquotaCofins(parseFloat(e.target.value) || 0)} />
-                </Field>
-              </div>
-            </div>
-          )}
+            {modelo === "nfse" && (
+              <Secao titulo="Tributos federais">
+                <div style={grid(2)}>
+                  <Field label="PIS (%)">
+                    <input style={inputStyle} type="number" step="0.01" min={0} value={aliquotaPis}
+                      onChange={e => setAliquotaPis(parseFloat(e.target.value) || 0)} />
+                  </Field>
+                  <Field label="COFINS (%)">
+                    <input style={inputStyle} type="number" step="0.01" min={0} value={aliquotaCofins}
+                      onChange={e => setAliquotaCofins(parseFloat(e.target.value) || 0)} />
+                  </Field>
+                </div>
+              </Secao>
+            )}
 
-          {/* Integração NFS-e Nacional */}
-          {modelo === "nfse" && (
-            <div style={{ background: V.panel, border: `1px solid ${V.border}`, borderRadius: 14, padding: 24 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>Integração NFS-e Nacional (gov.br)</h3>
-                <span style={{
-                  fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 6,
-                  background: tokenGovBr ? "#f0fdf4" : "#fffbeb",
-                  color: tokenGovBr ? "#166534" : "#92400e",
-                  border: `1px solid ${tokenGovBr ? "#86efac" : "#fcd34d"}`,
+            <Secao titulo="Resumo dos valores">
+              <div style={{ background: "#fff", border: `1px solid ${P.borda}`, borderRadius: 3, padding: 18, maxWidth: 480 }}>
+                {[
+                  ["Subtotal", subtotal],
+                  ...(totalISS > 0 ? [["ISS", totalISS] as [string, number]] : []),
+                  ...(totalICMS > 0 ? [["ICMS", totalICMS] as [string, number]] : []),
+                  ...(totalPIS > 0 ? [["PIS", totalPIS] as [string, number]] : []),
+                  ...(totalCOFINS > 0 ? [["COFINS", totalCOFINS] as [string, number]] : []),
+                  ["Total de impostos", totalImpostos],
+                ].map(([nome, valor]) => (
+                  <div key={nome as string} style={{
+                    display: "flex", justifyContent: "space-between", fontSize: 13.5, marginBottom: 8, color: P.labelCor,
+                  }}>
+                    <span>{nome as string}</span>
+                    <span style={{ fontWeight: 600 }}>{formatBRL(valor as number)}</span>
+                  </div>
+                ))}
+                <div style={{
+                  display: "flex", justifyContent: "space-between", fontSize: 18, fontWeight: 800,
+                  color: P.texto, paddingTop: 12, borderTop: `2px solid ${P.borda}`, marginTop: 6,
                 }}>
-                  {tokenGovBr ? "SEFAZ ativa" : "Apenas local"}
-                </span>
+                  <span>Valor total</span>
+                  <span style={{ color: P.azul }}>{formatBRL(valorTotal)}</span>
+                </div>
               </div>
-              <p style={{ fontSize: 13, color: V.muted, margin: "0 0 16px" }}>
-                Para emitir via SEFAZ, informe o token de acesso do gov.br. Sem token, a nota será registrada apenas internamente.
-              </p>
-              <div style={gridRow(2)}>
-                <Field label="Token gov.br (Bearer)">
-                  <input style={inputStyle} type="password" value={tokenGovBr}
-                    onChange={e => setTokenGovBr(e.target.value)}
-                    placeholder="Cole o token de acesso aqui" />
-                </Field>
-                <Field label="Ambiente">
-                  <select style={inputStyle} value={ambiente} onChange={e => setAmbiente(e.target.value as "homologacao" | "producao")}>
-                    <option value="homologacao">Homologação (testes)</option>
-                    <option value="producao">Produção (real)</option>
-                  </select>
-                </Field>
-              </div>
-              <div style={gridRow(2)}>
-                <Field label="Inscrição Municipal">
-                  <input style={inputStyle} value={inscricaoMunicipal}
-                    onChange={e => setInscricaoMunicipal(e.target.value)}
-                    placeholder="Número da IM" />
-                </Field>
-                <Field label="Código do município (IBGE)">
-                  <input style={inputStyle} value={codigoMunicipio}
-                    onChange={e => setCodigoMunicipio(e.target.value)}
-                    placeholder="Ex: 3550308 (São Paulo)" />
-                </Field>
-              </div>
-            </div>
-          )}
+            </Secao>
+          </>
+        )}
 
-          {/* Observações */}
-          <div style={{ background: V.panel, border: `1px solid ${V.border}`, borderRadius: 14, padding: 24 }}>
-            <h3 style={{ margin: "0 0 16px", fontSize: 16, fontWeight: 700 }}>Informações adicionais</h3>
-            <Field label="Observações">
-              <textarea style={{ ...inputStyle, minHeight: 80, resize: "vertical" }}
-                value={observacoes} onChange={e => setObservacoes(e.target.value)}
-                placeholder="Informações complementares da nota fiscal..." />
-            </Field>
+        {/* ═══════════ ETAPA 4 — EMITIR NFS-e ═══════════ */}
+        {etapa === 4 && (
+          <>
+            {modelo === "nfse" && (
+              <Secao titulo="Integração NFS-e Nacional (gov.br)">
+                <div style={{ marginBottom: 12 }}>
+                  <span style={{
+                    fontSize: 11.5, fontWeight: 700, padding: "3px 9px", borderRadius: 3,
+                    background: tokenGovBr ? "#f0fdf4" : "#fffbeb",
+                    color: tokenGovBr ? "#166534" : "#92400e",
+                    border: `1px solid ${tokenGovBr ? "#86efac" : "#fcd34d"}`,
+                  }}>
+                    {tokenGovBr ? "SEFAZ ativa" : "Apenas local"}
+                  </span>
+                </div>
+                <p style={{ fontSize: 13, color: "#7a7a7a", margin: "0 0 14px" }}>
+                  Para emitir via SEFAZ, informe o token de acesso do gov.br. Sem token, a nota será registrada apenas internamente.
+                </p>
+                <div style={grid(2)}>
+                  <Field label="Token gov.br (Bearer)">
+                    <input style={inputStyle} type="password" value={tokenGovBr}
+                      onChange={e => setTokenGovBr(e.target.value)} placeholder="Cole o token de acesso aqui" />
+                  </Field>
+                  <Field label="Ambiente">
+                    <select style={inputStyle} value={ambiente} onChange={e => setAmbiente(e.target.value as "homologacao" | "producao")}>
+                      <option value="homologacao">Homologação (testes)</option>
+                      <option value="producao">Produção (real)</option>
+                    </select>
+                  </Field>
+                </div>
+                <div style={grid(2)}>
+                  <Field label="Inscrição Municipal">
+                    <input style={inputStyle} value={inscricaoMunicipal}
+                      onChange={e => setInscricaoMunicipal(e.target.value)} placeholder="Número da IM" />
+                  </Field>
+                  <Field label="Código do município (IBGE)">
+                    <input style={{ ...inputStyle, background: "#f0f0f0" }} value={codigoMunicipio} readOnly />
+                  </Field>
+                </div>
+              </Secao>
+            )}
+
+            <Secao titulo="Revisão">
+              <div style={{ background: "#fff", border: `1px solid ${P.borda}`, borderRadius: 3, padding: 18, fontSize: 13.5, color: P.labelCor }}>
+                <div style={{ marginBottom: 10 }}>
+                  <strong style={{ color: P.texto }}>Emitente:</strong> {nomeEmitente || empresa?.nome_legal} — {cpfEmitente || empresa?.cnpj || "—"}
+                </div>
+                <div style={{ marginBottom: 10 }}>
+                  <strong style={{ color: P.texto }}>Tomador:</strong>{" "}
+                  {tomadorLocal === "nao_informado" ? "Não informado" : `${destNome} — ${destCnpj}`}
+                </div>
+                <div style={{ marginBottom: 10 }}>
+                  <strong style={{ color: P.texto }}>Competência:</strong> {dataCompetencia.split("-").reverse().join("/")}
+                </div>
+                <div style={{ marginBottom: 10 }}>
+                  <strong style={{ color: P.texto }}>Itens:</strong> {itens.filter(i => i.descricao).length || itens.length}
+                </div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: P.azul, marginTop: 14 }}>
+                  Total: {formatBRL(valorTotal)}
+                </div>
+              </div>
+            </Secao>
+          </>
+        )}
+
+        {/* ── Erro ── */}
+        {erro && (
+          <div style={{
+            margin: "0 26px 12px", background: "#fdecea", border: "1px solid #f5c6c3",
+            borderRadius: 3, padding: "10px 14px", color: "#b71c1c", fontSize: 13.5,
+          }}>
+            {erro}
           </div>
+        )}
 
-          {/* Erro */}
-          {erro && (
-            <div style={{
-              background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10,
-              padding: "12px 16px", color: "#b91c1c", fontSize: 14, fontWeight: 600,
-            }}>
-              {erro}
-            </div>
-          )}
-
-          {/* Botão emitir */}
+        {/* ── Navegação ── */}
+        <div style={{
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          padding: "18px 26px 26px", gap: 12,
+        }}>
           <button
-            onClick={emitirNota}
-            disabled={emitindo}
+            onClick={() => etapa === 1 ? router.push(`/empresas/${empresaId}/notas-fiscais`) : voltar()}
             style={{
-              width: "100%", padding: "14px 24px",
-              background: usandoSefaz ? "linear-gradient(135deg, #065f46, #10b981)" : "linear-gradient(135deg, #1e40af, #3b82f6)", color: "#fff",
-              border: "none", borderRadius: 10, fontSize: 16, fontWeight: 700, cursor: "pointer",
-              opacity: emitindo ? 0.7 : 1,
+              padding: "10px 22px", background: "#fff", color: "#5a5a5a",
+              border: `1px solid ${P.borda}`, borderRadius: 3, fontSize: 14.5, cursor: "pointer",
+              display: "flex", alignItems: "center", gap: 8,
             }}
           >
-            {emitindo
-              ? (usandoSefaz ? "Transmitindo para a SEFAZ..." : "Emitindo nota fiscal...")
-              : (usandoSefaz ? "Emitir e transmitir à SEFAZ" : "Emitir nota fiscal (apenas local)")
-            }
+            <svg width={12} height={12} viewBox="0 0 24 24" fill="none">
+              <path d="M15 5l-7 7 7 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            {etapa === 1 ? "Cancelar" : "Voltar"}
           </button>
-        </div>
 
-        {/* Painel lateral - Resumo */}
-        <div style={{
-          width: 320, minWidth: 320, background: V.panel,
-          border: `1px solid ${V.border}`, borderRadius: 14,
-          padding: 24, position: "sticky", top: 20, alignSelf: "flex-start",
-        }}>
-          <h3 style={{ margin: "0 0 20px", fontSize: 16, fontWeight: 700 }}>Resumo da nota</h3>
-
-          {/* Modelo */}
-          <div style={{
-            background: "#1e40af12", border: "1px solid #1e40af30", borderRadius: 8,
-            padding: "8px 12px", marginBottom: 16, fontSize: 13, fontWeight: 600, color: "#1e40af",
-          }}>
-            {modelo === "nfse" ? "NFS-e — Nota Fiscal de Serviços" :
-              modelo === "55" ? "NF-e — Nota Fiscal Eletrônica" : "NFC-e — Nota Fiscal Consumidor"}
-          </div>
-
-          {/* Emitente */}
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: V.muted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Emitente</div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: V.ink }}>{empresa?.nome_legal}</div>
-            <div style={{ fontSize: 12, color: V.muted }}>{empresa?.cnpj || "—"}</div>
-          </div>
-
-          {/* Destinatário */}
-          {destNome && (
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: V.muted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Destinatário</div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: V.ink }}>{destNome}</div>
-              <div style={{ fontSize: 12, color: V.muted }}>{destCnpj || "—"}</div>
-            </div>
+          {etapa < 4 ? (
+            <button
+              onClick={avancar}
+              style={{
+                padding: "10px 24px", background: P.azul, color: "#fff", border: "none",
+                borderRadius: 3, fontSize: 14.5, cursor: "pointer",
+                display: "flex", alignItems: "center", gap: 8,
+              }}
+            >
+              Avançar
+              <svg width={12} height={12} viewBox="0 0 24 24" fill="none">
+                <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          ) : (
+            <button
+              onClick={emitirNota}
+              disabled={emitindo}
+              style={{
+                padding: "10px 26px", background: usandoSefaz ? "#1b7a4b" : P.azul, color: "#fff",
+                border: "none", borderRadius: 3, fontSize: 14.5, fontWeight: 600, cursor: "pointer",
+                opacity: emitindo ? 0.7 : 1,
+              }}
+            >
+              {emitindo
+                ? (usandoSefaz ? "Transmitindo para a SEFAZ..." : "Emitindo nota fiscal...")
+                : (usandoSefaz ? "Emitir e transmitir à SEFAZ" : "Emitir NFS-e (apenas local)")}
+            </button>
           )}
-
-          {/* Itens */}
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: V.muted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
-              {itens.length} {itens.length === 1 ? "item" : "itens"}
-            </div>
-            {itens.filter(i => i.descricao).map((item, idx) => (
-              <div key={idx} style={{
-                fontSize: 13, padding: "4px 0", display: "flex", justifyContent: "space-between",
-                borderBottom: `1px solid ${V.border}`,
-              }}>
-                <span style={{ color: V.ink, flex: 1, marginRight: 8 }}>{item.descricao}</span>
-                <span style={{ fontWeight: 600, color: V.ink, whiteSpace: "nowrap" }}>
-                  {formatBRL(item.quantidade * item.valor_unitario)}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* Valores */}
-          <div style={{ borderTop: `2px solid ${V.border}`, paddingTop: 12 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 6 }}>
-              <span style={{ color: V.muted }}>Subtotal</span>
-              <span style={{ color: V.ink, fontWeight: 600 }}>{formatBRL(subtotal)}</span>
-            </div>
-
-            {totalISS > 0 && (
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}>
-                <span style={{ color: V.muted }}>ISS</span>
-                <span style={{ color: "#92400e" }}>{formatBRL(totalISS)}</span>
-              </div>
-            )}
-            {totalICMS > 0 && (
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}>
-                <span style={{ color: V.muted }}>ICMS</span>
-                <span style={{ color: "#92400e" }}>{formatBRL(totalICMS)}</span>
-              </div>
-            )}
-            {totalPIS > 0 && (
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}>
-                <span style={{ color: V.muted }}>PIS</span>
-                <span style={{ color: "#92400e" }}>{formatBRL(totalPIS)}</span>
-              </div>
-            )}
-            {totalCOFINS > 0 && (
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}>
-                <span style={{ color: V.muted }}>COFINS</span>
-                <span style={{ color: "#92400e" }}>{formatBRL(totalCOFINS)}</span>
-              </div>
-            )}
-
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 12, color: V.muted }}>
-              <span>Total impostos</span>
-              <span>{formatBRL(totalImpostos)}</span>
-            </div>
-
-            <div style={{
-              display: "flex", justifyContent: "space-between", fontSize: 18,
-              fontWeight: 800, color: V.ink, paddingTop: 12, borderTop: `2px solid ${V.border}`,
-            }}>
-              <span>Total</span>
-              <span style={{ color: "#1e40af" }}>{formatBRL(valorTotal)}</span>
-            </div>
-          </div>
         </div>
       </div>
     </AppShell>
