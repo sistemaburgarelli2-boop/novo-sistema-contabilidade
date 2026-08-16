@@ -20,6 +20,8 @@ type ItemFavorito = {
 type ServicoFavorito = {
   id: string;
   nome: string;
+  /** Formulario em que o favorito foi criado: simplificada ou completa. */
+  modo: "simplificada" | "completa";
   modelo: string;
   natureza: string;
   observacoes: string;
@@ -109,6 +111,7 @@ export async function POST(request: Request, { params }: RouteContext) {
     const favorito: ServicoFavorito = {
       id: crypto.randomUUID(),
       nome,
+      modo: body.modo === "simplificada" ? "simplificada" : "completa",
       modelo: String(body.modelo ?? "nfse"),
       natureza: String(body.natureza ?? "").trim(),
       observacoes: String(body.observacoes ?? "").trim(),

@@ -43,6 +43,7 @@ type SimNao = "" | "sim" | "nao";
 type ServicoFavorito = {
   id: string;
   nome: string;
+  modo?: "simplificada" | "completa";
   modelo: string;
   natureza: string;
   observacoes: string;
@@ -435,14 +436,6 @@ function EmitirNotaConteudo() {
     ? clientesFiltrados(destCnpj).slice(0, 6)
     : [];
 
-  // Serviços favoritos da empresa
-  useEffect(() => {
-    fetch(`/api/notas-fiscais/${empresaId}/favoritos`)
-      .then(r => r.json())
-      .then(json => setFavoritos(json?.data?.favoritos ?? []))
-      .catch(() => setFavoritos([]));
-  }, [empresaId]);
-
   /** Aplica um favorito: o serviço fica pronto, restando emitir. */
   const aplicarFavorito = useCallback((fav: ServicoFavorito) => {
     setModelo((fav.modelo as "nfse" | "55" | "65") || "nfse");
@@ -457,6 +450,22 @@ function EmitirNotaConteudo() {
     setErro(null);
   }, []);
 
+  // Serviços favoritos da empresa. Quando a URL traz ?favorito=<id> — escolha
+  // feita no modal da listagem — ele ja entra aplicado.
+  const favoritoDaUrl = searchParams.get("favorito");
+
+  useEffect(() => {
+    fetch(`/api/notas-fiscais/${empresaId}/favoritos`)
+      .then(r => r.json())
+      .then(json => {
+        const lista: ServicoFavorito[] = json?.data?.favoritos ?? [];
+        setFavoritos(lista);
+        const escolhido = favoritoDaUrl ? lista.find(f => f.id === favoritoDaUrl) : null;
+        if (escolhido) aplicarFavorito(escolhido);
+      })
+      .catch(() => setFavoritos([]));
+  }, [empresaId, favoritoDaUrl, aplicarFavorito]);
+
   async function salvarFavorito() {
     const nome = nomeFavorito.trim();
     if (!nome) { setErroFavorito("Dê um nome ao serviço favorito."); return; }
@@ -469,6 +478,7 @@ function EmitirNotaConteudo() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nome,
+          modo: simplificada ? "simplificada" : "completa",
           modelo,
           natureza,
           observacoes,

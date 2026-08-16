@@ -145,6 +145,22 @@ function LoadingSkeleton() {
   );
 }
 
+/* ─── Servicos favoritos ──────────────────────────────────────── */
+
+type ItemFavorito = { descricao: string; quantidade: number; valor_unitario: number };
+
+type ServicoFavorito = {
+  id: string;
+  nome: string;
+  modo?: "simplificada" | "completa";
+  modelo: string;
+  itens: ItemFavorito[];
+};
+
+function totalFavorito(f: ServicoFavorito) {
+  return (f.itens ?? []).reduce((s, i) => s + (Number(i.quantidade) || 0) * (Number(i.valor_unitario) || 0), 0);
+}
+
 /* ─── Acoes do documento (XML / DANFSe / espelho) ─────────────── */
 
 function acaoDocStyle(cor: string): React.CSSProperties {
@@ -205,6 +221,8 @@ export default function NotasFiscaisPage() {
   const [detalhes, setDetalhes] = useState<NotaFiscal | null>(null);
   const [erroCarregar, setErroCarregar] = useState<string | null>(null);
   const [showEmitir, setShowEmitir] = useState(false);
+  const [verFavoritos, setVerFavoritos] = useState(false);
+  const [favoritos, setFavoritos] = useState<ServicoFavorito[]>([]);
   const [showSync, setShowSync] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<{ inseridas: number; duplicadas: number; ignoradas: number; total: number; avisos: string[] } | null>(null);
@@ -216,6 +234,13 @@ export default function NotasFiscaisPage() {
     return d.toISOString().split("T")[0];
   });
   const [syncDataFim, setSyncDataFim] = useState(() => new Date().toISOString().split("T")[0]);
+
+  useEffect(() => {
+    fetch(`/api/notas-fiscais/${empresaId}/favoritos`)
+      .then((r) => r.json())
+      .then((json) => setFavoritos(json?.data?.favoritos ?? []))
+      .catch(() => setFavoritos([]));
+  }, [empresaId]);
 
   const docUrl = (notaId: string, formato: "xml" | "danfse", imprimir = false) =>
     `/api/notas-fiscais/${empresaId}/${notaId}/documento?formato=${formato}${imprimir ? "&imprimir=1" : ""}`;
@@ -372,7 +397,7 @@ export default function NotasFiscaisPage() {
             {/* ── Botões de ação ── */}
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginBottom: "1rem" }}>
               <button
-                onClick={() => setShowEmitir(true)}
+                onClick={() => { setVerFavoritos(false); setShowEmitir(true); }}
                 style={{ display: "flex", alignItems: "center", gap: 6, padding: "0.5rem 1rem", background: "linear-gradient(135deg, #065f46, #10b981)", color: "#fff", border: "none", borderRadius: 8, fontSize: "0.82rem", fontWeight: 700, cursor: "pointer" }}
                 type="button"
               >
@@ -611,7 +636,7 @@ export default function NotasFiscaisPage() {
       {/* ── Modal: tipo de emissao ── */}
       {showEmitir && (
         <div
-          onClick={() => setShowEmitir(false)}
+          onClick={() => { setShowEmitir(false); setVerFavoritos(false); }}
           style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, padding: "1rem" }}
         >
           <div
@@ -619,12 +644,63 @@ export default function NotasFiscaisPage() {
             style={{ background: "#fff", borderRadius: 14, width: "100%", maxWidth: 560, padding: "2rem", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
-              <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#07170d" }}>Como deseja emitir a nota?</h3>
-              <button onClick={() => setShowEmitir(false)} style={{ background: "none", border: "none", fontSize: "1.5rem", color: "#9ca3af", cursor: "pointer", lineHeight: 1 }} type="button">x</button>
+              <h3 style={{ margin: 0, fontSize: "1.1rem", color: "#07170d" }}>
+                {verFavoritos ? "Escolha um servico favorito" : "Como deseja emitir a nota?"}
+              </h3>
+              <button onClick={() => { setShowEmitir(false); setVerFavoritos(false); }} style={{ background: "none", border: "none", fontSize: "1.5rem", color: "#9ca3af", cursor: "pointer", lineHeight: 1 }} type="button">x</button>
             </div>
             <p style={{ margin: "0 0 1.5rem", fontSize: "0.82rem", color: "#6f8f7c" }}>
-              Escolha o formato do formulario de emissao da NFS-e.
+              {verFavoritos
+                ? "O formulario abre preenchido com o servico, no formato em que o favorito foi salvo."
+                : "Escolha o formato do formulario de emissao da NFS-e."}
             </p>
+
+            {/* ── Lista de favoritos ── */}
+            {verFavoritos ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                {favoritos.length === 0 ? (
+                  <div style={{ padding: "1.5rem", textAlign: "center", color: "#9ca3af", fontSize: "0.82rem", background: "#f9fafb", borderRadius: 10 }}>
+                    Nenhum servico favoritado ainda. Ao terminar uma emissao, use <strong>Favoritar servico</strong> para salvar.
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", maxHeight: "45vh", overflowY: "auto" }}>
+                    {favoritos.map((f) => {
+                      const simples = f.modo === "simplificada";
+                      const cor = simples ? "#065f46" : "#37418c";
+                      return (
+                        <button
+                          key={f.id}
+                          onClick={() => router.push(`/empresas/${empresaId}/notas-fiscais/emitir?modo=${simples ? "simplificada" : "completa"}&favorito=${f.id}`)}
+                          style={{ display: "flex", alignItems: "center", gap: 12, textAlign: "left", padding: "0.85rem 1rem", background: "#fff", border: "1.5px solid #e5e7eb", borderRadius: 10, cursor: "pointer", width: "100%" }}
+                          type="button"
+                        >
+                          <span style={{ color: "#b7891f", flexShrink: 0 }}>
+                            <svg fill="currentColor" height={18} viewBox="0 0 24 24" width={18}><path d="M12 3.5l2.6 5.3 5.9.85-4.25 4.15 1 5.85L12 16.9l-5.25 2.75 1-5.85L3.5 9.65l5.9-.85L12 3.5z"/></svg>
+                          </span>
+                          <span style={{ flex: 1, minWidth: 0 }}>
+                            <span style={{ display: "block", fontSize: "0.88rem", fontWeight: 700, color: "#07170d" }}>{f.nome}</span>
+                            <span style={{ display: "block", fontSize: "0.76rem", color: "#6b7280", marginTop: 2 }}>
+                              {(f.itens ?? []).map((i) => i.descricao).filter(Boolean).join(" · ") || "Sem descricao"} — {fmt(totalFavorito(f))}
+                            </span>
+                          </span>
+                          <span style={{ flexShrink: 0, fontSize: "0.68rem", fontWeight: 700, padding: "3px 8px", borderRadius: 999, color: cor, background: simples ? "#f0fdf4" : "#eef2ff", border: `1px solid ${simples ? "#86efac" : "#c7d2fe"}` }}>
+                            {simples ? "Simplificada" : "Completa"}
+                          </span>
+                          <svg fill="none" height={16} style={{ color: "#9ca3af", flexShrink: 0 }} viewBox="0 0 24 24" width={16}><path d="M9 5l7 7-7 7" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2}/></svg>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                <button
+                  onClick={() => setVerFavoritos(false)}
+                  style={{ alignSelf: "flex-start", background: "none", border: "none", color: "#6f8f7c", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer", padding: 0, marginTop: "0.25rem" }}
+                  type="button"
+                >
+                  &lt; Voltar
+                </button>
+              </div>
+            ) : (
 
             <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
               {[
@@ -650,10 +726,29 @@ export default function NotasFiscaisPage() {
                     <svg fill="none" height={22} viewBox="0 0 24 24" width={22}><path d="M7 3h7l4 4v14H7V3z" stroke="currentColor" strokeLinejoin="round" strokeWidth={1.8}/><path d="M9.5 12h5M9.5 15h5M9.5 9h2.5" stroke="currentColor" strokeLinecap="round" strokeWidth={1.6}/></svg>
                   ),
                 },
+                {
+                  modo: "favorito",
+                  titulo: "Servico favorito",
+                  desc: favoritos.length > 0
+                    ? `${favoritos.length} servico(s) salvo(s). Abre a nota ja preenchida, restando emitir.`
+                    : "Nenhum servico salvo ainda. Favorite um servico ao terminar uma emissao.",
+                  cor: "#b7891f",
+                  bg: "#fffbeb",
+                  borda: "#fcd34d",
+                  icone: (
+                    <svg fill="currentColor" height={22} viewBox="0 0 24 24" width={22}><path d="M12 3.5l2.6 5.3 5.9.85-4.25 4.15 1 5.85L12 16.9l-5.25 2.75 1-5.85L3.5 9.65l5.9-.85L12 3.5z"/></svg>
+                  ),
+                },
               ].map((op) => (
                 <button
                   key={op.modo}
-                  onClick={() => router.push(`/empresas/${empresaId}/notas-fiscais/emitir?modo=${op.modo}`)}
+                  onClick={() => {
+                    if (op.modo === "favorito") {
+                      setVerFavoritos(true);
+                      return;
+                    }
+                    router.push(`/empresas/${empresaId}/notas-fiscais/emitir?modo=${op.modo}`);
+                  }}
                   style={{ display: "flex", alignItems: "flex-start", gap: 14, textAlign: "left", padding: "1rem 1.1rem", background: op.bg, border: `1.5px solid ${op.borda}`, borderRadius: 12, cursor: "pointer", width: "100%" }}
                   type="button"
                 >
@@ -666,6 +761,7 @@ export default function NotasFiscaisPage() {
                 </button>
               ))}
             </div>
+            )}
           </div>
         </div>
       )}
