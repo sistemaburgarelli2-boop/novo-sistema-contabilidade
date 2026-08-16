@@ -39,6 +39,21 @@ const emptyItem: ItemServico = {
 
 type SimNao = "" | "sim" | "nao";
 
+/** Servico salvo pela empresa para reemitir sem redigitar nada. */
+type ServicoFavorito = {
+  id: string;
+  nome: string;
+  modelo: string;
+  natureza: string;
+  observacoes: string;
+  itens: ItemServico[];
+  aliquota_pis: number;
+  aliquota_cofins: number;
+  aliquota_icms: number;
+  codigo_municipio: string;
+  criado_em: string;
+};
+
 /* Cliente cadastrado (empresa do tenant) usado como tomador */
 type ClienteTomador = {
   id: string;
@@ -120,6 +135,17 @@ function Ajuda({ titulo }: { titulo: string }) {
       color: P.inativo, fontSize: 10, fontWeight: 700, marginLeft: 6, cursor: "help",
       verticalAlign: "middle",
     }}>?</span>
+  );
+}
+
+function IconeEstrela({ preenchida }: { preenchida?: boolean }) {
+  return (
+    <svg width={16} height={16} viewBox="0 0 24 24" fill={preenchida ? "currentColor" : "none"}>
+      <path
+        d="M12 3.5l2.6 5.3 5.9.85-4.25 4.15 1 5.85L12 16.9l-5.25 2.75 1-5.85L3.5 9.65l5.9-.85L12 3.5z"
+        stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 
@@ -322,6 +348,15 @@ function EmitirNotaConteudo() {
   const [ambiente, setAmbiente] = useState<"homologacao" | "producao">("homologacao");
   const [inscricaoMunicipal, setInscricaoMunicipal] = useState("");
 
+  /* ── Serviços favoritos ── */
+  const [favoritos, setFavoritos] = useState<ServicoFavorito[]>([]);
+  const [favoritoId, setFavoritoId] = useState("");
+  const [modalFavoritar, setModalFavoritar] = useState(false);
+  const [nomeFavorito, setNomeFavorito] = useState("");
+  const [salvandoFavorito, setSalvandoFavorito] = useState(false);
+  const [erroFavorito, setErroFavorito] = useState<string | null>(null);
+  const [favoritoSalvo, setFavoritoSalvo] = useState<string | null>(null);
+
   useEffect(() => {
     buscarEmpresaTenant(empresaId)
       .then(emp => {
@@ -399,6 +434,219 @@ function EmitirNotaConteudo() {
   const sugestoes = destCnpj.trim().length >= 2 && !clienteVinculado
     ? clientesFiltrados(destCnpj).slice(0, 6)
     : [];
+
+  // Serviços favoritos da empresa
+  useEffect(() => {
+    fetch(`/api/notas-fiscais/${empresaId}/favoritos`)
+      .then(r => r.json())
+      .then(json => setFavoritos(json?.data?.favoritos ?? []))
+      .catch(() => setFavoritos([]));
+  }, [empresaId]);
+
+  /** Aplica um favorito: o serviço fica pronto, restando emitir. */
+  const aplicarFavorito = useCallback((fav: ServicoFavorito) => {
+    setModelo((fav.modelo as "nfse" | "55" | "65") || "nfse");
+    if (fav.natureza) setNatureza(fav.natureza);
+    setItens(fav.itens.length ? fav.itens.map(i => ({ ...i })) : [{ ...emptyItem }]);
+    setObservacoes(fav.observacoes || "");
+    if (fav.aliquota_pis) setAliquotaPis(fav.aliquota_pis);
+    if (fav.aliquota_cofins) setAliquotaCofins(fav.aliquota_cofins);
+    if (fav.aliquota_icms) setAliquotaIcms(fav.aliquota_icms);
+    if (fav.codigo_municipio) setCodigoMunicipio(fav.codigo_municipio);
+    setFavoritoId(fav.id);
+    setErro(null);
+  }, []);
+
+  async function salvarFavorito() {
+    const nome = nomeFavorito.trim();
+    if (!nome) { setErroFavorito("Dê um nome ao serviço favorito."); return; }
+
+    setSalvandoFavorito(true);
+    setErroFavorito(null);
+    try {
+      const res = await fetch(`/api/notas-fiscais/${empresaId}/favoritos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome,
+          modelo,
+          natureza,
+          observacoes,
+          itens,
+          aliquota_pis: aliquotaPis,
+          aliquota_cofins: aliquotaCofins,
+          aliquota_icms: aliquotaIcms,
+          codigo_municipio: codigoMunicipio,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) { setErroFavorito(json.error || "Erro ao salvar favorito."); return; }
+      setFavoritos(json.data.favoritos ?? []);
+      setFavoritoSalvo(nome);
+      setModalFavoritar(false);
+      setNomeFavorito("");
+    } catch {
+      setErroFavorito("Erro de conexão.");
+    } finally {
+      setSalvandoFavorito(false);
+    }
+  }
+
+  async function removerFavorito(id: string) {
+    const res = await fetch(`/api/notas-fiscais/${empresaId}/favoritos?id=${id}`, { method: "DELETE" });
+    const json = await res.json();
+    if (res.ok) {
+      setFavoritos(json.data.favoritos ?? []);
+      if (favoritoId === id) setFavoritoId("");
+    }
+  }
+
+  /** Seletor de serviço favorito, mostrado no topo dos dois formulários. */
+  const blocoFavoritos = () => (
+    <Secao titulo="Serviço favorito">
+      {favoritos.length === 0 ? (
+        <p style={{ margin: 0, fontSize: 13, color: P.inativo }}>
+          Nenhum serviço favorito ainda. Ao terminar uma emissão, use <strong>Favoritar serviço</strong> para
+          salvar os dados e reaproveitá-los aqui — bastando emitir na próxima vez.
+        </p>
+      ) : (
+        <>
+          <div style={{ display: "flex", gap: 10, alignItems: "flex-end", flexWrap: "wrap" }}>
+            <div style={{ flex: 1, minWidth: 260, marginBottom: 14 }}>
+              <label style={labelStyle}>
+                Preencher com um serviço salvo
+                <Ajuda titulo="Preenche serviço, valores e observações do favorito escolhido." />
+              </label>
+              <select
+                style={inputStyle}
+                value={favoritoId}
+                onChange={e => {
+                  const fav = favoritos.find(f => f.id === e.target.value);
+                  if (fav) aplicarFavorito(fav);
+                  else setFavoritoId("");
+                }}
+              >
+                <option value="">Selecione...</option>
+                {favoritos.map(f => (
+                  <option key={f.id} value={f.id}>
+                    {f.nome} — {formatBRL(f.itens.reduce((s, i) => s + i.quantidade * i.valor_unitario, 0))}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {favoritoId && (
+              <button
+                type="button"
+                onClick={() => removerFavorito(favoritoId)}
+                style={{
+                  marginBottom: 14, padding: "8px 14px", background: "#fff", color: P.danger,
+                  border: `1px solid ${P.borda}`, borderRadius: 3, fontSize: 13.5, cursor: "pointer",
+                }}
+              >
+                Remover favorito
+              </button>
+            )}
+          </div>
+          {favoritoId && (
+            <div style={{ fontSize: 12.5, color: "#1b7a4b", display: "flex", alignItems: "center", gap: 8 }}>
+              <svg width={13} height={13} viewBox="0 0 24 24" fill="none">
+                <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Serviço preenchido pelo favorito. Informe o tomador (se ainda não informou) e emita.
+            </div>
+          )}
+        </>
+      )}
+    </Secao>
+  );
+
+  /** Modal que nomeia o favorito — aparece na tela de sucesso. */
+  const modalFavorito = () => {
+    if (!modalFavoritar) return null;
+    return (
+      <div
+        onClick={() => setModalFavoritar(false)}
+        style={{
+          position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", zIndex: 999,
+          display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
+        }}
+      >
+        <div
+          onClick={e => e.stopPropagation()}
+          style={{ background: "#fff", borderRadius: 8, width: "100%", maxWidth: 460, padding: 24, textAlign: "left" }}
+        >
+          <h3 style={{ margin: "0 0 6px", fontSize: 17, fontWeight: 700, color: P.texto }}>
+            Favoritar serviço
+          </h3>
+          <p style={{ margin: "0 0 16px", fontSize: 13, color: P.inativo }}>
+            Serão salvos: descrição, quantidade, valor, código do serviço, alíquotas, natureza e observações.
+          </p>
+
+          <Field label="Nome do favorito" required>
+            <input
+              autoFocus
+              style={{ ...inputStyle, background: "#fff" }}
+              value={nomeFavorito}
+              onChange={e => setNomeFavorito(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") salvarFavorito(); }}
+              placeholder="Ex: Honorários contábeis mensais"
+              maxLength={80}
+            />
+          </Field>
+
+          <div style={{
+            background: P.cinzaSecao, border: `1px solid ${P.borda}`, borderRadius: 4,
+            padding: 12, fontSize: 12.5, color: P.labelCor, marginBottom: 16,
+          }}>
+            {itens.filter(i => i.descricao).map((i, idx) => (
+              <div key={idx} style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+                <span>{i.descricao}</span>
+                <span style={{ fontWeight: 600 }}>{formatBRL(i.quantidade * i.valor_unitario)}</span>
+              </div>
+            ))}
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, paddingTop: 6, borderTop: `1px solid ${P.borda}`, fontWeight: 700 }}>
+              <span>Total</span>
+              <span>{formatBRL(valorTotal)}</span>
+            </div>
+          </div>
+
+          {erroFavorito && (
+            <div style={{
+              background: "#fdecea", border: "1px solid #f5c6c3", borderRadius: 4,
+              padding: "8px 12px", color: "#b71c1c", fontSize: 13, marginBottom: 12,
+            }}>
+              {erroFavorito}
+            </div>
+          )}
+
+          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+            <button
+              type="button"
+              onClick={() => setModalFavoritar(false)}
+              style={{
+                padding: "9px 18px", background: "#fff", color: "#5a5a5a",
+                border: `1px solid ${P.borda}`, borderRadius: 4, fontSize: 14, cursor: "pointer",
+              }}
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={salvarFavorito}
+              disabled={salvandoFavorito}
+              style={{
+                padding: "9px 20px", background: "#b7891f", color: "#fff", border: "none",
+                borderRadius: 4, fontSize: 14, fontWeight: 600, cursor: "pointer",
+                opacity: salvandoFavorito ? 0.7 : 1,
+              }}
+            >
+              {salvandoFavorito ? "Salvando..." : "Salvar favorito"}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   /** Campo CPF/CNPJ do tomador com sugestões e busca nos clientes cadastrados. */
   const campoDocumentoTomador = () => (
@@ -689,6 +937,46 @@ function EmitirNotaConteudo() {
             {sucesso.protocolo && <><br />Protocolo: {sucesso.protocolo}</>}
           </div>
 
+          {/* ── Favoritar o serviço desta nota ── */}
+          {favoritoSalvo ? (
+            <div style={{
+              background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 10,
+              padding: "12px 16px", marginBottom: 20, fontSize: 14, fontWeight: 600, color: "#166534",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            }}>
+              <IconeEstrela preenchida />
+              Serviço salvo como favorito: {favoritoSalvo}
+            </div>
+          ) : (
+            <div style={{
+              background: "#fff", border: `1px solid ${P.borda}`, borderRadius: 10,
+              padding: 20, marginBottom: 20, textAlign: "left",
+            }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: P.texto, marginBottom: 6 }}>
+                Favoritar serviço
+              </div>
+              <div style={{ fontSize: 13, color: P.inativo, marginBottom: 12 }}>
+                Salve os dados deste serviço para as próximas emissões: basta escolher o favorito e emitir.
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setNomeFavorito(itens.find(i => i.descricao)?.descricao?.slice(0, 60) || "");
+                  setErroFavorito(null);
+                  setModalFavoritar(true);
+                }}
+                style={{
+                  padding: "10px 20px", background: "#b7891f", color: "#fff", border: "none",
+                  borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer",
+                  display: "flex", alignItems: "center", gap: 8,
+                }}
+              >
+                <IconeEstrela />
+                Favoritar serviço
+              </button>
+            </div>
+          )}
+
           {destEmail && !emailEnviado && (
             <div style={{
               background: "#fff", border: `1px solid ${P.borda}`, borderRadius: 10,
@@ -776,6 +1064,8 @@ function EmitirNotaConteudo() {
             </button>
           </div>
         </div>
+
+        {modalFavorito()}
       </AppShell>
     );
   }
@@ -813,6 +1103,8 @@ function EmitirNotaConteudo() {
         {/* ═══════════ EMISSÃO SIMPLIFICADA ═══════════ */}
         {simplificada && (
           <>
+            {blocoFavoritos()}
+
             <Secao titulo="Dados da nota">
               <div style={grid(3)}>
                 <Field label="Data de competência" required>
@@ -949,6 +1241,8 @@ function EmitirNotaConteudo() {
         {/* ═══════════ ETAPA 1 — PESSOAS ═══════════ */}
         {!simplificada && etapa === 1 && (
           <>
+            {blocoFavoritos()}
+
             <Secao titulo="Informações gerais">
               <div style={{ marginBottom: 18 }}>
                 <label style={labelStyle}>
