@@ -145,6 +145,49 @@ function LoadingSkeleton() {
   );
 }
 
+/* ─── Acoes do documento (XML / DANFSe / espelho) ─────────────── */
+
+function acaoDocStyle(cor: string): React.CSSProperties {
+  return {
+    display: "inline-flex", alignItems: "center", gap: 6, padding: "0.5rem 0.9rem",
+    background: cor, color: "#fff", border: "none", borderRadius: 6,
+    fontSize: "0.78rem", fontWeight: 600, textDecoration: "none", cursor: "pointer",
+  };
+}
+
+const acaoIconeStyle: React.CSSProperties = {
+  display: "inline-flex", alignItems: "center", justifyContent: "center",
+  width: 26, height: 26, borderRadius: 6, border: "1px solid #dfece5",
+  color: "#37418c", background: "#fff", textDecoration: "none",
+};
+
+function IconeDanfse() {
+  return (
+    <svg fill="none" height={15} viewBox="0 0 24 24" width={15}>
+      <path d="M7 3h7l4 4v14H7V3z" stroke="currentColor" strokeLinejoin="round" strokeWidth={1.8} />
+      <path d="M9.5 12h5M9.5 15h5" stroke="currentColor" strokeLinecap="round" strokeWidth={1.6} />
+    </svg>
+  );
+}
+
+function IconeDownload() {
+  return (
+    <svg fill="none" height={15} viewBox="0 0 24 24" width={15}>
+      <path d="M12 3v12m0 0l-4-4m4 4l4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+      <path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" strokeLinecap="round" strokeWidth={2} />
+    </svg>
+  );
+}
+
+function IconeOlho() {
+  return (
+    <svg fill="none" height={15} viewBox="0 0 24 24" width={15}>
+      <path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6z" stroke="currentColor" strokeLinejoin="round" strokeWidth={2} />
+      <circle cx="12" cy="12" r="2.6" stroke="currentColor" strokeWidth={2} />
+    </svg>
+  );
+}
+
 /* ─── Componente principal ────────────────────────────────────── */
 
 export default function NotasFiscaisPage() {
@@ -173,6 +216,9 @@ export default function NotasFiscaisPage() {
     return d.toISOString().split("T")[0];
   });
   const [syncDataFim, setSyncDataFim] = useState(() => new Date().toISOString().split("T")[0]);
+
+  const docUrl = (notaId: string, formato: "xml" | "danfse", imprimir = false) =>
+    `/api/notas-fiscais/${empresaId}/${notaId}/documento?formato=${formato}${imprimir ? "&imprimir=1" : ""}`;
 
   useEffect(() => {
     async function load() {
@@ -416,17 +462,47 @@ export default function NotasFiscaisPage() {
                           <TD><Badge cfg={STATUS_NF[n.status]} /></TD>
                           <TD><Badge cfg={SITUACAO_NF[n.situacao]} /></TD>
                           <TD>
-                            <select
-                              onClick={(e) => e.stopPropagation()}
-                              onChange={(e) => mudarSituacao(n.id, e.target.value as SituacaoNota)}
-                              value={n.situacao}
-                              style={{ padding: "4px 8px", border: "1px solid #dfece5", borderRadius: 6, fontSize: "0.75rem", background: "#fff", cursor: "pointer" }}
-                            >
-                              <option value="pendente">Pendente</option>
-                              <option value="escriturada">Escriturada</option>
-                              <option value="conciliada">Conciliada</option>
-                              <option value="ignorada">Ignorada</option>
-                            </select>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                              <select
+                                onClick={(e) => e.stopPropagation()}
+                                onChange={(e) => mudarSituacao(n.id, e.target.value as SituacaoNota)}
+                                value={n.situacao}
+                                style={{ padding: "4px 8px", border: "1px solid #dfece5", borderRadius: 6, fontSize: "0.75rem", background: "#fff", cursor: "pointer" }}
+                              >
+                                <option value="pendente">Pendente</option>
+                                <option value="escriturada">Escriturada</option>
+                                <option value="conciliada">Conciliada</option>
+                                <option value="ignorada">Ignorada</option>
+                              </select>
+                              <a
+                                href={docUrl(n.id, "xml")}
+                                onClick={(e) => e.stopPropagation()}
+                                style={acaoIconeStyle}
+                                title="Baixar XML"
+                              >
+                                <IconeDownload />
+                              </a>
+                              <a
+                                href={docUrl(n.id, "danfse", true)}
+                                onClick={(e) => e.stopPropagation()}
+                                rel="noreferrer"
+                                style={acaoIconeStyle}
+                                target="_blank"
+                                title="Baixar DANFSe"
+                              >
+                                <IconeDanfse />
+                              </a>
+                              <a
+                                href={docUrl(n.id, "danfse")}
+                                onClick={(e) => e.stopPropagation()}
+                                rel="noreferrer"
+                                style={acaoIconeStyle}
+                                target="_blank"
+                                title="Visualizar NFS-e"
+                              >
+                                <IconeOlho />
+                              </a>
+                            </div>
                           </TD>
                         </tr>
                       );
@@ -500,6 +576,35 @@ export default function NotasFiscaisPage() {
                 <strong>Chave de acesso:</strong> {detalhes.chave_acesso}
               </div>
             )}
+
+            {/* ── Acoes do documento ── */}
+            <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", marginTop: "1.25rem" }}>
+              <a
+                href={docUrl(detalhes.id, "xml")}
+                style={acaoDocStyle("#37418c")}
+              >
+                <IconeDownload />
+                Baixar XML
+              </a>
+              <a
+                href={docUrl(detalhes.id, "danfse", true)}
+                rel="noreferrer"
+                target="_blank"
+                style={acaoDocStyle("#37418c")}
+              >
+                <IconeDownload />
+                Baixar DANFSe
+              </a>
+              <a
+                href={docUrl(detalhes.id, "danfse")}
+                rel="noreferrer"
+                target="_blank"
+                style={acaoDocStyle("#6b7280")}
+              >
+                <IconeOlho />
+                Visualizar NFS-e
+              </a>
+            </div>
           </div>
         </div>
       )}
