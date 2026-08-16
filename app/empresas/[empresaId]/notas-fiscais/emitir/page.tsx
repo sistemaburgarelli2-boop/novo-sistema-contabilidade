@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
-import { buscarEmpresaTenant } from "@/services/empresaClientService";
+import { buscarEmpresaTenant, listarEmpresasTenant } from "@/services/empresaClientService";
 import type { Empresa } from "@/modules/empresas/empresas.types";
 
 /* ─────────────────────────── Paleta do portal NFS-e ─────────────────────────── */
@@ -38,6 +38,51 @@ const emptyItem: ItemServico = {
 };
 
 type SimNao = "" | "sim" | "nao";
+
+/* Cliente cadastrado (empresa do tenant) usado como tomador */
+type ClienteTomador = {
+  id: string;
+  nome: string;
+  nomeFantasia: string;
+  documento: string;
+  email: string;
+  telefone: string;
+  inscricaoMunicipal: string;
+  cep: string;
+  logradouro: string;
+  numero: string;
+  bairro: string;
+  cidade: string;
+  uf: string;
+};
+
+const soDigitos = (v: string) => v.replace(/\D/g, "");
+
+function mapEmpresaParaCliente(e: Empresa): ClienteTomador {
+  const m = (e.metadata || {}) as Record<string, unknown>;
+  const s = (...chaves: string[]) => {
+    for (const c of chaves) {
+      const v = m[c];
+      if (typeof v === "string" && v.trim()) return v.trim();
+    }
+    return "";
+  };
+  return {
+    id: e.id,
+    nome: e.nome_legal || s("razao_social", "nome_completo"),
+    nomeFantasia: e.nome_fantasia || s("nome_fantasia"),
+    documento: e.cnpj?.trim() || s("cnpj", "cpf"),
+    email: s("email_empresa", "email_principal", "email_fiscal", "email_financeiro", "email_portal"),
+    telefone: s("telefone_empresa", "telefone", "whatsapp", "telefone_portal"),
+    inscricaoMunicipal: s("inscricao_municipal"),
+    cep: s("cep_empresa", "cep"),
+    logradouro: s("logradouro_empresa", "logradouro"),
+    numero: s("numero_empresa", "numero"),
+    bairro: s("bairro_empresa", "bairro"),
+    cidade: s("cidade_empresa") || e.cidade || s("cidade"),
+    uf: s("uf_empresa") || e.estado || s("uf"),
+  };
+}
 type Localizacao = "brasil" | "exterior" | "nao_informado";
 type Municipio = { id: number; nome: string };
 
@@ -241,6 +286,14 @@ export default function EmitirNotaPage() {
   const [destCidade, setDestCidade] = useState("");
   const [destUf, setDestUf] = useState("");
 
+  /* ── Clientes cadastrados (para preencher o tomador) ── */
+  const [clientes, setClientes] = useState<ClienteTomador[]>([]);
+  const [carregandoClientes, setCarregandoClientes] = useState(true);
+  const [modalClientes, setModalClientes] = useState(false);
+  const [buscaCliente, setBuscaCliente] = useState("");
+  const [sugestoesAbertas, setSugestoesAbertas] = useState(false);
+  const [clienteVinculado, setClienteVinculado] = useState<ClienteTomador | null>(null);
+
   /* ── Etapa 1: Destinatário / Intermediário ── */
   const [destProprioAdquirente, setDestProprioAdquirente] = useState<SimNao>("");
   const [intermediarioLocal, setIntermediarioLocal] = useState<Localizacao>("nao_informado");
@@ -279,6 +332,63 @@ export default function EmitirNotaPage() {
       .then((lista: Municipio[]) => setMunicipios(lista.map(m => ({ id: m.id, nome: m.nome }))))
       .catch(() => setErroMunicipios(true));
   }, [empresa?.estado]);
+
+  // Clientes cadastrados no sistema (exceto a própria empresa emitente)
+  useEffect(() => {
+    listarEmpresasTenant()
+      .then(lista => setClientes(
+        lista.filter(e => e.id !== empresaId).map(mapEmpresaParaCliente)
+      ))
+      .catch(() => setClientes([]))
+      .finally(() => setCarregandoClientes(false));
+  }, [empresaId]);
+
+  /** Preenche o bloco Tomador/Adquirente com os dados do cadastro do cliente. */
+  const aplicarCliente = useCallback((c: ClienteTomador) => {
+    setDestCnpj(c.documento);
+    setDestNome(c.nome);
+    setDestEmail(c.email);
+    setDestTelefone(c.telefone);
+    if (c.inscricaoMunicipal) setIndicadorMunicipalTom("1");
+    const temEndereco = !!(c.cep || c.logradouro || c.cidade || c.uf);
+    if (temEndereco) {
+      setInformarEndereco(true);
+      setDestCep(c.cep);
+      setDestEndereco(c.logradouro);
+      setDestNumero(c.numero);
+      setDestBairro(c.bairro);
+      setDestCidade(c.cidade);
+      setDestUf(c.uf.toUpperCase());
+    }
+    setClienteVinculado(c);
+    setModalClientes(false);
+    setSugestoesAbertas(false);
+    setBuscaCliente("");
+    setErro(null);
+  }, []);
+
+  const limparCliente = () => {
+    setClienteVinculado(null);
+    setDestCnpj(""); setDestNome(""); setDestEmail(""); setDestTelefone("");
+    setIndicadorMunicipalTom("");
+    setDestCep(""); setDestEndereco(""); setDestNumero("");
+    setDestBairro(""); setDestCidade(""); setDestUf("");
+  };
+
+  const clientesFiltrados = (termo: string) => {
+    const t = termo.trim().toLowerCase();
+    if (!t) return clientes;
+    const digitos = soDigitos(termo);
+    return clientes.filter(c =>
+      c.nome.toLowerCase().includes(t) ||
+      c.nomeFantasia.toLowerCase().includes(t) ||
+      (!!digitos && soDigitos(c.documento).includes(digitos))
+    );
+  };
+
+  const sugestoes = destCnpj.trim().length >= 2 && !clienteVinculado
+    ? clientesFiltrados(destCnpj).slice(0, 6)
+    : [];
 
   const addItem = () => setItens(prev => [...prev, { ...emptyItem }]);
   const removeItem = (idx: number) => {
@@ -721,22 +831,71 @@ export default function EmitirNotaPage() {
                       <div style={{ display: "flex", gap: 6 }}>
                         <div style={{ position: "relative", flex: 1 }}>
                           <input style={{ ...inputStyle, paddingRight: 34 }} value={destCnpj}
-                            onChange={e => setDestCnpj(e.target.value)}
+                            onChange={e => {
+                              setDestCnpj(e.target.value);
+                              setClienteVinculado(null);
+                              setSugestoesAbertas(true);
+                            }}
+                            onFocus={() => setSugestoesAbertas(true)}
+                            onBlur={() => setTimeout(() => setSugestoesAbertas(false), 150)}
+                            autoComplete="off"
                             placeholder={tomadorLocal === "brasil" ? "00.000.000/0000-00" : "Número de identificação"} />
                           <svg width={15} height={15} viewBox="0 0 24 24" fill="none" style={{ position: "absolute", right: 10, top: 10, pointerEvents: "none" }}>
                             <circle cx="11" cy="11" r="7" stroke={P.inativo} strokeWidth="2" />
                             <path d="M20 20l-3.5-3.5" stroke={P.inativo} strokeWidth="2" strokeLinecap="round" />
                           </svg>
+
+                          {/* Sugestões dos clientes cadastrados */}
+                          {sugestoesAbertas && sugestoes.length > 0 && (
+                            <div style={{
+                              position: "absolute", top: 38, left: 0, right: 0, zIndex: 30,
+                              background: "#fff", border: `1px solid ${P.borda}`, borderRadius: 3,
+                              boxShadow: "0 6px 18px rgba(0,0,0,.12)", maxHeight: 240, overflowY: "auto",
+                            }}>
+                              {sugestoes.map(c => (
+                                <div key={c.id}
+                                  onMouseDown={() => aplicarCliente(c)}
+                                  style={{ padding: "8px 12px", cursor: "pointer", borderBottom: `1px solid ${P.borda}` }}
+                                  onMouseEnter={e => (e.currentTarget.style.background = "#f0f3fb")}
+                                  onMouseLeave={e => (e.currentTarget.style.background = "#fff")}
+                                >
+                                  <div style={{ fontSize: 13.5, color: P.texto, fontWeight: 600 }}>{c.nome}</div>
+                                  <div style={{ fontSize: 12, color: P.inativo }}>
+                                    {c.documento || "sem documento"}{c.cidade ? ` · ${c.cidade}/${c.uf}` : ""}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                        <button title="Buscar em clientes cadastrados" style={{
-                          width: 38, height: 36, background: "#dcdcdc", border: `1px solid ${P.inputBorda}`,
-                          borderRadius: 2, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                        }}>
+                        <button
+                          type="button"
+                          onClick={() => { setBuscaCliente(""); setModalClientes(true); }}
+                          title="Buscar em clientes cadastrados"
+                          style={{
+                            width: 38, height: 36, background: "#dcdcdc", border: `1px solid ${P.inputBorda}`,
+                            borderRadius: 2, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                          }}>
                           <svg width={16} height={16} viewBox="0 0 24 24" fill="none">
                             <path d="M17 20v-2a4 4 0 00-3-3.87M9 20v-2a4 4 0 013-3.87m0 0a3 3 0 100-6 3 3 0 000 6zM6.5 11a2.5 2.5 0 100-5 2.5 2.5 0 000 5zm11 0a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke="#6f6f6f" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
                         </button>
                       </div>
+                      {clienteVinculado && (
+                        <div style={{
+                          display: "flex", alignItems: "center", gap: 8, marginTop: 6,
+                          fontSize: 12.5, color: "#1b7a4b",
+                        }}>
+                          <svg width={13} height={13} viewBox="0 0 24 24" fill="none">
+                            <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                          Dados carregados do cadastro de <strong>{clienteVinculado.nome}</strong>
+                          <button type="button" onClick={limparCliente} style={{
+                            background: "none", border: "none", color: P.danger, fontSize: 12.5,
+                            cursor: "pointer", textDecoration: "underline", padding: 0,
+                          }}>limpar</button>
+                        </div>
+                      )}
                     </Field>
                     <Field label="Indicador Municipal">
                       <select style={inputStyle} value={indicadorMunicipalTom} onChange={e => setIndicadorMunicipalTom(e.target.value)}>
@@ -1107,6 +1266,87 @@ export default function EmitirNotaPage() {
           )}
         </div>
       </div>
+
+      {/* ── Modal: clientes cadastrados ── */}
+      {modalClientes && (
+        <div
+          onClick={() => setModalClientes(false)}
+          style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", zIndex: 999,
+            display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: "#fff", borderRadius: 4, width: "100%", maxWidth: 640,
+              maxHeight: "80vh", display: "flex", flexDirection: "column", overflow: "hidden",
+            }}
+          >
+            <div style={{
+              padding: "16px 20px", borderBottom: `1px solid ${P.borda}`,
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+            }}>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: P.texto }}>
+                Selecionar cliente cadastrado
+              </h3>
+              <button type="button" onClick={() => setModalClientes(false)} style={{
+                background: "none", border: "none", fontSize: 22, lineHeight: 1,
+                color: P.inativo, cursor: "pointer",
+              }}>×</button>
+            </div>
+
+            <div style={{ padding: "14px 20px", borderBottom: `1px solid ${P.borda}` }}>
+              <input
+                autoFocus
+                style={{ ...inputStyle, background: "#fff" }}
+                value={buscaCliente}
+                onChange={e => setBuscaCliente(e.target.value)}
+                placeholder="Buscar por nome, razão social ou CPF/CNPJ..."
+              />
+            </div>
+
+            <div style={{ overflowY: "auto", flex: 1 }}>
+              {carregandoClientes ? (
+                <div style={{ padding: 30, textAlign: "center", color: P.inativo, fontSize: 13.5 }}>
+                  Carregando clientes...
+                </div>
+              ) : clientesFiltrados(buscaCliente).length === 0 ? (
+                <div style={{ padding: 30, textAlign: "center", color: P.inativo, fontSize: 13.5 }}>
+                  {clientes.length === 0
+                    ? "Nenhum cliente cadastrado ainda. Cadastre em Empresas → Novo cliente."
+                    : "Nenhum cliente encontrado para essa busca."}
+                </div>
+              ) : (
+                clientesFiltrados(buscaCliente).map(c => (
+                  <div
+                    key={c.id}
+                    onClick={() => aplicarCliente(c)}
+                    style={{
+                      padding: "12px 20px", borderBottom: `1px solid ${P.borda}`, cursor: "pointer",
+                      display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12,
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = "#f0f3fb")}
+                    onMouseLeave={e => (e.currentTarget.style.background = "#fff")}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: P.texto }}>{c.nome}</div>
+                      <div style={{ fontSize: 12.5, color: P.inativo, marginTop: 2 }}>
+                        {c.documento || "sem documento"}
+                        {c.cidade ? ` · ${c.cidade}${c.uf ? "/" + c.uf : ""}` : ""}
+                        {c.email ? ` · ${c.email}` : ""}
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 12.5, color: P.azul, fontWeight: 600, whiteSpace: "nowrap" }}>
+                      Selecionar
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }
