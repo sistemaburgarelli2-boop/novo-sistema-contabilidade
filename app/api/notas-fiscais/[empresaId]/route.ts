@@ -1,20 +1,20 @@
 import { fail, ok } from "@/lib/apiResponse";
 import { exigirAcessoEmpresa, statusDoErroAcesso, traduzirErroBanco } from "@/lib/empresaAcesso";
-import { createSupabaseServerClient } from "@/lib/supabaseServer";
 
 export async function GET(request: Request, { params }: { params: Promise<{ empresaId: string }> }) {
   try {
     const { empresaId } = await params;
-    const supabase = await createSupabaseServerClient();
-    const { data: { user }, error: authErr } = await supabase.auth.getUser();
-    if (authErr || !user) return fail("Nao autenticado.", 401);
+    // Le com o mesmo client usado na gravacao: as policies de SELECT da tabela
+    // pedem vinculo em company_members, e RLS em leitura nao da erro — devolve
+    // zero linhas. A nota ficava gravada e invisivel na listagem.
+    const { admin } = await exigirAcessoEmpresa(empresaId);
 
     const url = new URL(request.url);
     const tipo = url.searchParams.get("tipo");
     const situacao = url.searchParams.get("situacao");
     const mes = url.searchParams.get("mes");
 
-    let query = supabase
+    let query = admin
       .from("notas_fiscais")
       .select("*")
       .eq("empresa_id", empresaId)
@@ -30,7 +30,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ empr
     }
 
     const { data, error } = await query;
-    if (error) return fail(error.message, 500);
+    if (error) return fail(traduzirErroBanco(error.message), 500);
 
     const emitidas = (data ?? []).filter((n) => n.tipo === "emitida");
     const recebidas = (data ?? []).filter((n) => n.tipo === "recebida");
@@ -48,7 +48,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ empr
       },
     });
   } catch (e) {
-    return fail(e instanceof Error ? e.message : "Erro", 500);
+    const msg = e instanceof Error ? e.message : "Erro";
+    return fail(msg, statusDoErroAcesso(msg));
   }
 }
 

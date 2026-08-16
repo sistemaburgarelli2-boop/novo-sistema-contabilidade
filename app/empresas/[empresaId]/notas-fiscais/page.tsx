@@ -160,6 +160,7 @@ export default function NotasFiscaisPage() {
   const [filtroModelo, setFiltroModelo] = useState("");
   const [busca, setBusca] = useState("");
   const [detalhes, setDetalhes] = useState<NotaFiscal | null>(null);
+  const [erroCarregar, setErroCarregar] = useState<string | null>(null);
   const [showEmitir, setShowEmitir] = useState(false);
   const [showSync, setShowSync] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -178,12 +179,15 @@ export default function NotasFiscaisPage() {
       setLoading(true);
       try {
         const res = await fetch(`/api/notas-fiscais/${empresaId}`);
-        if (!res.ok) throw new Error("Falha ao carregar notas");
         const json = await res.json();
+        // Uma lista vazia por falha de carregamento e indistinguivel de "nenhuma
+        // nota emitida" — por isso o erro precisa aparecer na tela.
+        if (!res.ok) throw new Error(json.error || `Falha ao carregar notas (HTTP ${res.status}).`);
         setNotas(json.data.notas ?? []);
         setResumo(json.data.resumo);
-      } catch {
-        // keep empty
+        setErroCarregar(null);
+      } catch (e) {
+        setErroCarregar(e instanceof Error ? e.message : "Falha ao carregar notas.");
       } finally {
         setLoading(false);
       }
@@ -310,6 +314,12 @@ export default function NotasFiscaisPage() {
       <div style={{ background: "#fff", border: "1px solid var(--border)", borderTop: "none", borderRadius: "0 0 12px 12px", padding: "1.5rem" }}>
 
         {loading && <LoadingSkeleton />}
+
+        {!loading && erroCarregar && (
+          <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: "0.75rem 1rem", marginBottom: "1rem", color: "#b91c1c", fontSize: "0.82rem", fontWeight: 600 }}>
+            {erroCarregar}
+          </div>
+        )}
 
         {!loading && (
           <>
