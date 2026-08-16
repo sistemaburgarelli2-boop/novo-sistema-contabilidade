@@ -1,5 +1,5 @@
 import { fail, ok } from "@/lib/apiResponse";
-import { exigirAcessoEmpresa, statusDoErroAcesso } from "@/lib/empresaAcesso";
+import { exigirAcessoEmpresa, statusDoErroAcesso, traduzirErroBanco } from "@/lib/empresaAcesso";
 import { emitirNFSe } from "@/modules/notas-fiscais/nfse-nacional.service";
 import type { EmissaoNFSePayload } from "@/modules/notas-fiscais/nfse-nacional.types";
 
@@ -92,7 +92,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ emp
       situacao: "pendente",
     }).select("*").single();
 
-    if (error) return fail(error.message, 500);
+    if (error) return fail(traduzirErroBanco(error.message), 500);
 
     return ok({
       nota: data,

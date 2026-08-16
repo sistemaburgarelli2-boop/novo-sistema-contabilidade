@@ -1,5 +1,5 @@
 import { fail, ok } from "@/lib/apiResponse";
-import { exigirAcessoEmpresa, statusDoErroAcesso } from "@/lib/empresaAcesso";
+import { exigirAcessoEmpresa, statusDoErroAcesso, traduzirErroBanco } from "@/lib/empresaAcesso";
 import { consultarNFSeEmitidas, consultarNFSeRecebidas, nfseToInsert } from "@/modules/notas-fiscais/nfse-nacional.service";
 import type { AmbienteNFSe } from "@/modules/notas-fiscais/nfse-nacional.types";
 
@@ -23,15 +23,27 @@ export async function POST(request: Request, { params }: { params: Promise<{ emp
     if (!token) return fail("Token de autenticacao e obrigatorio.");
     if (!dataInicio || !dataFim) return fail("dataInicio e dataFim sao obrigatorios.");
 
-    const { data: empresa, error: empErr } = await supabase
-      .from("companies")
+    // As empresas do sistema vivem em "empresas"; "companies" e o alias legado.
+    const { data: empresa } = await supabase
+      .from("empresas")
       .select("cnpj")
       .eq("id", empresaId)
-      .single();
+      .maybeSingle();
 
-    if (empErr || !empresa?.cnpj) return fail("Empresa nao encontrada ou sem CNPJ.", 404);
+    let cnpjEmpresa = empresa?.cnpj ?? null;
 
-    const cnpj = empresa.cnpj.replace(/\D/g, "");
+    if (!cnpjEmpresa) {
+      const { data: legado } = await supabase
+        .from("companies")
+        .select("cnpj")
+        .eq("id", empresaId)
+        .maybeSingle();
+      cnpjEmpresa = legado?.cnpj ?? null;
+    }
+
+    if (!cnpjEmpresa) return fail("Empresa nao encontrada ou sem CNPJ.", 404);
+
+    const cnpj = cnpjEmpresa.replace(/\D/g, "");
     const config = { ambiente: ambiente ?? "producao" as AmbienteNFSe, token };
 
     // Uma falha de consulta nao pode ser confundida com "nenhuma nota no periodo":
@@ -76,7 +88,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ emp
         .upsert(notasParaInserir, { onConflict: "empresa_id,chave_acesso", ignoreDuplicates: true })
         .select("id");
 
-      if (error) return fail(`Falha ao gravar notas importadas: ${error.message}`, 500);
+      if (error) return fail(`Falha ao gravar notas importadas: ${traduzirErroBanco(error.message)}`, 500);
       inseridas = gravadas?.length ?? 0;
     }
 

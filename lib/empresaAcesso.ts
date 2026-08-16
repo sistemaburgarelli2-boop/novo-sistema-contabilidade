@@ -74,3 +74,19 @@ export function statusDoErroAcesso(mensagem: string) {
   if (mensagem === "Sem acesso a esta empresa.") return 403;
   return 500;
 }
+
+/**
+ * Erros do Postgres chegam ao usuario final como texto cru ("violates row-level
+ * security policy..."), que nao diz o que fazer. Aqui viram instrucao.
+ */
+export function traduzirErroBanco(mensagem: string) {
+  if (/row-level security/i.test(mensagem)) {
+    return "Sem permissao no banco para gravar a nota. Aplique a migracao 20260816000000_nf_rls_membros_empresa.sql no Supabase ou configure a SUPABASE_SERVICE_ROLE_KEY.";
+  }
+
+  if (/notas_fiscais_empresa_id_fkey|foreign key constraint/i.test(mensagem)) {
+    return "A empresa desta nota nao existe na tabela referenciada pelo banco. Aplique a migracao 20260816000100_nf_fk_empresas.sql no Supabase.";
+  }
+
+  return mensagem;
+}

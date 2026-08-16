@@ -1,5 +1,5 @@
 import { fail, ok } from "@/lib/apiResponse";
-import { exigirAcessoEmpresa, statusDoErroAcesso } from "@/lib/empresaAcesso";
+import { exigirAcessoEmpresa, statusDoErroAcesso, traduzirErroBanco } from "@/lib/empresaAcesso";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
 
 export async function GET(request: Request, { params }: { params: Promise<{ empresaId: string }> }) {
@@ -107,7 +107,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ emp
       .select("*")
       .single();
 
-    if (error) return fail(error.message, 500);
+    if (error) return fail(traduzirErroBanco(error.message), 500);
     return ok(data, 201);
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Erro";
@@ -135,7 +135,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ em
       .select()
       .single();
 
-    if (error) return fail(error.message, 500);
+    if (error) return fail(traduzirErroBanco(error.message), 500);
     return ok(data);
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Erro";
