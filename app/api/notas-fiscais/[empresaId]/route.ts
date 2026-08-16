@@ -116,6 +116,33 @@ export async function POST(request: Request, { params }: { params: Promise<{ emp
   }
 }
 
+export async function DELETE(request: Request, { params }: { params: Promise<{ empresaId: string }> }) {
+  try {
+    const { empresaId } = await params;
+    const { admin } = await exigirAcessoEmpresa(empresaId);
+
+    const notaId = new URL(request.url).searchParams.get("notaId");
+    if (!notaId) return fail("notaId e obrigatorio.");
+
+    // O empresa_id no filtro impede apagar nota de outra empresa por id solto.
+    const { data, error } = await admin
+      .from("notas_fiscais")
+      .delete()
+      .eq("id", notaId)
+      .eq("empresa_id", empresaId)
+      .select("id")
+      .maybeSingle();
+
+    if (error) return fail(traduzirErroBanco(error.message), 500);
+    if (!data) return fail("Nota fiscal nao encontrada.", 404);
+
+    return ok({ deleted: true, id: data.id });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Erro";
+    return fail(msg, statusDoErroAcesso(msg));
+  }
+}
+
 export async function PATCH(request: Request, { params }: { params: Promise<{ empresaId: string }> }) {
   try {
     const { empresaId } = await params;

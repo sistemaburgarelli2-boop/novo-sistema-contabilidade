@@ -145,6 +145,22 @@ function LoadingSkeleton() {
   );
 }
 
+/** Recalcula os totais do cabecalho sem precisar reconsultar a API. */
+function calcularResumo(lista: NotaFiscal[]): Resumo {
+  const emitidas = lista.filter((n) => n.tipo === "emitida");
+  const recebidas = lista.filter((n) => n.tipo === "recebida");
+
+  return {
+    total: lista.length,
+    emitidas: emitidas.length,
+    recebidas: recebidas.length,
+    valor_emitidas: emitidas.reduce((s, n) => s + Number(n.valor_total), 0),
+    valor_recebidas: recebidas.reduce((s, n) => s + Number(n.valor_total), 0),
+    pendentes: lista.filter((n) => n.situacao === "pendente").length,
+    escrituradas: lista.filter((n) => n.situacao === "escriturada").length,
+  };
+}
+
 /* ─── Servicos favoritos ──────────────────────────────────────── */
 
 type ItemFavorito = { descricao: string; quantidade: number; valor_unitario: number };
@@ -195,6 +211,15 @@ function IconeDownload() {
   );
 }
 
+function IconeLixeira() {
+  return (
+    <svg fill="none" height={15} viewBox="0 0 24 24" width={15}>
+      <path d="M4 7h16M9.5 7V5h5v2M6.5 7l.8 12.1a1 1 0 001 .9h7.4a1 1 0 001-.9L18.5 7" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} />
+      <path d="M10.5 11v5M13.5 11v5" stroke="currentColor" strokeLinecap="round" strokeWidth={1.6} />
+    </svg>
+  );
+}
+
 function IconeOlho() {
   return (
     <svg fill="none" height={15} viewBox="0 0 24 24" width={15}>
@@ -220,6 +245,9 @@ export default function NotasFiscaisPage() {
   const [busca, setBusca] = useState("");
   const [detalhes, setDetalhes] = useState<NotaFiscal | null>(null);
   const [erroCarregar, setErroCarregar] = useState<string | null>(null);
+  const [notaParaExcluir, setNotaParaExcluir] = useState<NotaFiscal | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
+  const [erroExcluir, setErroExcluir] = useState<string | null>(null);
   const [showEmitir, setShowEmitir] = useState(false);
   const [verFavoritos, setVerFavoritos] = useState(false);
   const [favoritos, setFavoritos] = useState<ServicoFavorito[]>([]);
@@ -311,6 +339,33 @@ export default function NotasFiscaisPage() {
     if (res.ok) {
       setNotas((prev) => prev.map((n) => n.id === notaId ? { ...n, situacao } : n));
       if (detalhes?.id === notaId) setDetalhes({ ...detalhes, situacao });
+    }
+  }
+
+  async function excluirNota() {
+    if (!notaParaExcluir) return;
+
+    setExcluindo(true);
+    setErroExcluir(null);
+    try {
+      const res = await fetch(`/api/notas-fiscais/${empresaId}?notaId=${notaParaExcluir.id}`, {
+        method: "DELETE",
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setErroExcluir(json.error || `Falha ao excluir a nota (HTTP ${res.status}).`);
+        return;
+      }
+
+      const restantes = notas.filter((n) => n.id !== notaParaExcluir.id);
+      setNotas(restantes);
+      setResumo(calcularResumo(restantes));
+      if (detalhes?.id === notaParaExcluir.id) setDetalhes(null);
+      setNotaParaExcluir(null);
+    } catch {
+      setErroExcluir("Nao foi possivel contatar o servidor.");
+    } finally {
+      setExcluindo(false);
     }
   }
 
@@ -527,6 +582,14 @@ export default function NotasFiscaisPage() {
                               >
                                 <IconeOlho />
                               </a>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setErroExcluir(null); setNotaParaExcluir(n); }}
+                                style={{ ...acaoIconeStyle, color: "#dc2626", cursor: "pointer" }}
+                                title="Excluir nota fiscal"
+                                type="button"
+                              >
+                                <IconeLixeira />
+                              </button>
                             </div>
                           </TD>
                         </tr>
@@ -629,6 +692,68 @@ export default function NotasFiscaisPage() {
                 <IconeOlho />
                 Visualizar NFS-e
               </a>
+              <button
+                onClick={() => { setErroExcluir(null); setNotaParaExcluir(detalhes); }}
+                style={{ ...acaoDocStyle("#dc2626"), border: "none" }}
+                type="button"
+              >
+                <IconeLixeira />
+                Excluir nota
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* ── Modal: confirmar exclusao ── */}
+      {notaParaExcluir && (
+        <div
+          onClick={() => !excluindo && setNotaParaExcluir(null)}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "1rem" }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ background: "#fff", borderRadius: 14, width: "100%", maxWidth: 460, padding: "1.75rem", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: "0.75rem" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, borderRadius: "50%", background: "#fef2f2", color: "#dc2626", flexShrink: 0 }}>
+                <IconeLixeira />
+              </span>
+              <h3 style={{ margin: 0, fontSize: "1.05rem", color: "#07170d" }}>Excluir nota fiscal?</h3>
+            </div>
+
+            <p style={{ margin: "0 0 1rem", fontSize: "0.84rem", color: "#4b5563", lineHeight: 1.5 }}>
+              A nota <strong>n. {notaParaExcluir.numero}</strong>
+              {notaParaExcluir.destinatario_nome ? <> de <strong>{notaParaExcluir.destinatario_nome}</strong></> : null}
+              {" "}no valor de <strong>{fmt(notaParaExcluir.valor_total)}</strong> sera removida do sistema. A acao nao pode ser desfeita.
+            </p>
+
+            <div style={{ background: "#fffbeb", border: "1px solid #fcd34d", borderRadius: 8, padding: "0.7rem 0.9rem", fontSize: "0.76rem", color: "#92400e", marginBottom: "1.25rem" }}>
+              Excluir aqui apaga apenas o registro interno. Uma nota transmitida a SEFAZ continua valendo e precisa ser cancelada no portal da prefeitura ou da NFS-e Nacional.
+            </div>
+
+            {erroExcluir && (
+              <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: "0.6rem 0.9rem", fontSize: "0.8rem", color: "#b91c1c", marginBottom: "1rem" }}>
+                {erroExcluir}
+              </div>
+            )}
+
+            <div style={{ display: "flex", gap: "0.6rem", justifyContent: "flex-end" }}>
+              <button
+                disabled={excluindo}
+                onClick={() => setNotaParaExcluir(null)}
+                style={{ padding: "0.55rem 1.1rem", background: "#fff", color: "#4b5563", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: "0.82rem", fontWeight: 600, cursor: "pointer" }}
+                type="button"
+              >
+                Cancelar
+              </button>
+              <button
+                disabled={excluindo}
+                onClick={excluirNota}
+                style={{ padding: "0.55rem 1.2rem", background: "#dc2626", color: "#fff", border: "none", borderRadius: 8, fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", opacity: excluindo ? 0.7 : 1 }}
+                type="button"
+              >
+                {excluindo ? "Excluindo..." : "Excluir nota"}
+              </button>
             </div>
           </div>
         </div>
