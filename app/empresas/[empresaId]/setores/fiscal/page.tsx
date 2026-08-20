@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { SetorShell } from "@/components/empresas/SetorShell";
+import { STATUS_GUIA_LABEL, statusEfetivo, type Guia, type StatusGuia } from "@/modules/guias/guias.types";
+import { anexarArquivoGuia, atualizarGuia, criarGuia, listarGuias } from "@/services/guiaClientService";
 
 /* ─── Tipos ───────────────────────────────────────────────────── */
 
@@ -21,16 +23,6 @@ type Obrigacao = {
   prioridade: Prioridade;
   status: StatusObrigacao;
   tipo: "federal" | "estadual" | "municipal" | "previdenciario";
-};
-
-type Guia = {
-  id: string;
-  nome: string;
-  competencia: string;
-  vencimento: string;
-  valor: number;
-  status: "pendente" | "emitida" | "enviada" | "paga" | "vencida";
-  codigo_barra?: string;
 };
 
 type Certidao = {
@@ -82,12 +74,13 @@ const PRIO: Record<Prioridade, { color: string; label: string }> = {
   baixa: { color: "#10b981", label: "Baixa" },
 };
 
-const STATUS_GUIA: Record<Guia["status"], { bg: string; color: string; label: string }> = {
-  pendente: { bg: "#fffbeb", color: "#92400e", label: "Pendente" },
-  emitida:  { bg: "#eff6ff", color: "#1d4ed8", label: "Emitida" },
-  enviada:  { bg: "#fdf4ff", color: "#7e22ce", label: "Enviada" },
-  paga:     { bg: "#f0fdf4", color: "#166534", label: "Paga" },
-  vencida:  { bg: "#fef2f2", color: "#b91c1c", label: "Vencida" },
+const STATUS_GUIA: Record<StatusGuia, { bg: string; color: string; label: string }> = {
+  pendente:   { bg: "#fffbeb", color: "#92400e", label: STATUS_GUIA_LABEL.pendente },
+  emitida:    { bg: "#eff6ff", color: "#1d4ed8", label: STATUS_GUIA_LABEL.emitida },
+  disponivel: { bg: "#fdf4ff", color: "#7e22ce", label: STATUS_GUIA_LABEL.disponivel },
+  paga:       { bg: "#f0fdf4", color: "#166534", label: STATUS_GUIA_LABEL.paga },
+  vencida:    { bg: "#fef2f2", color: "#b91c1c", label: STATUS_GUIA_LABEL.vencida },
+  cancelada:  { bg: "#f3f4f6", color: "#6b7280", label: STATUS_GUIA_LABEL.cancelada },
 };
 
 const STATUS_SPED: Record<SpedArquivo["status"], { bg: string; color: string; label: string }> = {
@@ -117,6 +110,10 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
 
 function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function hoje() {
+  return new Date().toISOString().slice(0, 10);
 }
 
 function Badge({ cfg }: { cfg: { bg: string; color: string; label: string } }) {
@@ -177,6 +174,10 @@ export default function FiscalPage() {
   const [filtroStatusOb, setFiltroStatusOb] = useState<string>("");
   const [filtroPrioOb, setFiltroPrioOb] = useState<string>("");
   const [registrandoPag, setRegistrandoPag] = useState<string | null>(null);
+  const [dataPagamento, setDataPagamento] = useState(hoje());
+  const [novaGuia, setNovaGuia] = useState(false);
+  const [salvando, setSalvando] = useState(false);
+  const [erroGuia, setErroGuia] = useState<string | null>(null);
 
   /* ── Fetch real data from API ── */
   useEffect(() => {
@@ -188,7 +189,7 @@ export default function FiscalPage() {
         const json = await res.json();
         const d = json.data;
         setObrigacoes(d.obrigacoes ?? []);
-        setGuias(d.guias ?? []);
+        setGuias(await listarGuias(empresaId).catch(() => d.guias ?? []));
         setCertidoes(d.certidoes ?? []);
         setSped(d.sped ?? []);
       } catch {
@@ -208,25 +209,63 @@ export default function FiscalPage() {
   }
 
   /* ── Guias ── */
-  function emitirGuia(id: string) {
-    setGuias((prev) => prev.map((g) => g.id === id ? { ...g, status: "emitida" as const } : g));
+  async function mudarStatusGuia(id: string, status: StatusGuia, pago_em?: string) {
+    setErroGuia(null);
+    try {
+      const atualizada = await atualizarGuia(empresaId, id, { status, ...(pago_em ? { pago_em } : {}) });
+      setGuias((prev) => prev.map((g) => (g.id === id ? atualizada : g)));
+      return true;
+    } catch (e) {
+      setErroGuia(e instanceof Error ? e.message : "Falha ao atualizar a guia.");
+      return false;
+    }
   }
 
-  function enviarCliente(id: string) {
-    setGuias((prev) => prev.map((g) => g.id === id ? { ...g, status: "enviada" as const } : g));
+  async function registrarPagamento(id: string) {
+    const ok = await mudarStatusGuia(id, "paga", dataPagamento);
+    if (ok) setRegistrandoPag(null);
   }
 
-  function registrarPagamento(id: string) {
-    setGuias((prev) => prev.map((g) => g.id === id ? { ...g, status: "paga" as const } : g));
-    setRegistrandoPag(null);
+  async function anexarPdf(id: string, arquivo: File) {
+    setErroGuia(null);
+    try {
+      const atualizada = await anexarArquivoGuia(empresaId, id, arquivo);
+      setGuias((prev) => prev.map((g) => (g.id === id ? atualizada : g)));
+    } catch (e) {
+      setErroGuia(e instanceof Error ? e.message : "Falha ao anexar o arquivo.");
+    }
+  }
+
+  async function salvarNovaGuia(form: HTMLFormElement) {
+    const dados = new FormData(form);
+    setSalvando(true);
+    setErroGuia(null);
+    try {
+      const criada = await criarGuia(empresaId, {
+        codigo_barras: String(dados.get("codigo_barras") ?? ""),
+        competencia: String(dados.get("competencia") ?? ""),
+        imposto: String(dados.get("imposto") ?? ""),
+        valor: Number(dados.get("valor") ?? 0),
+        vencimento: String(dados.get("vencimento") ?? ""),
+      });
+      setGuias((prev) => [criada, ...prev]);
+      setNovaGuia(false);
+      form.reset();
+    } catch (e) {
+      setErroGuia(e instanceof Error ? e.message : "Falha ao criar a guia.");
+    } finally {
+      setSalvando(false);
+    }
   }
 
   /* ── Stats dinamicos ── */
   const pendentes = obrigacoes.filter((o) => ["pendente", "em_andamento", "aguardando_cliente", "em_revisao"].includes(o.status)).length;
   const entregues = obrigacoes.filter((o) => ["transmitido", "concluido"].includes(o.status)).length;
   const aVencer = obrigacoes.filter((o) => o.status === "pendente").length;
-  const guiasEmitidas = guias.filter((g) => ["emitida", "enviada", "paga"].includes(g.status)).length;
-  const totalGuias = guias.filter((g) => g.status !== "paga").reduce((acc, g) => acc + (g.valor ?? 0), 0);
+  const guiasEmitidas = guias.filter((g) => ["emitida", "disponivel", "paga"].includes(g.status)).length;
+  const totalGuias = guias
+    .filter((g) => g.status !== "paga" && g.status !== "cancelada")
+    .reduce((acc, g) => acc + Number(g.valor ?? 0), 0);
 
   /* ── Filtros obrigacoes ── */
   const obsFiltradas = obrigacoes.filter((ob) => {
@@ -469,9 +508,52 @@ export default function FiscalPage() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div>
                 <h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 800 }}>Guias de Recolhimento</h2>
-                <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#6f8f7c" }}>{guias.length} guias cadastradas</p>
+                <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "#6f8f7c" }}>
+                  {guias.length} guia{guias.length !== 1 ? "s" : ""} cadastrada{guias.length !== 1 ? "s" : ""}
+                </p>
               </div>
+              <button onClick={() => { setNovaGuia((v) => !v); setErroGuia(null); }} type="button">
+                {novaGuia ? "Cancelar" : "+ Nova guia"}
+              </button>
             </div>
+
+            {erroGuia && <p className="error-alert">{erroGuia}</p>}
+
+            {novaGuia && (
+              <form
+                className="panel-section"
+                onSubmit={(e) => { e.preventDefault(); salvarNovaGuia(e.currentTarget); }}
+              >
+                <h3 style={{ margin: 0, fontSize: "0.9rem", fontWeight: 800 }}>Lançar guia</h3>
+                <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
+                  <label className="portal-field">
+                    <span>Imposto<em>*</em></span>
+                    <input name="imposto" placeholder="Ex: DAS - Simples Nacional" required />
+                  </label>
+                  <label className="portal-field">
+                    <span>Competência<em>*</em></span>
+                    <input name="competencia" placeholder="Ex: 07/2026" required />
+                  </label>
+                  <label className="portal-field">
+                    <span>Vencimento<em>*</em></span>
+                    <input name="vencimento" required type="date" />
+                  </label>
+                  <label className="portal-field">
+                    <span>Valor (R$)</span>
+                    <input min="0" name="valor" step="0.01" type="number" />
+                  </label>
+                  <label className="portal-field" style={{ gridColumn: "1 / -1" }}>
+                    <span>Código de barras</span>
+                    <input name="codigo_barras" placeholder="Linha digitável da guia (opcional)" />
+                  </label>
+                </div>
+                <div className="portal-form-actions">
+                  <button disabled={salvando} type="submit">
+                    {salvando ? "Salvando..." : "Lançar guia"}
+                  </button>
+                </div>
+              </form>
+            )}
 
             {guias.length === 0 && <EmptyState message="Nenhuma guia cadastrada." />}
 
@@ -488,43 +570,66 @@ export default function FiscalPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {guias.map((g) => (
-                    <tr key={g.id}>
-                      <TD>
-                        <strong style={{ fontSize: "0.85rem" }}>{g.nome}</strong>
-                        {g.codigo_barra && (
-                          <div style={{ fontSize: "0.68rem", color: "#9ca3af", marginTop: 2, fontFamily: "monospace" }}>
-                            {g.codigo_barra.slice(0, 30)}...
+                  {guias.map((g) => {
+                    const status = statusEfetivo(g);
+                    return (
+                      <tr key={g.id}>
+                        <TD>
+                          <strong style={{ fontSize: "0.85rem" }}>{g.imposto}</strong>
+                          {g.codigo_barras && (
+                            <div style={{ fontSize: "0.68rem", color: "#9ca3af", marginTop: 2, fontFamily: "monospace" }}>
+                              {g.codigo_barras.slice(0, 30)}...
+                            </div>
+                          )}
+                          {g.arquivo_url && (
+                            <div style={{ marginTop: 4 }}>
+                              <a href={g.arquivo_url} rel="noreferrer" style={{ fontSize: "0.7rem", color: "#075f3c", fontWeight: 700 }} target="_blank">
+                                Ver PDF anexado
+                              </a>
+                            </div>
+                          )}
+                        </TD>
+                        <TD muted>{g.competencia}</TD>
+                        <TD muted>{g.vencimento}</TD>
+                        <TD right>
+                          <strong style={{ color: g.valor > 0 ? "#07170d" : "#9ca3af" }}>
+                            {g.valor > 0 ? fmt(g.valor) : "-"}
+                          </strong>
+                        </TD>
+                        <TD><Badge cfg={STATUS_GUIA[status] ?? { bg: "#f3f4f6", color: "#6b7280", label: status }} /></TD>
+                        <TD right>
+                          <div style={{ display: "flex", gap: 6, justifyContent: "flex-end", flexWrap: "wrap" }}>
+                            <label className="small-action" style={{ cursor: "pointer" }}>
+                              {g.arquivo_url ? "Trocar PDF" : "Anexar PDF"}
+                              <input
+                                accept=".pdf,.png,.jpg,.jpeg"
+                                onChange={(e) => {
+                                  const arquivo = e.target.files?.[0];
+                                  if (arquivo) anexarPdf(g.id, arquivo);
+                                  e.target.value = "";
+                                }}
+                                style={{ display: "none" }}
+                                type="file"
+                              />
+                            </label>
+                            {g.status === "pendente" && (
+                              <button className="small-action" onClick={() => mudarStatusGuia(g.id, "emitida")} type="button">Emitir</button>
+                            )}
+                            {g.status === "emitida" && (
+                              <button className="small-action" onClick={() => mudarStatusGuia(g.id, "disponivel")} type="button">Enviar ao cliente</button>
+                            )}
+                            {(g.status === "emitida" || g.status === "disponivel") && (
+                              <button
+                                className="small-action"
+                                onClick={() => { setDataPagamento(hoje()); setRegistrandoPag(g.id); }}
+                                type="button"
+                              >Pago</button>
+                            )}
                           </div>
-                        )}
-                      </TD>
-                      <TD muted>{g.competencia}</TD>
-                      <TD muted>{g.vencimento}</TD>
-                      <TD right>
-                        <strong style={{ color: g.valor > 0 ? "#07170d" : "#9ca3af" }}>
-                          {g.valor > 0 ? fmt(g.valor) : "-"}
-                        </strong>
-                      </TD>
-                      <TD><Badge cfg={STATUS_GUIA[g.status] ?? { bg: "#f3f4f6", color: "#6b7280", label: g.status }} /></TD>
-                      <TD right>
-                        <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
-                          {g.status === "pendente" && (
-                            <button className="small-action" onClick={() => emitirGuia(g.id)} type="button">Emitir</button>
-                          )}
-                          {g.status === "emitida" && (
-                            <button className="small-action" onClick={() => enviarCliente(g.id)} type="button">Enviar</button>
-                          )}
-                          {(g.status === "emitida" || g.status === "enviada") && (
-                            <button
-                              className="small-action"
-                              onClick={() => setRegistrandoPag(g.id)}
-                              type="button"
-                            >Pago</button>
-                          )}
-                        </div>
-                      </TD>
-                    </tr>
-                  ))}
+                        </TD>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             )}
@@ -540,12 +645,18 @@ export default function FiscalPage() {
                     <div style={{ background: "#fff", borderRadius: 16, padding: "1.75rem", maxWidth: 420, width: "90%", boxShadow: "0 24px 80px rgba(0,0,0,0.18)", pointerEvents: "auto" }}>
                       <h3 style={{ margin: "0 0 0.5rem", fontSize: "1rem", fontWeight: 800 }}>Registrar pagamento</h3>
                       <p style={{ margin: "0 0 1.25rem", fontSize: "0.875rem", color: "#6b7280" }}>
-                        <strong>{g.nome}</strong> - {g.competencia} - <strong>{fmt(g.valor)}</strong>
+                        <strong>{g.imposto}</strong> - {g.competencia} - <strong>{fmt(g.valor)}</strong>
                       </p>
                       <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "#374151", marginBottom: 6 }}>
                         Data do pagamento
                       </label>
-                      <input className="input" defaultValue={new Date().toISOString().slice(0, 10)} style={{ marginBottom: "1rem" }} type="date" />
+                      <input
+                        className="input"
+                        onChange={(e) => setDataPagamento(e.target.value)}
+                        style={{ marginBottom: "1rem" }}
+                        type="date"
+                        value={dataPagamento}
+                      />
                       <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
                         <button className="small-action" onClick={() => setRegistrandoPag(null)} type="button">Cancelar</button>
                         <button onClick={() => registrarPagamento(g.id)} type="button">Confirmar pagamento</button>
