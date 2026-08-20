@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { PortalShell } from "@/components/portal/PortalShell";
+import { PortalEmpty, PortalFilters, PortalHero, PortalLoading } from "@/components/portal/PortalUI";
 import { buscarEmpresaTenant } from "@/services/empresaClientService";
 import type { Empresa } from "@/modules/empresas/empresas.types";
 
@@ -19,11 +20,7 @@ export default function PortalHistorico() {
   }, [empresaId]);
 
   if (!empresa) {
-    return (
-      <div style={{ alignItems: "center", display: "flex", fontSize: 14, justifyContent: "center", minHeight: "100vh", color: "var(--muted)" }}>
-        Carregando...
-      </div>
-    );
+    return <PortalLoading />;
   }
 
   const nome = empresa.nome_fantasia || empresa.nome_legal;
@@ -31,45 +28,18 @@ export default function PortalHistorico() {
   return (
     <PortalShell empresaId={empresaId} empresaNome={nome}>
       <div className="page-stack">
+        <PortalHero
+          subtitle="Linha do tempo completa de atividades da sua empresa"
+          title="Histórico"
+        />
 
-        <div>
-          <h1 style={{ fontSize: 20, margin: "0 0 4px" }}>Histórico</h1>
-          <p style={{ color: "var(--muted)", fontSize: 13, margin: 0 }}>
-            Linha do tempo completa de atividades da sua empresa.
-          </p>
-        </div>
+        <PortalFilters onChange={setFiltro} options={FILTROS} value={filtro} />
 
-        {/* Filter tabs */}
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {FILTROS.map((f) => (
-            <button
-              key={f}
-              onClick={() => setFiltro(f)}
-              style={{
-                background: filtro === f ? "var(--green-700)" : "#fff",
-                border: filtro === f ? "1px solid var(--green-700)" : "1px solid var(--border)",
-                borderRadius: 20,
-                color: filtro === f ? "#fff" : "var(--muted)",
-                cursor: "pointer",
-                fontSize: 13,
-                fontWeight: 600,
-                padding: "7px 18px",
-                transition: "all 0.15s",
-              }}
-              type="button"
-            >
-              {f}
-            </button>
-          ))}
-        </div>
-
-        {/* Empty state */}
-        <div className="list-panel" style={{ textAlign: "center", padding: "3rem" }}>
-          <p style={{ fontSize: "2rem", marginBottom: 8 }}>📋</p>
-          <p style={{ fontWeight: 700, fontSize: 15, color: "var(--ink)", margin: "0 0 4px" }}>Sem atividades registradas</p>
-          <p style={{ color: "var(--muted)", fontSize: 13, margin: 0 }}>As atividades aparecerão aqui conforme forem realizadas.</p>
-        </div>
-
+        <PortalEmpty
+          description="As atividades aparecerão aqui conforme forem realizadas pelo escritório."
+          icon="historico"
+          title="Sem atividades registradas"
+        />
       </div>
     </PortalShell>
   );

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { PortalShell } from "@/components/portal/PortalShell";
+import { PortalEmpty, PortalHero, PortalLoading } from "@/components/portal/PortalUI";
 import { buscarEmpresaTenant } from "@/services/empresaClientService";
 import type { Empresa } from "@/modules/empresas/empresas.types";
 
@@ -16,11 +17,7 @@ export default function PortalNotificacoes() {
   }, [empresaId]);
 
   if (!empresa) {
-    return (
-      <div style={{ alignItems: "center", display: "flex", fontSize: 14, justifyContent: "center", minHeight: "100vh", color: "var(--muted)" }}>
-        Carregando...
-      </div>
-    );
+    return <PortalLoading />;
   }
 
   const nome = empresa.nome_fantasia || empresa.nome_legal;
@@ -28,21 +25,16 @@ export default function PortalNotificacoes() {
   return (
     <PortalShell empresaId={empresaId} empresaNome={nome}>
       <div className="page-stack">
+        <PortalHero
+          subtitle="Avisos e comunicados enviados pelo escritório contábil"
+          title="Notificações"
+        />
 
-        <div>
-          <h1 style={{ fontSize: 20, margin: "0 0 4px" }}>Notificações</h1>
-          <p style={{ color: "var(--muted)", fontSize: 13, margin: 0 }}>
-            Todas as notificações lidas
-          </p>
-        </div>
-
-        {/* Empty state */}
-        <div className="list-panel" style={{ textAlign: "center", padding: "3rem" }}>
-          <p style={{ fontSize: "2rem", marginBottom: 8 }}>🔔</p>
-          <p style={{ fontWeight: 700, fontSize: 15, color: "var(--ink)", margin: "0 0 4px" }}>Nenhuma notificação</p>
-          <p style={{ color: "var(--muted)", fontSize: 13, margin: 0 }}>Você será notificado quando houver novidades do escritório.</p>
-        </div>
-
+        <PortalEmpty
+          description="Você será notificado aqui sempre que houver novidades do escritório."
+          icon="notificacoes"
+          title="Nenhuma notificação"
+        />
       </div>
     </PortalShell>
   );
